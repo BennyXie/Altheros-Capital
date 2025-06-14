@@ -1,0 +1,86 @@
+/* Header.module.css */
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e9ecef;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.logo {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+}
+
+.navLink {
+  background: none;
+  border: none;
+  color: #495057;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.ctaButton {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.burger {
+  display: none;
+  color: #495057;
+}
+
+.mobileNavLink {
+  background: none;
+  border: none;
+  color: #495057;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.75rem 0;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  width: 100%;
+}
+
+.mobileNavLink:hover {
+  color: #667eea;
+}
+
+@media (max-width: 768px) {
+  .desktopNav {
+    display: none;
+  }
+  
+  .burger {
+    display: block;
+  }
+}

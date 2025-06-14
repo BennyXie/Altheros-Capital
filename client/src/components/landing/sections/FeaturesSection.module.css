@@ -1,0 +1,56 @@
+/* FeaturesSection.module.css */
+.features {
+  background: #f8f9fa;
+  position: relative;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2e2e2e;
+}
+
+.featureCard {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  height: 100%;
+  cursor: pointer;
+  background: white;
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  border-color: #ced4da;
+}
+
+.featureIcon {
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover .featureIcon {
+  transform: scale(1.1);
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2e2e2e;
+}
+
+.featureDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .featureCard {
+    text-align: center;
+  }
+}
