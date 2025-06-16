@@ -77,12 +77,48 @@ header div[class*="Title"] {
 
 /* Header navigation links */
 header nav a,
-header nav button {
+header nav button,
+header button[class*="navLink"] {
   color: #8b4513 !important; /* accent.6 - saddle brown */
 }
 
 header nav a:hover,
-header nav button:hover {
+header nav button:hover,
+header button[class*="navLink"]:hover {
+  color: #4a2c0e !important; /* accent.8 - darker brown */
+  background-color: #fdf8f6 !important; /* accent.0 - lightest cream */
+}
+
+/* Mobile burger menu */
+header button[class*="burger"] {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+/* Mobile menu button */
+header button[class*="mobileMenuButton"] {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+  border-color: #8b4513 !important;
+  background: none !important;
+}
+
+header button[class*="mobileMenuButton"]:hover {
+  background-color: #fdf8f6 !important; /* accent.0 - lightest cream */
+}
+
+/* Mobile dropdown/menu styles */
+div[class*="Menu-dropdown"],
+div[class*="mobileDropdown"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+  border: 1px solid #e8ccb3 !important; /* accent.2 - warm beige */
+}
+
+div[class*="Menu-item"],
+div[class*="mobileMenuItem"] {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+div[class*="Menu-item"]:hover,
+div[class*="mobileMenuItem"]:hover {
   color: #4a2c0e !important; /* accent.8 - darker brown */
   background-color: #fdf8f6 !important; /* accent.0 - lightest cream */
 }

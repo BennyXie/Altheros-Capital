@@ -8,19 +8,21 @@
   right: 0;
   z-index: 1000;
   transition: all 0.3s ease;
+  height: 60px;
 }
 
 .logo {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #8b4513 !important; /* Use solid brown color instead of gradient */
   cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 700;
+  /* Remove gradient that was causing visibility issues */
 }
 
 .desktopNav {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
 .navLink {
@@ -34,6 +36,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .navLink:hover {
@@ -45,6 +48,7 @@
   background: var(--gradient-primary);
   border: none;
   transition: transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .ctaButton:hover {
@@ -54,13 +58,55 @@
 
 .burger {
   display: none;
-  color: var(--text-secondary);
+  color: var(--mantine-color-accent-6);
+}
+
+/* Mobile menu button - replaces burger */
+.mobileMenuButton {
+  display: none;
+  background: none !important;
+  color: #8b4513 !important;
+  border: 1px solid #8b4513 !important;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+.mobileMenuButton:hover {
+  background-color: #fdf8f6 !important;
+}
+
+/* Mobile dropdown styles */
+.mobileDropdown {
+  background-color: #faf8f5 !important;
+  border: 1px solid #e8ccb3 !important;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.1) !important;
+}
+
+.mobileMenuItem {
+  color: #8b4513 !important;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+}
+
+.mobileMenuItem:hover {
+  background-color: #fdf8f6 !important;
+  color: #4a2c0e !important;
+}
+
+.mobileCTAItem {
+  color: #8b4513 !important;
+  font-weight: 600;
+  background-color: #f5f2ed !important;
+}
+
+.mobileCTAItem:hover {
+  background-color: #ede7dd !important;
 }
 
 .mobileNavLink {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--mantine-color-accent-6);
   font-size: 1rem;
   font-weight: 500;
   padding: 0.75rem 0;
@@ -68,18 +114,78 @@
   cursor: pointer;
   transition: color 0.2s ease;
   width: 100%;
+  border-bottom: 1px solid var(--mantine-color-accent-1);
 }
 
 .mobileNavLink:hover {
-  color: var(--mantine-color-brand-5);
+  color: var(--mantine-color-accent-8);
+  background: var(--mantine-color-accent-0);
 }
 
+.mobileNavLink:last-child {
+  border-bottom: none;
+}
+
+/* Tablet responsive design */
+@media (max-width: 1024px) {
+  .desktopNav {
+    gap: 0.5rem;
+  }
+  
+  .navLink {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .ctaButton {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Mobile responsive design */
 @media (max-width: 768px) {
   .desktopNav {
     display: none;
   }
   
+  .mobileMenuButton {
+    display: flex;
+  }
+  
   .burger {
-    display: block;
+    display: none; /* Hide burger, use dropdown instead */
+  }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 1rem;
+  }
+  
+  .logo {
+    font-size: 1rem;
+  }
+  
+  .mobileMenuButton {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Large screens - prevent nav from being too spread out */
+@media (min-width: 1200px) {
+  .desktopNav {
+    gap: 1.5rem;
+  }
+  
+  .navLink {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
   }
 }
