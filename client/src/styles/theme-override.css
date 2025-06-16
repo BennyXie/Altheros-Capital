@@ -1,0 +1,160 @@
+/* REFINED THEME STYLES - Using direct color values from theme.js */
+
+/* Section-specific backgrounds */
+section[id="hero"],
+*[class*="hero"] {
+  background-color: #10b981 !important; /* brand.6 - primary mint */
+  color: white !important;
+}
+
+section[id="features"],
+*[class*="features"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+}
+
+section[id="about"],
+*[class*="about"] {
+  background-color: #34d399 !important; /* brand.5 - vibrant mint */
+  color: white !important;
+}
+
+section[id="testimonials"],
+*[class*="testimonials"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+}
+
+section[id="cta"],
+*[class*="cta"] {
+  background-color: #10b981 !important; /* brand.6 - primary mint */
+  color: white !important;
+}
+
+/* Footer styles */
+footer,
+*[class*="footer"] {
+  background-color: #704214 !important; /* accent.7 - dark brown */
+  color: #fdf8f6 !important; /* accent.0 - lightest cream */
+}
+
+/* Header styles */
+header,
+*[class*="header"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+}
+
+/* Text colors for cream sections (features, testimonials) */
+section[id="features"] h1,
+section[id="features"] h2,
+section[id="features"] h3,
+section[id="features"] h4,
+section[id="features"] p,
+section[id="features"] span,
+section[id="features"] div[class*="Text"],
+section[id="features"] div[class*="Title"],
+section[id="testimonials"] h1,
+section[id="testimonials"] h2,
+section[id="testimonials"] h3,
+section[id="testimonials"] h4,
+section[id="testimonials"] p,
+section[id="testimonials"] span,
+section[id="testimonials"] div[class*="Text"],
+section[id="testimonials"] div[class*="Title"] {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+/* Header text colors */
+header h1,
+header h2,
+header h3,
+header h4,
+header p,
+header span,
+header a,
+header div[class*="Text"],
+header div[class*="Title"] {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+/* Header navigation links */
+header nav a,
+header nav button {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+header nav a:hover,
+header nav button:hover {
+  color: #4a2c0e !important; /* accent.8 - darker brown */
+  background-color: #fdf8f6 !important; /* accent.0 - lightest cream */
+}
+
+/* Footer text colors */
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+footer p,
+footer span,
+footer a,
+footer div[class*="Text"],
+footer div[class*="Title"] {
+  color: #e8ccb3 !important; /* accent.2 - warm beige */
+}
+
+footer a:hover {
+  color: #fdf8f6 !important; /* accent.0 - lightest cream */
+}
+
+/* Cards and Papers - Cream background */
+div[class*="Paper"],
+div[class*="Card"],
+*[class*="featureCard"],
+*[class*="testimonialCard"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+  border: 1px solid #e8ccb3 !important; /* accent.2 - warm beige */
+}
+
+/* Card text colors */
+div[class*="Paper"] h1,
+div[class*="Paper"] h2,
+div[class*="Paper"] h3,
+div[class*="Paper"] h4,
+div[class*="Paper"] p,
+div[class*="Paper"] span,
+div[class*="Card"] h1,
+div[class*="Card"] h2,
+div[class*="Card"] h3,
+div[class*="Card"] h4,
+div[class*="Card"] p,
+div[class*="Card"] span {
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+/* Button styles - Cream background with brown text */
+button[class*="Button"]:not([data-variant="gradient"]):not([data-variant="action"]) {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+  color: #8b4513 !important; /* accent.6 - saddle brown */
+  border: 1px solid #bc8a5f !important; /* accent.4 - medium brown */
+}
+
+button[class*="Button"]:not([data-variant="gradient"]):not([data-variant="action"]):hover {
+  background-color: #f5f2ed !important; /* bg-secondary - slightly darker eggshell */
+  border-color: #8b4513 !important; /* accent.6 - saddle brown */
+}
+
+/* Action buttons (CTAs) */
+button[data-variant="action"],
+*[class*="primaryButton"] {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Global background fallback */
+html, body, #root {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+}
+
+/* AppShell components */
+div[class*="AppShell"] {
+  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+}

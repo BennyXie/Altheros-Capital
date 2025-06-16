@@ -1,8 +1,7 @@
-/* Header.module.css */
 .header {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-primary);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--mantine-color-accent-2);
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +11,7 @@
 }
 
 .logo {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -27,7 +26,7 @@
 .navLink {
   background: none;
   border: none;
-  color: #495057;
+  color: var(--mantine-color-accent-6);
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
@@ -38,30 +37,30 @@
 }
 
 .navLink:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  color: var(--mantine-color-accent-8);
+  background: var(--mantine-color-accent-0);
 }
 
 .ctaButton {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   border: none;
   transition: transform 0.2s ease;
 }
 
 .ctaButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-button-hover);
 }
 
 .burger {
   display: none;
-  color: #495057;
+  color: var(--text-secondary);
 }
 
 .mobileNavLink {
   background: none;
   border: none;
-  color: #495057;
+  color: var(--text-secondary);
   font-size: 1rem;
   font-weight: 500;
   padding: 0.75rem 0;
@@ -72,7 +71,7 @@
 }
 
 .mobileNavLink:hover {
-  color: #667eea;
+  color: var(--mantine-color-brand-5);
 }
 
 @media (max-width: 768px) {

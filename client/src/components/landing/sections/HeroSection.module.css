@@ -1,6 +1,5 @@
-/* HeroSection.module.css */
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--mantine-color-brand-6);
   color: white;
   position: relative;
   overflow: hidden;
@@ -18,26 +17,25 @@
 }
 
 .title {
-  font-size: 3.5rem;
-  line-height: 1.1;
+  /* Title styling now handled by theme.js Title component */
   margin-bottom: 1rem;
 }
 
 .description {
-  font-size: 1.25rem;
-  line-height: 1.6;
+  /* Description styling now handled by theme.js Text component */
   max-width: 500px;
+  color: var(--mantine-color-gray-1);
 }
 
 .primaryButton {
-  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  background: var(--gradient-cta);
   border: none;
   transition: transform 0.2s ease;
 }
 
 .primaryButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+  box-shadow: var(--shadow-action-button);
 }
 
 .secondaryButton {
@@ -48,7 +46,7 @@
 
 .secondaryButton:hover {
   background: white;
-  color: #667eea;
+  color: var(--mantine-color-brand-5);
   transform: translateY(-2px);
 }
 
@@ -72,14 +70,6 @@
 }
 
 @media (max-width: 768px) {
-  .title {
-    font-size: 2.5rem;
-  }
-  
-  .description {
-    font-size: 1.1rem;
-  }
-  
   .imageWrapper {
     height: 300px;
     margin-top: 2rem;

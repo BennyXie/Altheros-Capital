@@ -1,6 +1,7 @@
 import { Container, Title, Text, Button, Group, Stack } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '../../../animations/variants';
+import { CTA_CONFIG } from '../../../config/landingConfig';
 import classes from './CTASection.module.css';
 
 /**
@@ -33,34 +34,35 @@ const CTASection = () => {
         >
           <Stack align="center" ta="center" gap="xl">
             <div>
-              <Title order={2} className={classes.title}>
-                Ready to Transform Your Business?
+              <Title order={2} c="white" className={classes.title}>
+                {CTA_CONFIG.title}
               </Title>
-              <Text size="xl" className={classes.description} mt="md">
-                Join thousands of companies already using our platform to 
-                drive growth, improve efficiency, and achieve their goals.
+              <Text size="xl" c="gray.1" className={classes.description} mt="md">
+                {CTA_CONFIG.description}
               </Text>
             </div>
 
             <Group justify="center" gap="lg" className={classes.buttonGroup}>
               <Button 
                 size="xl" 
-                variant="filled"
+                variant="action"
                 className={classes.primaryButton}
               >
-                Start Free Trial
+                {CTA_CONFIG.primaryCTA}
               </Button>
               <Button 
                 size="xl" 
                 variant="outline"
+                c="white"
+                style={{ borderColor: 'white' }}
                 className={classes.secondaryButton}
               >
-                Schedule Demo
+                {CTA_CONFIG.secondaryCTA}
               </Button>
             </Group>
 
-            <Text size="sm" c="dimmed" className={classes.disclaimer}>
-              No credit card required • 14-day free trial • Cancel anytime
+            <Text size="sm" c="gray.2" className={classes.disclaimer}>
+              {CTA_CONFIG.disclaimer}
             </Text>
           </Stack>
         </motion.div>

@@ -1,17 +1,25 @@
-import { Container, Title, Text, Button, Group, Stack, Grid, Image } from '@mantine/core';
+import { Container, Title, Text, Button, Group, Stack, Grid } from '@mantine/core';
 import { motion } from 'framer-motion';
-import { fadeInUp, slideInLeft, slideInRight } from '../../../animations/variants';
+import { slideInLeft, slideInRight } from '../../../animations/variants';
+import { HERO_CONFIG } from '../../../config/landingConfig';
 import classes from './HeroSection.module.css';
 
 /**
- * Hero Section Component
+ * 🚀 Hero Section Component
+ * =========================
  * 
  * The hero section is the first thing users see on the landing page.
- * It should contain:
- * - Compelling headline
- * - Clear value proposition
- * - Primary call-to-action
- * - Optional hero image/video
+ * 
+ * 🎨 STYLING APPROACH:
+ * - Colors controlled by theme.js
+ * - Uses CSS variables for consistency
+ * - Responsive design with Mantine breakpoints
+ * - Custom gradients defined in theme
+ * 
+ * 📝 CONTENT:
+ * - All text content comes from landingConfig.js
+ * - Easy to update without touching component code
+ * - Supports A/B testing different headlines
  * 
  * @component
  * @example
@@ -29,40 +37,45 @@ const HeroSection = () => {
               <Stack gap="md">
                 <Title 
                   order={1} 
-                  size="h1" 
-                  fw={900}
+                  c="white"
                   className={classes.title}
                 >
-                  Title{' '}
+                  {HERO_CONFIG.headline}{' '}
                   <Text 
                     component="span" 
                     variant="gradient"
-                    gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+                    gradient={{ from: 'accent.4', to: 'accent.6', deg: 90 }}
                     inherit
                   >
-                    Text
+                    {HERO_CONFIG.highlightedText}
                   </Text>{' '}
-                  Here
+                  {HERO_CONFIG.subHeadline}
                 </Title>
                 
-                <Text size="xl" c="dimmed" className={classes.description}>
-                  Tagline/info here.
+                <Text 
+                  size="xl" 
+                  c="gray.1"
+                  className={classes.description}
+                >
+                  {HERO_CONFIG.description}
                 </Text>
                 
                 <Group mt="xl">
                   <Button 
                     size="lg" 
-                    variant="filled"
+                    variant="action"
                     className={classes.primaryButton}
                   >
-                    Get Started
+                    {HERO_CONFIG.primaryCTA}
                   </Button>
                   <Button 
                     size="lg" 
                     variant="outline"
+                    c="white"
+                    style={{ borderColor: 'white' }}
                     className={classes.secondaryButton}
                   >
-                    Learn More
+                    {HERO_CONFIG.secondaryCTA}
                   </Button>
                 </Group>
               </Stack>

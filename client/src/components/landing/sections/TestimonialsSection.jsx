@@ -1,6 +1,7 @@
 import { Container, Title, Text, Paper, Avatar, Group, Stack, SimpleGrid, Rating } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '../../../animations/variants';
+import { TESTIMONIALS_CONFIG } from '../../../config/landingConfig';
 import classes from './TestimonialsSection.module.css';
 
 /**
@@ -23,36 +24,8 @@ import classes from './TestimonialsSection.module.css';
  * )
  */
 const TestimonialsSection = () => {
-  // Testimonials data - easy to update and manage
-  const testimonials = [
-    {
-      id: 1,
-      quote: "This platform has completely transformed how we operate. The efficiency gains have been remarkable, and the support team is outstanding.",
-      name: "Sarah Johnson",
-      title: "CTO",
-      company: "TechCorp Inc.",
-      rating: 5,
-      avatar: null // You can add avatar URLs here
-    },
-    {
-      id: 2,
-      quote: "We've seen a 300% increase in productivity since implementing this solution. It's intuitive, powerful, and scales perfectly with our growth.",
-      name: "Michael Chen",
-      title: "Operations Director",
-      company: "Growth Dynamics",
-      rating: 5,
-      avatar: null
-    },
-    {
-      id: 3,
-      quote: "The best investment we've made for our business. The ROI was apparent within the first month, and it just keeps getting better.",
-      name: "Emily Rodriguez",
-      title: "Founder & CEO",
-      company: "StartupSuccess",
-      rating: 5,
-      avatar: null
-    }
-  ];
+  // Testimonials data from configuration
+  const testimonials = TESTIMONIALS_CONFIG.testimonials;
 
   return (
     <section id="testimonials" className={classes.testimonials}>
@@ -65,12 +38,11 @@ const TestimonialsSection = () => {
         >
           <motion.div variants={fadeInUp}>
             <Stack align="center" mb={60}>
-              <Title order={2} ta="center" className={classes.title}>
-                What Our Customers Say
+              <Title order={2} ta="center" c="accent.6" className={classes.title}>
+                {TESTIMONIALS_CONFIG.title}
               </Title>
-              <Text size="lg" c="dimmed" ta="center" maw={600}>
-                Don't just take our word for it. Here's what business leaders 
-                are saying about their experience with our platform.
+              <Text size="lg" c="accent.5" ta="center" maw={600}>
+                {TESTIMONIALS_CONFIG.subtitle}
               </Text>
             </Stack>
           </motion.div>
@@ -96,6 +68,7 @@ const TestimonialsSection = () => {
                     
                     <Text 
                       size="md" 
+                      c="accent.5"
                       style={{ fontStyle: 'italic' }}
                       className={classes.quote}
                     >
@@ -112,10 +85,10 @@ const TestimonialsSection = () => {
                         {testimonial.name.split(' ').map(n => n[0]).join('')}
                       </Avatar>
                       <Stack gap={2}>
-                        <Text size="sm" fw={600} className={classes.name}>
+                        <Text size="sm" fw={600} c="accent.6" className={classes.name}>
                           {testimonial.name}
                         </Text>
-                        <Text size="xs" c="dimmed" className={classes.title}>
+                        <Text size="xs" c="accent.4" className={classes.title}>
                           {testimonial.title}, {testimonial.company}
                         </Text>
                       </Stack>

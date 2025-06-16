@@ -1,27 +1,25 @@
-/* FeaturesSection.module.css */
 .features {
-  background: #f8f9fa;
+  background: var(--bg-primary);
   position: relative;
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2e2e2e;
+  /* Title styling now handled by theme.js Title component */
+  color: var(--mantine-color-accent-6);
 }
 
 .featureCard {
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--mantine-color-accent-2);
   height: 100%;
   cursor: pointer;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .featureCard:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-  border-color: #ced4da;
+  box-shadow: var(--shadow-card-hover) !important;
+  border-color: var(--mantine-color-accent-4);
 }
 
 .featureIcon {
@@ -36,20 +34,16 @@
 .featureTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #2e2e2e;
+  color: var(--mantine-color-accent-6);
 }
 
 .featureDescription {
   font-size: 1rem;
   line-height: 1.6;
-  color: #6c757d;
+  color: var(--mantine-color-accent-5);
 }
 
 @media (max-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
-  
   .featureCard {
     text-align: center;
   }

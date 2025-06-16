@@ -8,21 +8,31 @@ import { Header, Footer } from './components/layout';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
+// Import theme overrides (this handles all our custom colors)
+import './styles/theme-override.css';
+
 // Main UI component
 function App() {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications />
       <AppShell
         header={{ height: 60 }}
         padding={0}
-        style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+        style={{ 
+          minHeight: '100vh', 
+          display: 'flex', 
+          flexDirection: 'column'
+        }}
       >
         <AppShell.Header>
           <Header />
         </AppShell.Header>
         
-        <AppShell.Main style={{ paddingTop: 60, flex: 1 }}>
+        <AppShell.Main style={{ 
+          paddingTop: 60, 
+          flex: 1
+        }}>
           <LandingPage />
         </AppShell.Main>
         

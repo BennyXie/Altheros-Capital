@@ -1,12 +1,11 @@
-/* Footer.module.css */
 .footer {
-  background: #2e2e2e;
-  color: white;
+  background: var(--mantine-color-accent-7);
+  color: var(--mantine-color-accent-0);
   margin-top: auto;
 }
 
 .logo {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -18,12 +17,12 @@
 }
 
 .sectionTitle {
-  color: white;
+  color: var(--mantine-color-accent-0);
   margin-bottom: 0.5rem;
 }
 
 .footerLink {
-  color: #adb5bd;
+  color: var(--mantine-color-accent-2);
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s ease;
@@ -32,11 +31,11 @@
 }
 
 .footerLink:hover {
-  color: #667eea;
+  color: var(--mantine-color-accent-0);
 }
 
 .socialLink {
-  color: #adb5bd;
+  color: var(--mantine-color-accent-2);
   padding: 0.5rem;
   border-radius: 6px;
   transition: all 0.2s ease;
@@ -47,26 +46,26 @@
 }
 
 .socialLink:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.2);
+  color: var(--mantine-color-accent-4);
+  background: var(--mantine-color-accent-9);
   transform: translateY(-2px);
 }
 
 .bottomBar {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #495057;
+  border-top: 1px solid var(--mantine-color-gray-7);
 }
 
 .legalLink {
-  color: #adb5bd;
+  color: var(--text-light);
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s ease;
 }
 
 .legalLink:hover {
-  color: #667eea;
+  color: var(--mantine-color-accent-4);
 }
 
 @media (max-width: 768px) {

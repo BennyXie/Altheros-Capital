@@ -26,7 +26,10 @@ const LandingPage = () => {
       variants={staggerContainer}
       initial="initial"
       animate="animate"
-      style={{ minHeight: '100vh' }}
+      style={{ 
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-primary, #faf8f5)'
+      }}
     >
       {/* Hero Section - Primary call-to-action and value proposition */}
       <HeroSection />
