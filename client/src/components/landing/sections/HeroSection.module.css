@@ -1,0 +1,77 @@
+.hero {
+  background: var(--mantine-color-brand-6);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.1;
+}
+
+.title {
+  /* Title styling now handled by theme.js Title component */
+  margin-bottom: 1rem;
+}
+
+.description {
+  /* Description styling now handled by theme.js Text component */
+  max-width: 500px;
+  color: var(--mantine-color-gray-1);
+}
+
+.primaryButton {
+  background: var(--gradient-cta);
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-action-button);
+}
+
+.secondaryButton {
+  border-color: white;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: white;
+  color: var(--mantine-color-brand-5);
+  transform: translateY(-2px);
+}
+
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .imageWrapper {
+    height: 300px;
+    margin-top: 2rem;
+  }
+}
