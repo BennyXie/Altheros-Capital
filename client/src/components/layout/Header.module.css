@@ -20,7 +20,7 @@
 }
 
 .desktopNav {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 1rem;
 }
@@ -63,7 +63,7 @@
 
 /* Mobile menu button - replaces burger */
 .mobileMenuButton {
-  display: none;
+  display: none !important;
   background: none !important;
   color: #8b4513 !important;
   border: 1px solid #8b4513 !important;
@@ -143,18 +143,29 @@
   }
 }
 
-/* Mobile responsive design */
-@media (max-width: 768px) {
+/* Desktop - ensure desktop nav is visible and mobile menu is hidden */
+@media (min-width: 769px) {
   .desktopNav {
-    display: none;
+    display: flex !important;
   }
   
   .mobileMenuButton {
-    display: flex;
+    display: none !important;
+  }
+}
+
+/* Mobile responsive design */
+@media (max-width: 768px) {
+  .desktopNav {
+    display: none !important;
+  }
+  
+  .mobileMenuButton {
+    display: flex !important;
   }
   
   .burger {
-    display: none; /* Hide burger, use dropdown instead */
+    display: none !important; /* Hide burger, use dropdown instead */
   }
   
   .logo {
