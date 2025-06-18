@@ -12,4 +12,4 @@ COPY . .
 # Port used by frontend dev server (e.g. React/Vite)
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "run", "dev"]
