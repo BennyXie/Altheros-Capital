@@ -45,14 +45,11 @@ const Contact = () => {
             <Text fz="lg" fw={700} className={classes.title} c="#fff">
               {/* Contact information */}
             </Text>
-
-            <img></img>
-
             {/* <ContactIconsList /> */}
           </div>
 
           <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
-            <Text fz="xl" fw={700} className={classes.title} mb="xl">
+            <Text fz="h1" fw={700} className={classes.title} mb="xl">
               Any Questions? Contact Us!
             </Text>
 
@@ -65,7 +62,7 @@ const Contact = () => {
                 />
                 <TextInput
                   label="Your email"
-                  placeholder="hello@mantine.dev"
+                  placeholder="hello@youremail.com"
                   {...form.getInputProps("email")}
                 />
               </SimpleGrid>
