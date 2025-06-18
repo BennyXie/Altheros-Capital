@@ -8,7 +8,7 @@ const cors = require("cors");
 const app = express();
 
 // define port, stored in server/.env
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 
 // initializing the app
 app.use(cors());
