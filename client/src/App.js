@@ -2,7 +2,7 @@ import { MantineProvider, AppShell } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { Header, Footer } from './components/layout';
+import { Header, Contact, Footer } from './components/layout';
 
 // Import Mantine core styles
 import '@mantine/core/styles.css';
@@ -34,6 +34,7 @@ function App() {
           flex: 1
         }}>
           <LandingPage />
+          <Contact />
         </AppShell.Main>
         
         <Footer />

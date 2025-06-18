@@ -12,7 +12,7 @@
 
 // Company and brand information
 export const BRAND_CONFIG = {
-  companyName: 'Company Name',
+  companyName: 'Midwest Health',
   tagline: 'Your Tagline Here',
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
   
@@ -31,12 +31,12 @@ export const BRAND_CONFIG = {
 
 // Hero section content
 export const HERO_CONFIG = {
-  headline: 'Your Main',
-  highlightedText: 'Headline',
+  headline: 'Redefining Access',
+  highlightedText: 'Reimaging Care',
   subHeadline: 'Goes Here',
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
-  primaryCTA: 'Primary Button',
-  secondaryCTA: 'Secondary Button'
+  primaryCTA: 'Connect with a Provider',
+  secondaryCTA: 'Connect with a Therapist'
 };
 
 // Features section content
@@ -136,9 +136,9 @@ export const TESTIMONIALS_CONFIG = {
 
 // CTA section content
 export const CTA_CONFIG = {
-  title: 'Call to Action Title Here',
+  title: 'Get Started with Midwest Health',
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  primaryCTA: 'Primary CTA',
+  primaryCTA: 'Find Your Therapist',
   secondaryCTA: 'Secondary CTA',
   disclaimer: 'Optional disclaimer text • Additional info • More details'
 };
