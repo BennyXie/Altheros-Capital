@@ -22,7 +22,8 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
-    env_file:
-      - ./client/.env
+    # Commented out until front end needs .env
+    #env_file:
+    #  - ./client/.env
     stdin_open: true
     tty: true
