@@ -2,6 +2,7 @@ import { Container, Group, Button, Burger, Menu, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconChevronDown } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
+import { Link, useLocation } from 'react-router-dom';
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from '../../config/landingConfig';
 import classes from './Header.module.css';
 
@@ -14,7 +15,7 @@ import classes from './Header.module.css';
  * Features:
  * - Responsive design
  * - Mobile hamburger menu
- * - Smooth scrolling to sections
+ * - React Router navigation between pages
  * - CTA button
  * 
  * @component
@@ -25,9 +26,18 @@ import classes from './Header.module.css';
  */
 const Header = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
+  const location = useLocation();
 
-  const scrollToSection = (href) => {
-    if (href.startsWith('#')) {
+  const handleNavigation = (href) => {
+    // Handle contact link - scroll to footer on any page
+    if (href === '#contact') {
+      const element = document.querySelector('#contact');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    // If it's a section link on the home page, scroll to section
+    else if (href.startsWith('#') && location.pathname === '/') {
       const element = document.querySelector(href);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
@@ -46,39 +56,60 @@ const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Text size="xl" fw={700} className={classes.logo}>
-              {BRAND_CONFIG.companyName}
-            </Text>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <Text size="xl" fw={700} className={classes.logo}>
+                {BRAND_CONFIG.companyName}
+              </Text>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
           <Group gap="lg" className={classes.desktopNav}>
             {NAVIGATION_CONFIG.menuItems.map((item, index) => (
-              <motion.button
+              <motion.div
                 key={item.label}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={classes.navLink}
-                onClick={() => scrollToSection(item.href)}
               >
-                {item.label}
-              </motion.button>
+                {item.href.startsWith('#') ? (
+                  <button
+                    className={classes.navLink}
+                    onClick={() => handleNavigation(item.href)}
+                  >
+                    {item.label}
+                  </button>
+                ) : (
+                  <Link 
+                    to={item.href} 
+                    className={classes.navLink}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    {item.label}
+                  </Link>
+                )}
+              </motion.div>
             ))}
             
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Button 
-                variant="filled" 
-                className={classes.ctaButton}
-                onClick={() => scrollToSection(NAVIGATION_CONFIG.ctaButton.href)}
+            {/* CTA Buttons */}
+            {NAVIGATION_CONFIG.ctaButtons.map((button, index) => (
+              <motion.div
+                key={button.label}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 + (index * 0.1) }}
               >
-                {NAVIGATION_CONFIG.ctaButton.label}
-              </Button>
-            </motion.div>
+                <Link to={button.href} style={{ textDecoration: 'none' }}>
+                  <Button 
+                    variant={button.variant}
+                    color={button.color}
+                    className={classes.ctaButton}
+                  >
+                    {button.label}
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
           </Group>
 
           {/* Mobile Menu */}
@@ -97,8 +128,10 @@ const Header = () => {
               {NAVIGATION_CONFIG.menuItems.map((item) => (
                 <Menu.Item
                   key={item.label}
-                  onClick={() => scrollToSection(item.href)}
+                  onClick={() => handleNavigation(item.href)}
                   className={classes.mobileMenuItem}
+                  component={item.href.startsWith('#') ? 'button' : Link}
+                  to={!item.href.startsWith('#') ? item.href : undefined}
                 >
                   {item.label}
                 </Menu.Item>
@@ -106,12 +139,17 @@ const Header = () => {
               
               <Menu.Divider />
               
-              <Menu.Item
-                onClick={() => scrollToSection(NAVIGATION_CONFIG.ctaButton.href)}
-                className={classes.mobileCTAItem}
-              >
-                {NAVIGATION_CONFIG.ctaButton.label}
-              </Menu.Item>
+              {NAVIGATION_CONFIG.ctaButtons.map((button) => (
+                <Menu.Item
+                  key={button.label}
+                  onClick={close}
+                  className={classes.mobileCTAItem}
+                  component={Link}
+                  to={button.href}
+                >
+                  {button.label}
+                </Menu.Item>
+              ))}
             </Menu.Dropdown>
           </Menu>
         </Group>

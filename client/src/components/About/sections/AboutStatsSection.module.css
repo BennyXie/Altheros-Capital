@@ -1,0 +1,14 @@
+.stats {
+  background: var(--mantine-color-backgrounds-primary, #faf8f5);
+}
+
+.statCard {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--mantine-color-gray-2);
+  background: white;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-card-hover);
+}

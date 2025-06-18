@@ -1,0 +1,19 @@
+.content {
+  background: var(--mantine-color-backgrounds-primary, #faf8f5);
+}
+
+.title {
+  /* Title styling handled by theme.js */
+  color: var(--mantine-color-text-primary, #2e2e2e);
+}
+
+.subtitle {
+  /* Subtitle styling handled by theme.js */
+  color: var(--mantine-color-text-primary, #2e2e2e);
+}
+
+.description {
+  /* Description styling handled by theme.js */
+  line-height: 1.6;
+  max-width: 600px;
+}
