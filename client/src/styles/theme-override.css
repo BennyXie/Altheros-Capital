@@ -3,13 +3,13 @@
 /* Section-specific backgrounds */
 section[id="hero"],
 *[class*="hero"] {
-  background-color: #10b981 !important; /* brand.6 - primary mint */
+  /* background-color: #10b981 !important; brand.6 - primary mint */
   color: white !important;
 }
 
 section[id="features"],
 *[class*="features"] {
-  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+  background-color: #ffffff !important; /* bg-primary - creamy eggshell */
 }
 
 section[id="about"],
@@ -20,7 +20,7 @@ section[id="about"],
 
 section[id="testimonials"],
 *[class*="testimonials"] {
-  background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
+  background-color: #ffffff !important; /* bg-primary - creamy eggshell */
 }
 
 section[id="cta"],
@@ -166,13 +166,17 @@ div[class*="Card"] span {
 }
 
 /* Button styles - Cream background with brown text */
-button[class*="Button"]:not([data-variant="gradient"]):not([data-variant="action"]) {
+button[class*="Button"]:not([data-variant="gradient"]):not(
+    [data-variant="action"]
+  ) {
   background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
   color: #8b4513 !important; /* accent.6 - saddle brown */
   border: 1px solid #bc8a5f !important; /* accent.4 - medium brown */
 }
 
-button[class*="Button"]:not([data-variant="gradient"]):not([data-variant="action"]):hover {
+button[class*="Button"]:not([data-variant="gradient"]):not(
+    [data-variant="action"]
+  ):hover {
   background-color: #f5f2ed !important; /* bg-secondary - slightly darker eggshell */
   border-color: #8b4513 !important; /* accent.6 - saddle brown */
 }
@@ -186,7 +190,9 @@ button[data-variant="action"],
 }
 
 /* Global background fallback */
-html, body, #root {
+html,
+body,
+#root {
   background-color: #faf8f5 !important; /* bg-primary - creamy eggshell */
 }
 

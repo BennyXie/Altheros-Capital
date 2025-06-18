@@ -1,3 +1,5 @@
+import logoImage from "../assets/logo.png";
+
 /**
  * Landing Page Configuration
  * 
@@ -32,7 +34,7 @@ export const BRAND_CONFIG = {
 // Hero section content
 export const HERO_CONFIG = {
   headline: 'Redefining Access',
-  highlightedText: 'Reimaging Care',
+  highlightedText: 'Reimagining Care',
   subHeadline: 'Goes Here',
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
   primaryCTA: 'Connect with a Provider',
@@ -41,45 +43,46 @@ export const HERO_CONFIG = {
 
 // Features section content
 export const FEATURES_CONFIG = {
-  title: 'Features Section Title',
-  subtitle: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  title: 'Let\'s Build the Future of Care — Together',
+  badge: 'Our Services',
+  subtitle:  'We offer a suite of interconnected services tailored to meet the complex and evolving needs of patients and providers.',
   features: [
     {
-      icon: 'IconRocket',
-      title: 'Feature Title 1',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-      color: 'blue'
+      icon: 'IconHeart',
+      title: 'Behavioral Health Access',
+      description: 'Telepsychiatry, therapy, medication management, and crisis response.',
+      color: 'red'
     },
     {
       icon: 'IconShield',
-      title: 'Feature Title 2',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      title: 'Primary Care Support',
+      description: 'Preventative services, chronic care management, and coordinated follow-up.',
       color: 'green'
     },
     {
       icon: 'IconUsers',
-      title: 'Feature Title 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      title: 'Care Navigation',
+      description: 'AI-assisted triage, intake coordination, and family engagement tools.',
       color: 'violet'
     },
     {
       icon: 'IconChartBar',
-      title: 'Feature Title 4',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      title: 'Operational Enablement',
+      description: 'EMR integration, backend analytics, and clinical workflow automation',
       color: 'orange'
     },
-    {
-      icon: 'IconBolt',
-      title: 'Feature Title 5',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-      color: 'yellow'
-    },
-    {
-      icon: 'IconHeart',
-      title: 'Feature Title 6',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-      color: 'red'
-    }
+    // {
+    //   icon: 'IconBolt',
+    //   title: 'Feature Title 5',
+    //   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    //   color: 'yellow'
+    // },
+    // {
+    //   icon: 'IconRocket',
+    //   title: 'Feature Title 6',
+    //   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    //   color: 'red'
+    // }
   ]
 };
 
@@ -145,7 +148,7 @@ export const CTA_CONFIG = {
 
 // Navigation and routing
 export const NAVIGATION_CONFIG = {
-  logo: '/logo.png', // Update with actual logo path
+  logo: logoImage, // Update with actual logo path
   menuItems: [
     { label: 'Features', href: '#features' },
     { label: 'About', href: '#about' },

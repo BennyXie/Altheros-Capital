@@ -1,22 +1,22 @@
-import { Container, Group, Button, Burger, Menu, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconChevronDown } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
-import { NAVIGATION_CONFIG, BRAND_CONFIG } from '../../config/landingConfig';
-import classes from './Header.module.css';
+import { Container, Group, Button, Burger, Menu, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconChevronDown } from "@tabler/icons-react";
+import { motion } from "framer-motion";
+import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
+import classes from "./Header.module.css";
 
 /**
  * Header Component
- * 
+ *
  * Responsive navigation header with mobile menu support.
  * Configured through landingConfig.js for easy content management.
- * 
+ *
  * Features:
  * - Responsive design
  * - Mobile hamburger menu
  * - Smooth scrolling to sections
  * - CTA button
- * 
+ *
  * @component
  * @example
  * return (
@@ -27,10 +27,10 @@ const Header = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
 
   const scrollToSection = (href) => {
-    if (href.startsWith('#')) {
+    if (href.startsWith("#")) {
       const element = document.querySelector(href);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
     close(); // Close dropdown after clicking
@@ -65,16 +65,18 @@ const Header = () => {
                 {item.label}
               </motion.button>
             ))}
-            
+
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <Button 
-                variant="filled" 
+              <Button
+                variant="filled"
                 className={classes.ctaButton}
-                onClick={() => scrollToSection(NAVIGATION_CONFIG.ctaButton.href)}
+                onClick={() =>
+                  scrollToSection(NAVIGATION_CONFIG.ctaButton.href)
+                }
               >
                 {NAVIGATION_CONFIG.ctaButton.label}
               </Button>
@@ -82,10 +84,16 @@ const Header = () => {
           </Group>
 
           {/* Mobile Menu */}
-          <Menu shadow="md" width={200} opened={opened} onChange={toggle} position="bottom-end">
+          <Menu
+            shadow="md"
+            width={200}
+            opened={opened}
+            onChange={toggle}
+            position="bottom-end"
+          >
             <Menu.Target>
-              <Button 
-                variant="subtle" 
+              <Button
+                variant="subtle"
                 className={classes.mobileMenuButton}
                 rightSection={<IconChevronDown size={16} />}
               >
@@ -103,11 +111,13 @@ const Header = () => {
                   {item.label}
                 </Menu.Item>
               ))}
-              
+
               <Menu.Divider />
-              
+
               <Menu.Item
-                onClick={() => scrollToSection(NAVIGATION_CONFIG.ctaButton.href)}
+                onClick={() =>
+                  scrollToSection(NAVIGATION_CONFIG.ctaButton.href)
+                }
                 className={classes.mobileCTAItem}
               >
                 {NAVIGATION_CONFIG.ctaButton.label}
