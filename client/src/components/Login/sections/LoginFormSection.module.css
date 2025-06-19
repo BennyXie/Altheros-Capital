@@ -1,0 +1,51 @@
+.formSection {
+  background: var(--mantine-color-backgrounds-primary, #faf8f5);
+  min-height: 70vh;
+}
+
+.loginCard {
+  border: 1px solid var(--mantine-color-gray-2);
+  background: white;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.loginCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.socialButton {
+  transition: all 0.3s ease;
+  border-color: var(--mantine-color-gray-2);
+}
+
+.socialButton:hover {
+  background-color: var(--mantine-color-backgrounds-secondary, #f5f2ed);
+  border-color: var(--mantine-color-brand-6);
+  transform: translateY(-1px);
+}
+
+.input {
+  transition: all 0.3s ease;
+}
+
+.loginButton {
+  background: var(--gradient-cta);
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.loginButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-action-button);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .loginCard {
+    margin: 0 1rem;
+    padding: 2rem;
+  }
+}

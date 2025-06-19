@@ -4,68 +4,88 @@
   margin-top: auto;
 }
 
-.logo {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.description {
-  line-height: 1.6;
-  max-width: 250px;
-}
-
-.sectionTitle {
+.contactTitle {
   color: var(--mantine-color-accent-0);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 1rem;
+}
+
+.contactDescription {
+  color: var(--mantine-color-accent-2);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.contactInfo {
+  color: var(--mantine-color-accent-1);
+  font-weight: 500;
+}
+
+.contactForm {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.formInput input,
+.formInput textarea {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid var(--mantine-color-gray-3) !important;
+  color: var(--mantine-color-dark-7) !important;
+}
+
+.formInput input:focus,
+.formInput textarea:focus {
+  border-color: var(--mantine-color-brand-6) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+}
+
+.formInput label {
+  color: var(--mantine-color-accent-0) !important;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
-.footerLink {
-  color: var(--mantine-color-accent-2);
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.2s ease;
-  display: block;
-  padding: 0.25rem 0;
+.submitButton {
+  background: var(--mantine-color-brand-6) !important;
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
-.footerLink:hover {
-  color: var(--mantine-color-accent-0);
-}
-
-.socialLink {
-  color: var(--mantine-color-accent-2);
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.socialLink:hover {
-  color: var(--mantine-color-accent-4);
-  background: var(--mantine-color-accent-9);
-  transform: translateY(-2px);
+.submitButton:hover {
+  background: var(--mantine-color-brand-7) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
 }
 
 .bottomBar {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--mantine-color-gray-7);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .legalLink {
-  color: var(--text-light);
+  color: var(--mantine-color-accent-2);
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s ease;
 }
 
 .legalLink:hover {
-  color: var(--mantine-color-accent-4);
+  color: var(--mantine-color-accent-0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contactForm {
+    padding: 1.5rem;
+  }
+  
+  .contactTitle {
+    text-align: center;
+  }
 }
 
 @media (max-width: 768px) {
