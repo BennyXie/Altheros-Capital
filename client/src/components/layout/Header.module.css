@@ -12,7 +12,7 @@
 }
 
 .logo {
-  color: var(--mantine-color-accent-6) !important; /* Use theme brown color */
+  color: #8b4513 !important; /* Use solid brown color instead of gradient */
   cursor: pointer;
   font-size: 1.25rem;
   font-weight: 700;
@@ -45,17 +45,15 @@
 }
 
 .ctaButton {
-  background: var(--mantine-color-brand-6);
+  background: var(--gradient-primary);
   border: none;
   transition: transform 0.2s ease;
   white-space: nowrap;
-  margin-left: 0.5rem;
 }
 
 .ctaButton:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-button-hover);
-  background: var(--mantine-color-brand-7);
 }
 
 .burger {
@@ -67,42 +65,42 @@
 .mobileMenuButton {
   display: none !important;
   background: none !important;
-  color: var(--mantine-color-accent-6) !important;
-  border: 1px solid var(--mantine-color-accent-6) !important;
+  color: #8b4513 !important;
+  border: 1px solid #8b4513 !important;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
 }
 
 .mobileMenuButton:hover {
-  background-color: var(--mantine-color-accent-0) !important;
+  background-color: #fdf8f6 !important;
 }
 
 /* Mobile dropdown styles */
 .mobileDropdown {
-  background-color: var(--bg-primary) !important;
-  border: 1px solid var(--mantine-color-accent-2) !important;
-  box-shadow: var(--shadow-card) !important;
+  background-color: #faf8f5 !important;
+  border: 1px solid #e8ccb3 !important;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.1) !important;
 }
 
 .mobileMenuItem {
-  color: var(--mantine-color-accent-6) !important;
+  color: #8b4513 !important;
   font-size: 0.9rem;
   padding: 0.75rem 1rem;
 }
 
 .mobileMenuItem:hover {
-  background-color: var(--mantine-color-accent-0) !important;
-  color: var(--mantine-color-accent-9) !important;
+  background-color: #fdf8f6 !important;
+  color: #4a2c0e !important;
 }
 
 .mobileCTAItem {
-  color: var(--mantine-color-accent-6) !important;
+  color: #8b4513 !important;
   font-weight: 600;
-  background-color: var(--bg-secondary) !important;
+  background-color: #f5f2ed !important;
 }
 
 .mobileCTAItem:hover {
-  background-color: var(--bg-tertiary) !important;
+  background-color: #ede7dd !important;
 }
 
 .mobileNavLink {

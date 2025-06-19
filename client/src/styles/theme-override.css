@@ -1,37 +1,5 @@
 /* REFINED THEME STYLES - Using direct color values from theme.js */
 
-/* 🎨 CSS VARIABLES - Matching theme.js structure */
-:root {
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #34d399 0%, #8b4513 100%);
-  --gradient-hero: linear-gradient(135deg, #6ee7b7 0%, #10b981 60%, #a0522d 100%);
-  --gradient-cta: linear-gradient(45deg, #ff6b6b, #ee5a24);
-  --gradient-features: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
-  --gradient-testimonials: linear-gradient(135deg, #f5f2ed 0%, #ede7dd 100%);
-  
-  /* Shadows */
-  --shadow-card: 0 4px 12px rgba(139, 69, 19, 0.1);
-  --shadow-card-hover: 0 8px 25px rgba(139, 69, 19, 0.15);
-  --shadow-button: 0 4px 14px rgba(34, 197, 94, 0.15);
-  --shadow-button-hover: 0 8px 20px rgba(34, 197, 94, 0.25);
-  --shadow-action-button: 0 10px 25px rgba(255, 107, 107, 0.3);
-  
-  /* Text colors */
-  --text-primary: #2e2e2e;
-  --text-secondary: #495057;
-  --text-muted: #6c757d;
-  --text-light: #adb5bd;
-  
-  /* Background colors */
-  --bg-primary: #faf8f5;
-  --bg-secondary: #f5f2ed;
-  --bg-tertiary: #ede7dd;
-  --bg-dark: #2e2e2e;
-  
-  /* Border colors */
-  --border-color: #e9ecef;
-}
-
 /* Section-specific backgrounds */
 section[id="hero"],
 *[class*="hero"] {

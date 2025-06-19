@@ -6,7 +6,6 @@ import FeaturesSection from './sections/FeaturesSection';
 import AboutSection from './sections/AboutSection';
 import TestimonialsSection from './sections/TestimonialsSection';
 import CTASection from './sections/CTASection';
-import Contact from '../layout/Contact';
 
 /**
  * Main Landing Page Component
@@ -46,9 +45,6 @@ const LandingPage = () => {
       
       {/* CTA Section - Final conversion opportunity */}
       <CTASection />
-      
-      {/* Contact Section - Contact form and information */}
-      <Contact />
     </motion.div>
   );
 };
