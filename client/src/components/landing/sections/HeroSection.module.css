@@ -1,12 +1,15 @@
 .hero {
-  background: var(--mantine-color-brand-6);
   color: white;
   position: relative;
   overflow: hidden;
+  align-items: center;
+  z-index: 2;
+  width: 100%;
+  height: 85vh;
 }
 
 .hero::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -16,15 +19,52 @@
   opacity: 0.1;
 }
 
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.overlay {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    #789f6cd9 20%,
+    /* var(--mantine-color-brand-6) 20%, */ transparent
+  );
+  display: flex;
+  align-items: center;
+  padding: 4rem 1rem;
+}
+
 .title {
   /* Title styling now handled by theme.js Title component */
   margin-bottom: 1rem;
+  font-size: 5rem !important;
+  /* have to use !important otherwise it'll conflict with framer motion*/
 }
 
-.description {
-  /* Description styling now handled by theme.js Text component */
-  max-width: 500px;
-  color: var(--mantine-color-gray-1);
+.container {
+  margin-left: 150px !important;
+}
+
+@media (max-width: 1000px) {
+  .title {
+    font-size: 3rem !important;
+  }
+  .container {
+    margin-left: 10px !important;
+  }
+}
+
+.buttons {
+  flex-direction: column !important;
+  gap: 30px;
+  align-items: flex-start !important;
 }
 
 .primaryButton {
@@ -34,7 +74,7 @@
 }
 
 .primaryButton:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-action-button);
 }
 
@@ -45,33 +85,6 @@
 }
 
 .secondaryButton:hover {
-  background: white;
   color: var(--mantine-color-brand-5);
-  transform: translateY(-2px);
-}
-
-.imageWrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-}
-
-.placeholderImage {
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-@media (max-width: 768px) {
-  .imageWrapper {
-    height: 300px;
-    margin-top: 2rem;
-  }
+  transform: translateY(-5px);
 }
