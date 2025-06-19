@@ -3,7 +3,7 @@
 require('dotenv').config({ path: './server/.env' });
 const express = require("express");
 const cors = require("cors");
-const db = require("./db")
+const db = require("./db/pool")
 
 // using express
 const app = express();
