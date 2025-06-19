@@ -57,9 +57,16 @@ const Header = () => {
             transition={{ duration: 0.5 }}
           >
             <Link to="/" style={{ textDecoration: 'none' }}>
-              <Text size="xl" fw={700} className={classes.logo}>
-                {BRAND_CONFIG.companyName}
-              </Text>
+              <Group gap="xs" align="center">
+                <img 
+                  src="/favicon.ico" 
+                  alt="Logo" 
+                  style={{ width: 24, height: 24 }}
+                />
+                <Text size="xl" fw={700} className={classes.logo}>
+                  {BRAND_CONFIG.companyName}
+                </Text>
+              </Group>
             </Link>
           </motion.div>
 

@@ -12,10 +12,10 @@ import heroImage from "../../../assets/hero.png";
  * The hero section is the first thing users see on the landing page.
  *
  * 🎨 STYLING APPROACH:
- * - Colors controlled by theme.js
+ * - Colors controlled by colors.css variables
  * - Uses CSS variables for consistency
  * - Responsive design with Mantine breakpoints
- * - Custom gradients defined in theme
+ * - Green gradient overlay and highlighted text
  *
  * 📝 CONTENT:
  * - All text content comes from landingConfig.js
@@ -44,15 +44,12 @@ const HeroSection = () => {
         >
           <motion.div variants={slideInLeft}>
             <Stack gap="md" className={classes.content}>
-              <Title order={1} c="white" className={classes.title}>
-                {HERO_CONFIG.headline}{" "}
-                <Text
-                  variant="gradient"
-                  gradient={{ from: "accent.4", to: "accent.9", deg: 90 }}
-                  inherit
-                >
+              <Title order={1} className={classes.title}>
+                {HERO_CONFIG.headline}
+                <br />
+                <span className={classes.highlightedText}>
                   {HERO_CONFIG.highlightedText}
-                </Text>{" "}
+                </span>
               </Title>
 
               <Group mt="xl" className={classes.buttons}>
@@ -68,7 +65,6 @@ const HeroSection = () => {
                   size="xl"
                   radius="xl"
                   variant="outline"
-                  c="white"
                   className={classes.secondaryButton}
                 >
                   {HERO_CONFIG.secondaryCTA}

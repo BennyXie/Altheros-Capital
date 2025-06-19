@@ -1,7 +1,7 @@
 .header {
-  background: var(--bg-primary);
+  background: var(--color-bg-header);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--mantine-color-accent-2);
+  border-bottom: 1px solid var(--color-border);
   position: fixed;
   top: 0;
   left: 0;
@@ -12,11 +12,10 @@
 }
 
 .logo {
-  color: var(--mantine-color-accent-6) !important; /* Use theme brown color */
+  color: var(--color-text-primary) !important;
   cursor: pointer;
   font-size: 1.25rem;
   font-weight: 700;
-  /* Remove gradient that was causing visibility issues */
 }
 
 .desktopNav {
@@ -26,27 +25,29 @@
 }
 
 .navLink {
-  background: none;
-  border: none;
-  color: var(--mantine-color-accent-6);
+  background: none !important;
+  border: none !important;
+  color: var(--color-text-primary) !important;
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none;
+  text-decoration: none !important;
   white-space: nowrap;
+  opacity: 1 !important;
 }
 
 .navLink:hover {
-  color: var(--mantine-color-accent-8);
-  background: var(--mantine-color-accent-0);
+  color: var(--color-primary-dark) !important;
+  background: var(--color-bg-secondary) !important;
 }
 
 .ctaButton {
-  background: var(--mantine-color-brand-6);
-  border: none;
+  background: var(--color-primary) !important;
+  color: var(--color-text-primary) !important;
+  border: none !important;
   transition: transform 0.2s ease;
   white-space: nowrap;
   margin-left: 0.5rem;
@@ -54,61 +55,61 @@
 
 .ctaButton:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-button-hover);
-  background: var(--mantine-color-brand-7);
+  box-shadow: var(--shadow-button-hover) !important;
+  background: var(--color-primary-dark) !important;
 }
 
 .burger {
   display: none;
-  color: var(--mantine-color-accent-6);
+  color: var(--color-text-primary);
 }
 
 /* Mobile menu button - replaces burger */
 .mobileMenuButton {
   display: none !important;
   background: none !important;
-  color: var(--mantine-color-accent-6) !important;
-  border: 1px solid var(--mantine-color-accent-6) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
 }
 
 .mobileMenuButton:hover {
-  background-color: var(--mantine-color-accent-0) !important;
+  background-color: var(--color-bg-secondary) !important;
 }
 
 /* Mobile dropdown styles */
 .mobileDropdown {
-  background-color: var(--bg-primary) !important;
-  border: 1px solid var(--mantine-color-accent-2) !important;
+  background-color: var(--color-bg-white) !important;
+  border: 1px solid var(--color-border) !important;
   box-shadow: var(--shadow-card) !important;
 }
 
 .mobileMenuItem {
-  color: var(--mantine-color-accent-6) !important;
+  color: var(--color-text-primary) !important;
   font-size: 0.9rem;
   padding: 0.75rem 1rem;
 }
 
 .mobileMenuItem:hover {
-  background-color: var(--mantine-color-accent-0) !important;
-  color: var(--mantine-color-accent-9) !important;
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .mobileCTAItem {
-  color: var(--mantine-color-accent-6) !important;
+  color: var(--color-text-primary) !important;
   font-weight: 600;
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--color-primary) !important;
 }
 
 .mobileCTAItem:hover {
-  background-color: var(--bg-tertiary) !important;
+  background-color: var(--color-primary-dark) !important;
 }
 
 .mobileNavLink {
   background: none;
   border: none;
-  color: var(--mantine-color-accent-6);
+  color: var(--color-text-primary);
   font-size: 1rem;
   font-weight: 500;
   padding: 0.75rem 0;
@@ -116,12 +117,12 @@
   cursor: pointer;
   transition: color 0.2s ease;
   width: 100%;
-  border-bottom: 1px solid var(--mantine-color-accent-1);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .mobileNavLink:hover {
-  color: var(--mantine-color-accent-8);
-  background: var(--mantine-color-accent-0);
+  color: var(--color-primary-dark);
+  background: var(--color-bg-secondary);
 }
 
 .mobileNavLink:last-child {

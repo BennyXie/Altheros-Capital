@@ -1,23 +1,25 @@
 .footer {
-  background: var(--mantine-color-accent-7);
-  color: var(--mantine-color-accent-0);
+  background: var(--color-bg-footer);
+  color: var(--color-text-white);
   margin-top: auto;
 }
 
 .contactTitle {
-  color: var(--mantine-color-accent-0);
+  color: var(--color-text-white);
   font-size: clamp(1.5rem, 3vw, 2rem);
   margin-bottom: 1rem;
 }
 
 .contactDescription {
-  color: var(--mantine-color-accent-2);
+  color: var(--color-text-white);
+  opacity: 0.9;
   line-height: 1.6;
   max-width: 400px;
 }
 
 .contactInfo {
-  color: var(--mantine-color-accent-1);
+  color: var(--color-text-white);
+  opacity: 0.8;
   font-weight: 500;
 }
 

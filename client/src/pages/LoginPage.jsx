@@ -19,7 +19,7 @@ const LoginPage = () => {
       animate="animate"
       style={{ 
         minHeight: '100vh',
-        backgroundColor: 'var(--mantine-color-backgrounds-primary, #faf8f5)'
+        background: 'linear-gradient(135deg, var(--color-bg-light) 0%, var(--mint-lighter) 100%)'
       }}
     >
       {/* Hero Section */}

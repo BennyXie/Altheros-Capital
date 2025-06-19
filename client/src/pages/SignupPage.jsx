@@ -27,7 +27,7 @@ const SignupPage = () => {
       animate="animate"
       style={{ 
         minHeight: '100vh',
-        backgroundColor: 'var(--mantine-color-backgrounds-primary, #faf8f5)',
+        background: 'linear-gradient(135deg, var(--color-bg-light) 0%, var(--mint-lighter) 100%)',
         paddingTop: '2rem'
       }}
     >
@@ -37,7 +37,7 @@ const SignupPage = () => {
           initial="initial"
           animate="animate"
         >
-          <Title order={1} ta="center" mb="lg" style={{ color: 'var(--mantine-color-brand-6)' }}>
+          <Title order={1} ta="center" mb="lg" style={{ color: 'var(--color-primary)' }}>
             Get Started
           </Title>
           <Text size="lg" ta="center" c="dimmed" mb={50}>
@@ -51,7 +51,11 @@ const SignupPage = () => {
           animate="animate"
           transition={{ delay: 0.2 }}
         >
-          <Paper shadow="lg" p={40} radius="lg" style={{ border: '1px solid var(--mantine-color-gray-2)' }}>
+          <Paper shadow="lg" p={40} radius="lg" style={{ 
+            border: '1px solid var(--color-border-light)',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)'
+          }}>
             <form onSubmit={handleSignup}>
               <Stack gap="lg">
                 {/* Google Sign Up Button */}
@@ -61,8 +65,16 @@ const SignupPage = () => {
                   onClick={handleGoogleSignup}
                   size="md"
                   style={{ 
-                    borderColor: 'var(--mantine-color-gray-2)',
+                    borderColor: 'var(--color-border)',
                     transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.borderColor = 'var(--color-primary)';
+                    e.target.style.backgroundColor = 'var(--color-bg-light)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.borderColor = 'var(--color-border)';
+                    e.target.style.backgroundColor = 'transparent';
                   }}
                 >
                   Sign up with Google
@@ -95,11 +107,21 @@ const SignupPage = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  color="brand"
                   fullWidth
                   style={{ 
-                    background: 'var(--mantine-color-brand-6)',
-                    transition: 'all 0.3s ease'
+                    background: 'var(--color-primary)',
+                    transition: 'all 0.3s ease',
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'var(--color-primary-dark)';
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = 'var(--shadow-button-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'var(--color-primary)';
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   Create Account
@@ -107,7 +129,7 @@ const SignupPage = () => {
 
                 <Text ta="center" size="sm" c="dimmed">
                   Already have an account?{' '}
-                  <Text component={Link} to="/login" size="sm" c="brand.6" fw={600} style={{ textDecoration: 'none' }}>
+                  <Text component={Link} to="/login" size="sm" c="var(--color-primary)" fw={600} style={{ textDecoration: 'none' }}>
                     Sign in
                   </Text>
                 </Text>

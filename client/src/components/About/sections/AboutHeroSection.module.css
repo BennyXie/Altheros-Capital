@@ -1,5 +1,5 @@
 .hero {
-  background: var(--mantine-color-brand-6);
+  background: var(--color-primary);
   color: white;
   position: relative;
   overflow: hidden;

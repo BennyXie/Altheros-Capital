@@ -1,19 +1,18 @@
 .features {
-  background: var(--bg-primary);
+  background: var(--color-bg-features);
   position: relative;
 }
 
 .title {
-  /* Title styling now handled by theme.js Title component */
-  color: var(--mantine-color-accent-6);
+  color: var(--color-text-primary);
 }
 
 .featureCard {
   transition: all 0.3s ease;
-  border: 1px solid var(--mantine-color-accent-2);
+  border: 1px solid var(--color-border-light);
   height: 100%;
   cursor: pointer;
-  background: var(--bg-primary);
+  background: var(--color-bg-white);
 }
 
 .featureCard:hover {

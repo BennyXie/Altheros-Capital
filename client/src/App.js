@@ -11,13 +11,13 @@ import ScrollToTop from './components/ScrollToTop';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
-// Import theme overrides (this handles all our custom colors)
-import './styles/theme-override.css';
+// Import global color system
+import './styles/colors.css';
 
 // Main UI component
 function App() {
   return (
-    <MantineProvider theme={theme} forceColorScheme="light" withGlobalStyles withNormalizeCSS>
+    <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications />
       <Router>
         <ScrollToTop />
