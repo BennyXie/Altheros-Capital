@@ -17,7 +17,7 @@ import './styles/theme-override.css';
 // Main UI component
 function App() {
   return (
-    <MantineProvider theme={theme} forceColorScheme="light">
+    <MantineProvider theme={theme} forceColorScheme="light" withGlobalStyles withNormalizeCSS>
       <Notifications />
       <Router>
         <ScrollToTop />

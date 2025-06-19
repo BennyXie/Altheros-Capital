@@ -8,16 +8,16 @@ import classes from './Header.module.css';
 
 /**
  * Header Component
- * 
+ *
  * Responsive navigation header with mobile menu support.
  * Configured through landingConfig.js for easy content management.
- * 
+ *
  * Features:
  * - Responsive design
  * - Mobile hamburger menu
  * - React Router navigation between pages
  * - CTA button
- * 
+ *
  * @component
  * @example
  * return (
@@ -40,7 +40,7 @@ const Header = () => {
     else if (href.startsWith('#') && location.pathname === '/') {
       const element = document.querySelector(href);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
     close(); // Close dropdown after clicking
@@ -113,10 +113,16 @@ const Header = () => {
           </Group>
 
           {/* Mobile Menu */}
-          <Menu shadow="md" width={200} opened={opened} onChange={toggle} position="bottom-end">
+          <Menu
+            shadow="md"
+            width={200}
+            opened={opened}
+            onChange={toggle}
+            position="bottom-end"
+          >
             <Menu.Target>
-              <Button 
-                variant="subtle" 
+              <Button
+                variant="subtle"
                 className={classes.mobileMenuButton}
                 rightSection={<IconChevronDown size={16} />}
               >
@@ -136,7 +142,7 @@ const Header = () => {
                   {item.label}
                 </Menu.Item>
               ))}
-              
+
               <Menu.Divider />
               
               {NAVIGATION_CONFIG.ctaButtons.map((button) => (
