@@ -12,7 +12,7 @@
 }
 
 .logo {
-  color: #8b4513 !important; /* Use solid brown color instead of gradient */
+  color: var(--mantine-color-accent-6) !important; /* Use theme brown color */
   cursor: pointer;
   font-size: 1.25rem;
   font-weight: 700;
@@ -67,42 +67,42 @@
 .mobileMenuButton {
   display: none !important;
   background: none !important;
-  color: #8b4513 !important;
-  border: 1px solid #8b4513 !important;
+  color: var(--mantine-color-accent-6) !important;
+  border: 1px solid var(--mantine-color-accent-6) !important;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
 }
 
 .mobileMenuButton:hover {
-  background-color: #fdf8f6 !important;
+  background-color: var(--mantine-color-accent-0) !important;
 }
 
 /* Mobile dropdown styles */
 .mobileDropdown {
-  background-color: #faf8f5 !important;
-  border: 1px solid #e8ccb3 !important;
-  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.1) !important;
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--mantine-color-accent-2) !important;
+  box-shadow: var(--shadow-card) !important;
 }
 
 .mobileMenuItem {
-  color: #8b4513 !important;
+  color: var(--mantine-color-accent-6) !important;
   font-size: 0.9rem;
   padding: 0.75rem 1rem;
 }
 
 .mobileMenuItem:hover {
-  background-color: #fdf8f6 !important;
-  color: #4a2c0e !important;
+  background-color: var(--mantine-color-accent-0) !important;
+  color: var(--mantine-color-accent-9) !important;
 }
 
 .mobileCTAItem {
-  color: #8b4513 !important;
+  color: var(--mantine-color-accent-6) !important;
   font-weight: 600;
-  background-color: #f5f2ed !important;
+  background-color: var(--bg-secondary) !important;
 }
 
 .mobileCTAItem:hover {
-  background-color: #ede7dd !important;
+  background-color: var(--bg-tertiary) !important;
 }
 
 .mobileNavLink {
