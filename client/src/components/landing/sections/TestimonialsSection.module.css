@@ -1,0 +1,61 @@
+.testimonials {
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.title {
+  /* Title styling now handled by theme.js Title component */
+  color: var(--mantine-color-accent-6);
+}
+
+.testimonialCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--mantine-color-accent-2);
+  transition: all 0.3s ease;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonialCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.testimonialCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+.quote {
+  color: var(--mantine-color-accent-5);
+  line-height: 1.6;
+  font-size: 1rem;
+  min-height: 80px;
+}
+
+.avatar {
+  background: var(--gradient-primary);
+}
+
+.name {
+  color: var(--mantine-color-accent-6);
+  font-size: 0.875rem;
+}
+
+.title {
+  color: var(--mantine-color-accent-4);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .quote {
+    min-height: auto;
+    font-size: 0.9rem;
+  }
+}

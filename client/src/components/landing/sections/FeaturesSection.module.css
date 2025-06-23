@@ -1,0 +1,50 @@
+.features {
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.title {
+  /* Title styling now handled by theme.js Title component */
+  color: var(--mantine-color-accent-6);
+}
+
+.featureCard {
+  transition: all 0.3s ease;
+  border: 1px solid var(--mantine-color-accent-2);
+  height: 100%;
+  cursor: pointer;
+  background: var(--bg-primary);
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-card-hover) !important;
+  border-color: var(--mantine-color-accent-4);
+}
+
+.featureIcon {
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover .featureIcon {
+  transform: scale(1.1);
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--mantine-color-accent-6);
+}
+
+.featureDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--mantine-color-accent-5);
+}
+
+@media (max-width: 768px) {
+  .featureCard {
+    text-align: center;
+  }
+}

@@ -5,6 +5,18 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary, #faf8f5); /* creamy eggshell background with fallback */
+}
+
+/* Ensure the root html element also has the correct background */
+html {
+  background-color: var(--bg-primary, #faf8f5);
+}
+
+/* Ensure the root div has the correct background */
+#root {
+  background-color: var(--bg-primary, #faf8f5);
+  min-height: 100vh;
 }
 
 code {
