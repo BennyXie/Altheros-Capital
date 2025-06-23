@@ -15,7 +15,8 @@ Webapp and Mobile App Repo for Altheros Capital
 Use the following command from the root of the project:
 
 ```bash
-docker-compose up --build
+docker-compose build --no-cache
+docker-compose up
 ```
 
 ---
