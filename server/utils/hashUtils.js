@@ -4,3 +4,5 @@ function getSecretHash(username, clientId, clientSecret) {
         .update(username + clientId)
         .digest("base64");
 }
+
+module.exports = { getSecretHash };
