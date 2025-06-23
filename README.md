@@ -30,7 +30,7 @@ docker-compose up --build
 ## Stop the App
 
 ```bash
-docker-compose down
+docker-compose down -v
 ```
 
 ---
