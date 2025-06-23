@@ -155,10 +155,20 @@ export const NAVIGATION_CONFIG = {
     { label: 'Testimonials', href: '#testimonials' },
     { label: 'Contact', href: '#contact' }
   ],
-  ctaButton: {
-    label: 'CTA Button',
-    href: '/signup'
-  }
+  ctaButtons: [
+    {
+      label: 'Connect with a Provider',
+      href: '/signup',
+      variant: 'filled',
+      color: 'blue'
+    },
+    {
+      label: 'Connect with a Therapist',
+      href: '/login',
+      variant: 'outline',
+      color: 'blue'
+    }
+  ]
 };
 
 // SEO and metadata

@@ -1,0 +1,110 @@
+/**
+ * 🎨 CLEAN MINTY PASTEL COLOR SYSTEM
+ * ==================================
+ * 
+ * Fresh, clean color palette with minty pastel green primary
+ * and muted pastel green/gray accents.
+ */
+
+:root {
+  /* 🌿 Primary Minty Pastel Green */
+  --mint-primary: #7FE4A8;        /* True minty green */
+  --mint-light: #9AEAB8;          /* Lighter mint */
+  --mint-lighter: #B5F0C8;        /* Very light mint */
+  --mint-dark: #65D994;           /* Darker mint */
+  --mint-darker: #4ACF80;         /* Deep mint */
+
+  /* 🎨 Muted Pastel Accents */
+  --sage-light: #C4E2B8;          /* Light sage green */
+  --sage-medium: #A9D69A;         /* Medium sage green */
+  --sage-dark: #8ECA7C;           /* Darker sage green */
+  
+  /* 🔘 Neutral Grays */
+  --gray-50: #F8F9FA;             /* Lightest gray */
+  --gray-100: #F1F3F4;            /* Very light gray */
+  --gray-200: #E8EAED;            /* Light gray */
+  --gray-300: #DADCE0;            /* Medium light gray */
+  --gray-400: #BDC1C6;            /* Medium gray */
+  --gray-500: #9AA0A6;            /* True gray */
+  --gray-600: #80868B;            /* Dark gray */
+  --gray-700: #5F6368;            /* Darker gray */
+  --gray-800: #3C4043;            /* Very dark gray */
+  --gray-900: #202124;            /* Darkest gray */
+
+  /* 🎯 Core Color Variables */
+  --color-primary: var(--mint-primary);
+  --color-primary-light: var(--mint-light);
+  --color-primary-lighter: var(--mint-lighter);
+  --color-primary-dark: var(--mint-dark);
+  --color-primary-darker: var(--mint-darker);
+
+  /* 📝 Text Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-text-primary: var(--gray-900);       /* Dark text for light backgrounds */
+  --color-text-secondary: var(--gray-700);     /* Secondary text */
+  --color-text-muted: var(--gray-500);         /* Muted text */
+  --color-text-light: var(--gray-400);         /* Light text */
+  --color-text-white: var(--color-white);      /* White text for dark backgrounds */
+
+  /* 🏗️ Background Colors */
+  --color-bg-white: var(--color-white);
+  --color-bg-light: var(--gray-50);
+  --color-bg-medium: var(--gray-100);
+  --color-bg-dark: var(--gray-800);
+
+  /* 🎨 Section Backgrounds (Light to Dark Progression) */
+  --color-bg-header: var(--color-bg-white);        /* White header */
+  --color-bg-hero: var(--mint-lighter);            /* Very light mint hero */
+  --color-bg-features: var(--color-bg-white);      /* White features */
+  --color-bg-about: var(--sage-light);             /* Light sage about */
+  --color-bg-testimonials: var(--gray-100);        /* Light gray testimonials */
+  --color-bg-cta: var(--mint-primary);             /* Mint CTA */
+  --color-bg-footer: var(--gray-800);              /* Dark footer */
+
+  /* 🔲 Borders */
+  --color-border: var(--gray-300);
+  --color-border-light: var(--gray-200);
+  --color-border-hover: var(--mint-primary);
+
+  /* � Gradients */
+  --gradient-hero-overlay: linear-gradient(to right, rgba(127, 228, 168, 0.8) 0%, rgba(127, 228, 168, 0.4) 40%, transparent 70%);
+  --gradient-primary: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
+
+  /* �🌫️ Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-button: 0 4px 14px rgba(127, 228, 168, 0.25);
+  --shadow-button-hover: 0 8px 20px rgba(127, 228, 168, 0.35);
+
+  /* 🎯 Interactive States */
+  --color-hover: var(--color-primary-dark);
+  --color-active: var(--color-primary-darker);
+  --color-focus: var(--color-primary);
+}
+
+/* 📱 Global Styles */
+body {
+  background-color: var(--color-bg-white);
+  color: var(--color-text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+}
+
+/* 🎯 Utility Classes */
+.bg-light {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+
+.bg-dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}

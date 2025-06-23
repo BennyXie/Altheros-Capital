@@ -1,4 +1,3 @@
-import { Container } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { staggerContainer } from '../../animations/variants';
 import HeroSection from './sections/HeroSection';
