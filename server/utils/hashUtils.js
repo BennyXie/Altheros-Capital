@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 function getSecretHash(username, clientId, clientSecret) {
     return crypto
         .createHmac("SHA256", clientSecret)
