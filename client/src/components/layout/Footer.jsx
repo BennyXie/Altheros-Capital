@@ -1,14 +1,13 @@
-import { Container, Group, Text, Stack, Grid, TextInput, Textarea, Button } from '@mantine/core';
-import { IconMail, IconSend } from '@tabler/icons-react';
-import { useState } from 'react';
+import { Container, Group, Text, Stack, SimpleGrid } from '@mantine/core';
+import { IconBrandTwitter, IconBrandLinkedin, IconBrandFacebook } from '@tabler/icons-react';
 import { BRAND_CONFIG } from '../../config/landingConfig';
 import classes from './Footer.module.css';
 
 /**
  * Footer Component
  * 
- * Contact-focused footer with contact form.
- * Left side: Contact message, Right side: Email form
+ * Site footer with company information, social links, and legal pages.
+ * Configured through landingConfig.js for easy content management.
  * 
  * @component
  * @example
@@ -17,82 +16,74 @@ import classes from './Footer.module.css';
  * )
  */
 const Footer = () => {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const currentYear = new Date().getFullYear();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle form submission
-    console.log('Contact form submitted:', { email, message });
-    // Reset form
-    setEmail('');
-    setMessage('');
-  };
-
   return (
-    <footer id="contact" className={classes.footer}>
-      <Container size="xl" py={60}>
-        <Grid align="center" gutter={60}>
-          {/* Left Side - Contact Message */}
-          <Grid.Col span={{ base: 12, md: 5 }}>
-            <Stack gap="lg">
-              <Text size="xl" fw={700} className={classes.contactTitle}>
-                Questions? Contact Us!
-              </Text>
-              <Text size="md" c="dimmed" className={classes.contactDescription}>
-                We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-              </Text>
-              <Stack gap="xs">
-                <Text size="sm" className={classes.contactInfo}>
-                  📧 {BRAND_CONFIG.supportEmail}
-                </Text>
-                <Text size="sm" className={classes.contactInfo}>
-                  📞 {BRAND_CONFIG.phone}
-                </Text>
-              </Stack>
-            </Stack>
-          </Grid.Col>
+    <footer className={classes.footer}>
+      <Container size="xl" py={40}>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="xl">
+          {/* Company Info */}
+          <Stack gap="md">
+            <Text size="lg" fw={700} className={classes.logo}>
+              {BRAND_CONFIG.companyName}
+            </Text>
+            <Text size="sm" c="dimmed" className={classes.description}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </Text>
+            <Group gap="sm">
+              <a href={BRAND_CONFIG.social.twitter} className={classes.socialLink}>
+                <IconBrandTwitter size={20} />
+              </a>
+              <a href={BRAND_CONFIG.social.linkedin} className={classes.socialLink}>
+                <IconBrandLinkedin size={20} />
+              </a>
+              <a href={BRAND_CONFIG.social.facebook} className={classes.socialLink}>
+                <IconBrandFacebook size={20} />
+              </a>
+            </Group>
+          </Stack>
 
-          {/* Right Side - Contact Form */}
-          <Grid.Col span={{ base: 12, md: 7 }}>
-            <form onSubmit={handleSubmit} className={classes.contactForm}>
-              <Stack gap="md">
-                <TextInput
-                  label="Your Email"
-                  placeholder="Enter your email address"
-                  leftSection={<IconMail size={16} />}
-                  size="md"
-                  value={email}
-                  onChange={(event) => setEmail(event.currentTarget.value)}
-                  required
-                  className={classes.formInput}
-                />
-                
-                <Textarea
-                  label="Your Message"
-                  placeholder="Tell us how we can help you..."
-                  minRows={4}
-                  size="md"
-                  value={message}
-                  onChange={(event) => setMessage(event.currentTarget.value)}
-                  required
-                  className={classes.formInput}
-                />
-                
-                <Button
-                  type="submit"
-                  size="lg"
-                  color="brand"
-                  leftSection={<IconSend size={18} />}
-                  className={classes.submitButton}
-                >
-                  Send Message
-                </Button>
-              </Stack>
-            </form>
-          </Grid.Col>
-        </Grid>
+          {/* Product Links */}
+          <Stack gap="md">
+            <Text size="sm" fw={600} className={classes.sectionTitle}>
+              Product
+            </Text>
+            <Stack gap="xs">
+              <a href="#features" className={classes.footerLink}>Features</a>
+              <a href="#pricing" className={classes.footerLink}>Pricing</a>
+              <a href="#integrations" className={classes.footerLink}>Integrations</a>
+              <a href="#api" className={classes.footerLink}>API</a>
+            </Stack>
+          </Stack>
+
+          {/* Company Links */}
+          <Stack gap="md">
+            <Text size="sm" fw={600} className={classes.sectionTitle}>
+              Company
+            </Text>
+            <Stack gap="xs">
+              <a href="#about" className={classes.footerLink}>About</a>
+              <a href="#careers" className={classes.footerLink}>Careers</a>
+              <a href="#blog" className={classes.footerLink}>Blog</a>
+              <a href="#contact" className={classes.footerLink}>Contact</a>
+            </Stack>
+          </Stack>
+
+          {/* Support Links */}
+          <Stack gap="md">
+            <Text size="sm" fw={600} className={classes.sectionTitle}>
+              Support
+            </Text>
+            <Stack gap="xs">
+              <a href="#help" className={classes.footerLink}>Help Center</a>
+              <a href="#documentation" className={classes.footerLink}>Documentation</a>
+              <a href="#status" className={classes.footerLink}>Status</a>
+              <a href={`mailto:${BRAND_CONFIG.supportEmail}`} className={classes.footerLink}>
+                Contact Support
+              </a>
+            </Stack>
+          </Stack>
+        </SimpleGrid>
 
         {/* Bottom Bar */}
         <div className={classes.bottomBar}>

@@ -14,7 +14,7 @@
   color: var(--color-text-white);
   opacity: 0.9;
   line-height: 1.6;
-  max-width: 400px;
+  max-width: 250px;
 }
 
 .contactInfo {
@@ -49,45 +49,51 @@
   margin-bottom: 0.5rem;
 }
 
-.submitButton {
-  background: var(--mantine-color-brand-6) !important;
-  border: none;
-  transition: all 0.3s ease;
-  font-weight: 600;
+.footerLink {
+  color: var(--mantine-color-accent-2);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+  display: block;
+  padding: 0.25rem 0;
 }
 
-.submitButton:hover {
-  background: var(--mantine-color-brand-7) !important;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-button-hover);
+.footerLink:hover {
+  color: var(--mantine-color-accent-0);
+}
+
+.socialLink {
+  color: var(--mantine-color-accent-2);
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.socialLink:hover {
+  color: var(--mantine-color-accent-4);
+  background: var(--mantine-color-accent-9);
+  transform: translateY(-2px);
 }
 
 .bottomBar {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--mantine-color-gray-7);
 }
 
 .legalLink {
-  color: var(--mantine-color-accent-2);
+  color: var(--text-light);
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s ease;
 }
 
 .legalLink:hover {
-  color: var(--mantine-color-accent-0);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .contactForm {
-    padding: 1.5rem;
-  }
-  
-  .contactTitle {
-    text-align: center;
-  }
+  color: var(--mantine-color-accent-4);
 }
 
 @media (max-width: 768px) {

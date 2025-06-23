@@ -1,10 +1,10 @@
-import { Container, Group, Button, Burger, Menu, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconChevronDown } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
-import { NAVIGATION_CONFIG, BRAND_CONFIG } from '../../config/landingConfig';
-import classes from './Header.module.css';
+import { Container, Group, Button, Menu, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconChevronDown } from "@tabler/icons-react";
+import { motion } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
+import classes from "./Header.module.css";
 
 /**
  * Header Component
@@ -15,7 +15,7 @@ import classes from './Header.module.css';
  * Features:
  * - Responsive design
  * - Mobile hamburger menu
- * - React Router navigation between pages
+ * - Smooth scrolling to sections
  * - CTA button
  *
  * @component

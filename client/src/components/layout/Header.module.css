@@ -50,7 +50,6 @@
   border: none !important;
   transition: transform 0.2s ease;
   white-space: nowrap;
-  margin-left: 0.5rem;
 }
 
 .ctaButton:hover {

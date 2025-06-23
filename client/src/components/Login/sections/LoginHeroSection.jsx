@@ -1,30 +1,39 @@
-import { Container, Title, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
+import { Container, Title, Text, Stack } from '@mantine/core';
 import { slideInLeft } from '../../../animations/variants';
-import { LOGIN_HERO_CONFIG } from '../../../config/loginConfig';
 import classes from './LoginHeroSection.module.css';
 
 /**
  * Login Hero Section Component
  * 
- * Following the same pattern as other hero sections.
- * Uses theme.js for styling and loginConfig.js for content.
+ * Hero section for the login page with title and description.
  */
 const LoginHeroSection = () => {
   return (
     <section className={classes.hero}>
-      <Container size="sm" py={60}>
-        <motion.div
-          variants={slideInLeft}
-          initial="initial"
-          animate="animate"
-        >
-          <Title order={1} ta="center" mb="lg" c="white" className={classes.title}>
-            {LOGIN_HERO_CONFIG.headline}
-          </Title>
-          <Text size="lg" ta="center" c="gray.1" mb={50}>
-            {LOGIN_HERO_CONFIG.description}
-          </Text>
+      <Container size="lg">
+        <motion.div variants={slideInLeft}>
+          <Stack gap="xl" ta="center">
+            <Title 
+              order={1} 
+              size="h1" 
+              fw={700}
+              c="var(--color-primary)"
+              style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
+            >
+              Welcome Back
+            </Title>
+            
+            <Text 
+              size="lg" 
+              c="var(--color-text-secondary)"
+              maw={600}
+              mx="auto"
+              lh={1.6}
+            >
+              Sign in to your account to access your dashboard and manage your investments.
+            </Text>
+          </Stack>
         </motion.div>
       </Container>
     </section>
