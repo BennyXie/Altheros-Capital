@@ -1,6 +1,6 @@
-import { Container, Title, Text, Button, Group, Stack } from "@mantine/core";
+import { Container, Title, Button, Group, Stack } from "@mantine/core";
 import { motion } from "framer-motion";
-import { slideInLeft, slideInRight } from "../../../animations/variants";
+import { slideInLeft } from "../../../animations/variants";
 import { HERO_CONFIG } from "../../../config/landingConfig";
 import classes from "./HeroSection.module.css";
 import heroImage from "../../../assets/hero.png";
