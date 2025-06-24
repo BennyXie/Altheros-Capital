@@ -10,7 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const app = express();
 
 // define port, stored in server/.env
-const PORT = process.env.PORT || 5050;
+const PORT = process.env.PORT || 8080;
 
 // initializing the app
 app.use(cors());
