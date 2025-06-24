@@ -150,22 +150,20 @@ export const CTA_CONFIG = {
 export const NAVIGATION_CONFIG = {
   logo: logoImage, // Update with actual logo path
   menuItems: [
-    { label: 'Features', href: '#features' },
-    { label: 'About', href: '#about' },
-    { label: 'Testimonials', href: '#testimonials' },
+    { label: 'About', href: '/about' },
     { label: 'Contact', href: '#contact' }
   ],
   ctaButtons: [
     {
-      label: 'Connect with a Provider',
-      href: '/signup',
-      variant: 'filled',
+      label: 'Login',
+      href: '/login',
+      variant: 'outline',
       color: 'blue'
     },
     {
-      label: 'Connect with a Therapist',
-      href: '/login',
-      variant: 'outline',
+      label: 'Get Started',
+      href: '/signup',
+      variant: 'filled',
       color: 'blue'
     }
   ]
