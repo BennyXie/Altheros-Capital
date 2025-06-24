@@ -1,0 +1,58 @@
+.technologies{
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.containerTop{
+  background-color: #DD614A; /* need to like generalize this in theme.ks */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.containerMiddle{
+  background-color: #F0EEE2;
+   border-radius: 12px;
+}
+
+.containerBottom{
+  background-color: #DD614A; 
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  margin-bottom: 30px;
+}
+
+
+
+.featureCard {
+  width: 400px;
+  height: 100px;
+  cursor: pointer;
+  background: var(--bg-primary);
+  padding: 7px;
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-card-hover) !important;
+  border-color: var(--mantine-color-accent-4);
+  transform: scale(1.02);
+}
+
+.featureTitle{
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.featureText {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+
+.appMockup{
+  width: 300px;
+  height: 530px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

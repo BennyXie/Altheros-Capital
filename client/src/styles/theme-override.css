@@ -12,6 +12,12 @@ section[id="features"],
   background-color: #ffffff !important; /* bg-primary - creamy eggshell */
 }
 
+
+section[id="technologies"],
+*[class*="technologies"] {
+  background-color: #ffffff !important; /* bg-primary - creamy eggshell */
+}
+
 section[id="about"],
 *[class*="about"] {
   background-color: #34d399 !important; /* brand.5 - vibrant mint */

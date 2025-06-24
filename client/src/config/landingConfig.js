@@ -1,4 +1,6 @@
 import logoImage from "../assets/logo.png";
+import Snoopy from "../assets/previewImages/snoopy.png";
+import WoodStock from "../assets/previewImages/woodstock.png";
 
 /**
  * Landing Page Configuration
@@ -40,6 +42,41 @@ export const HERO_CONFIG = {
   primaryCTA: 'Connect with a Provider',
   secondaryCTA: 'Connect with a Therapist'
 };
+
+export const TECHNOLOGIES_CONFIG = {
+  title: 'Smart Features,',
+  title2:  'Seamless Experience',
+  description: 'Our Technologies ->',
+  text:  'Our proprietary digital platform powers every interaction—bridging the gap between physical and virtual care through elegant, secure, and responsive technology.',
+  cards: [
+    {
+      title: 'Patient-First Mobile App',
+      description: 'with real-time scheduling, telehealth, and medication tracking',
+      preview: Snoopy,
+      previewAlt: "snoopy"
+    },
+    {
+      title: 'AI-Enabled',
+      description: 'intake workflows and smart triage logic',
+      preview: WoodStock,
+      previewAlt: "WoodStock"
+    },
+    {
+       title: 'Robust EMR',
+      description: 'interoperability for provider efficiency',
+    },
+    {
+       title: 'Administrative Dashboards',
+      description: 'for data insights and resource management',
+    },
+    {
+       title: 'HIPPA-GRade Security',
+      description: 'and compliance across every touchpoint',
+    },
+  ]
+};
+
+
 
 // Features section content
 export const FEATURES_CONFIG = {
