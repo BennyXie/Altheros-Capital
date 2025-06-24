@@ -1,23 +1,51 @@
 .footer {
-  background: var(--mantine-color-accent-7);
-  color: var(--mantine-color-accent-0);
+  background: var(--color-bg-footer);
+  color: var(--color-text-white);
   margin-top: auto;
 }
 
-.logo {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.contactTitle {
+  color: var(--color-text-white);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 1rem;
 }
 
-.description {
+.contactDescription {
+  color: var(--color-text-white);
+  opacity: 0.9;
   line-height: 1.6;
   max-width: 250px;
 }
 
-.sectionTitle {
-  color: var(--mantine-color-accent-0);
+.contactInfo {
+  color: var(--color-text-white);
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.contactForm {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.formInput input,
+.formInput textarea {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid var(--mantine-color-gray-3) !important;
+  color: var(--mantine-color-dark-7) !important;
+}
+
+.formInput input:focus,
+.formInput textarea:focus {
+  border-color: var(--mantine-color-brand-6) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+}
+
+.formInput label {
+  color: var(--mantine-color-accent-0) !important;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 

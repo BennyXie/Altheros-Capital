@@ -1,16 +1,15 @@
 .testimonials {
-  background: var(--bg-primary);
+  background: var(--color-bg-testimonials);
   position: relative;
 }
 
 .title {
-  /* Title styling now handled by theme.js Title component */
-  color: var(--mantine-color-accent-6);
+  color: var(--color-text-primary);
 }
 
 .testimonialCard {
-  background: var(--bg-primary);
-  border: 1px solid var(--mantine-color-accent-2);
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
   transition: all 0.3s ease;
   height: 100%;
   position: relative;
