@@ -1,5 +1,5 @@
 import { Container, Title, TextInput, PasswordInput, Button, Stack, Paper, Text, Group } from '@mantine/core';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 /**
@@ -8,6 +8,14 @@ import { motion } from 'framer-motion';
  * Simple login page with email and password fields
  */
 const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // For now, just navigate to dashboard without authentication
+    navigate('/dashboard');
+  };
+
   return (
     <Container size="sm" py={80}>
       <motion.div
@@ -16,44 +24,46 @@ const LoginPage = () => {
         transition={{ duration: 0.5 }}
       >
         <Paper shadow="md" p={50} radius="md" withBorder>
-          <Stack gap="lg">
-            <div style={{ textAlign: 'center' }}>
-              <Title order={2}>Welcome back</Title>
-              <Text c="dimmed" size="sm" mt={5}>
-                Don't have an account?{' '}
-                <Link to="/signup" style={{ textDecoration: 'none' }}>
-                  <Text component="span" c="blue" fw={500}>
-                    Create account
+          <form onSubmit={handleLogin}>
+            <Stack gap="lg">
+              <div style={{ textAlign: 'center' }}>
+                <Title order={2}>Welcome back</Title>
+                <Text c="dimmed" size="sm" mt={5}>
+                  Don't have an account?{' '}
+                  <Link to="/signup" style={{ textDecoration: 'none' }}>
+                    <Text component="span" c="blue" fw={500}>
+                      Create account
+                    </Text>
+                  </Link>
+                </Text>
+              </div>
+
+              <Stack gap="md">
+                <TextInput
+                  label="Email"
+                  placeholder="your@email.com"
+                  required
+                />
+                <PasswordInput
+                  label="Password"
+                  placeholder="Your password"
+                  required
+                />
+              </Stack>
+
+              <Button type="submit" fullWidth>
+                Sign in
+              </Button>
+
+              <Group justify="center">
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                  <Text size="sm" c="dimmed">
+                    ← Back to home
                   </Text>
                 </Link>
-              </Text>
-            </div>
-
-            <Stack gap="md">
-              <TextInput
-                label="Email"
-                placeholder="your@email.com"
-                required
-              />
-              <PasswordInput
-                label="Password"
-                placeholder="Your password"
-                required
-              />
+              </Group>
             </Stack>
-
-            <Button fullWidth>
-              Sign in
-            </Button>
-
-            <Group justify="center">
-              <Link to="/" style={{ textDecoration: 'none' }}>
-                <Text size="sm" c="dimmed">
-                  ← Back to home
-                </Text>
-              </Link>
-            </Group>
-          </Stack>
+          </form>
         </Paper>
       </motion.div>
     </Container>
