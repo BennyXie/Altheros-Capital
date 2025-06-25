@@ -6,6 +6,7 @@ const cors = require("cors");
 const db = require("./db/pool")
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes   = require("./routes/aiRoutes")
+const aiRoutes   = require("./routes/aiRoutes")
 
 // using express
 const app = express();
