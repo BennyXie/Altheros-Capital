@@ -154,9 +154,6 @@ const Footer = () => {
           <Text size="xs" c="dimmed">
             © {currentYear} {BRAND_CONFIG.companyName}. All rights reserved.
           </Text>
-          <Text size="xs" c="dimmed">
-            Made with ❤️ for better healthcare
-          </Text>
         </Group>
       </Container>
     </footer>

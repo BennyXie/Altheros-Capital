@@ -17,7 +17,6 @@ import {
   Progress,
   Card
 } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
@@ -31,7 +30,7 @@ import { notifications } from '@mantine/notifications';
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    dob: null,
+    dob: '',
     gender: '',
     address: '',
     phoneNumber: '',
@@ -111,8 +110,7 @@ const CompleteProfilePage = () => {
   const calculateProgress = () => {
     const requiredFields = ['dob', 'gender', 'address', 'phoneNumber'];
     const filledRequired = requiredFields.filter(field => {
-      if (field === 'dob') return formData[field] !== null;
-      return formData[field] && formData[field].trim() !== '';
+      return formData[field] && formData[field].toString().trim() !== '';
     }).length;
     
     const optionalFields = [
@@ -137,8 +135,46 @@ const CompleteProfilePage = () => {
     return Math.round((filledFields / totalFields) * 100);
   };
 
+  const formatDateInput = (value) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply YYYY-MM-DD formatting
+    if (digits.length <= 4) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    } else {
+      return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+    }
+  };
+
+  const handleDateChange = (value) => {
+    const formatted = formatDateInput(value);
+    handleInputChange('dob', formatted);
+  };
+
+  const isValidDate = (dateString) => {
+    // Check format YYYY-MM-DD
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) return false;
+    
+    const [year, month, day] = dateString.split('-').map(num => parseInt(num));
+    
+    // Basic range checks
+    if (year < 1900 || year > new Date().getFullYear()) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+    
+    // More detailed date validation
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && 
+           date.getMonth() === month - 1 && 
+           date.getDate() === day;
+  };
+
   const isFormValid = () => {
-    return formData.dob && 
+    return isValidDate(formData.dob) &&
            formData.gender && 
            formData.address.trim() && 
            formData.phoneNumber.trim();
@@ -150,7 +186,7 @@ const CompleteProfilePage = () => {
     if (!isFormValid()) {
       notifications.show({
         title: 'Incomplete Form',
-        message: 'Please fill in all required fields',
+        message: 'Please fill in all required fields and ensure date is valid (YYYY-MM-DD format)',
         color: 'red'
       });
       return;
@@ -220,14 +256,18 @@ const CompleteProfilePage = () => {
                   
                   <Grid>
                     <Grid.Col span={{ base: 12, md: 6 }}>
-                      <DateInput
+                      <TextInput
                         label="Date of Birth *"
-                        placeholder="Select your birth date"
+                        placeholder="YYYY-MM-DD"
                         value={formData.dob}
-                        onChange={(value) => handleInputChange('dob', value)}
-                        maxDate={new Date()}
+                        onChange={(e) => handleDateChange(e.target.value)}
+                        maxLength={10}
                         required
+                        error={formData.dob && !isValidDate(formData.dob) ? 'Please enter a valid date in YYYY-MM-DD format' : null}
                       />
+                      <Text size="xs" c="dimmed" mt={4}>
+                        Enter your birth date in YYYY-MM-DD format (e.g., 1990-12-25)
+                      </Text>
                     </Grid.Col>
                     
                     <Grid.Col span={{ base: 12, md: 6 }}>
@@ -239,6 +279,9 @@ const CompleteProfilePage = () => {
                         onChange={(value) => handleInputChange('gender', value)}
                         required
                       />
+                      <Text size="xs" c="dimmed" mt={4} style={{ opacity: 0 }}>
+                        Placeholder text for alignment
+                      </Text>
                     </Grid.Col>
                     
                     <Grid.Col span={12}>

@@ -38,7 +38,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Complete Your Profile</Text>
@@ -46,24 +46,28 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
-                    <Text size="sm" c="dimmed">
-                      Complete your account setup to unlock all features and get personalized healthcare recommendations.
-                    </Text>
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
+                    <div>
+                      <Text size="sm" c="dimmed">
+                        Complete your account setup to unlock all features and get personalized healthcare recommendations.
+                      </Text>
+                    </div>
                     
-                    <Progress value={25} color="orange" size="sm" />
-                    <Text size="xs" c="dimmed">25% Complete</Text>
-                    
-                    <Button 
-                      component={Link}
-                      to="/complete-profile"
-                      variant="filled"
-                      color="blue"
-                      leftSection={<IconUser size={16} />}
-                      mt="auto"
-                    >
-                      Complete Profile
-                    </Button>
+                    <Stack gap="xs">
+                      <Progress value={25} color="orange" size="sm" />
+                      <Text size="xs" c="dimmed">25% Complete</Text>
+                      
+                      <Button 
+                        component={Link}
+                        to="/complete-profile"
+                        variant="filled"
+                        color="blue"
+                        leftSection={<IconUser size={16} />}
+                        size="sm"
+                      >
+                        Complete Profile
+                      </Button>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
@@ -75,7 +79,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Health Overview</Text>
@@ -83,20 +87,23 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <Text size="sm" c="dimmed">
                       Track your health metrics and view your wellness journey.
                     </Text>
                     
-                    <Button 
-                      variant="light"
-                      color="red"
-                      leftSection={<IconHeart size={16} />}
-                      disabled
-                    >
-                      View Health Data
-                    </Button>
-                    <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="red"
+                        leftSection={<IconHeart size={16} />}
+                        disabled
+                        size="sm"
+                      >
+                        View Health Data
+                      </Button>
+                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
@@ -108,7 +115,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Appointments</Text>
@@ -116,20 +123,23 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <Text size="sm" c="dimmed">
                       Schedule and manage your healthcare appointments.
                     </Text>
                     
-                    <Button 
-                      variant="light"
-                      color="green"
-                      leftSection={<IconCalendar size={16} />}
-                      disabled
-                    >
-                      Schedule Appointment
-                    </Button>
-                    <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="green"
+                        leftSection={<IconCalendar size={16} />}
+                        disabled
+                        size="sm"
+                      >
+                        Schedule Appointment
+                      </Button>
+                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
@@ -141,7 +151,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Medical Records</Text>
@@ -149,20 +159,23 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <Text size="sm" c="dimmed">
                       Access and manage your medical records securely.
                     </Text>
                     
-                    <Button 
-                      variant="light"
-                      color="blue"
-                      leftSection={<IconClipboardList size={16} />}
-                      disabled
-                    >
-                      View Records
-                    </Button>
-                    <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="blue"
+                        leftSection={<IconClipboardList size={16} />}
+                        disabled
+                        size="sm"
+                      >
+                        View Records
+                      </Button>
+                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
@@ -174,7 +187,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Notifications</Text>
@@ -182,20 +195,23 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <Text size="sm" c="dimmed">
                       Stay updated with important health reminders and alerts.
                     </Text>
                     
-                    <Button 
-                      variant="light"
-                      color="yellow"
-                      leftSection={<IconBell size={16} />}
-                      disabled
-                    >
-                      View Notifications
-                    </Button>
-                    <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="yellow"
+                        leftSection={<IconBell size={16} />}
+                        disabled
+                        size="sm"
+                      >
+                        View Notifications
+                      </Button>
+                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
@@ -207,7 +223,7 @@ const DashboardPage = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder h={200}>
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
                       <Text fw={500} size="lg">Account Settings</Text>
@@ -215,20 +231,23 @@ const DashboardPage = () => {
                     </Group>
                   </Card.Section>
 
-                  <Stack gap="md" mt="md">
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <Text size="sm" c="dimmed">
                       Manage your account preferences and privacy settings.
                     </Text>
                     
-                    <Button 
-                      variant="light"
-                      color="gray"
-                      leftSection={<IconSettings size={16} />}
-                      disabled
-                    >
-                      Manage Settings
-                    </Button>
-                    <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="gray"
+                        leftSection={<IconSettings size={16} />}
+                        disabled
+                        size="sm"
+                      >
+                        Manage Settings
+                      </Button>
+                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                    </Stack>
                   </Stack>
                 </Card>
               </motion.div>
