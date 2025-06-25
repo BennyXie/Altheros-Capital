@@ -6,6 +6,8 @@ const cors = require("cors");
 const db = require("./db/pool")
 const authRoutes = require("./routes/authRoutes");
 
+const providersRoutes = require("./routes/providers")
+
 // using express
 const app = express();
 
@@ -18,6 +20,9 @@ app.use(express.json());
 
 // All authRoutes start with /api/auth
 app.use("/api/auth", authRoutes);
+
+// providers
+app.use("/providers", providersRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
