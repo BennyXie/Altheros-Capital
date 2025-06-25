@@ -38,7 +38,6 @@ const TechnologiesSection = () => {
   const cards = TECHNOLOGIES_CONFIG.cards;
 
   const[hoveredIndex, setHoveredIndex] = useState(null);
-
   return (
     <section id="technologies" className={classes.technologies}>
       <motion.div
@@ -47,6 +46,7 @@ const TechnologiesSection = () => {
         whileInView="animate"
         viewport={{ once: true }}
       >
+        {/* TOP CONTAINER */}
         <Container 
           fluid style={{ maxWidth: '80%' }} 
           py={20} 
@@ -73,24 +73,28 @@ const TechnologiesSection = () => {
                     {TECHNOLOGIES_CONFIG.title2}
                   </Title>
 
-                  <Text size="lg" c="accent.5" ta="left"> 
+                  <Text size="lg" c="black" ta="left"> 
                     {TECHNOLOGIES_CONFIG.description}
                   </Text>
                 </Stack>
               </motion.div>
           </Container>
         </Container>
+
+        {/* MIDDLE CONTAINER */}
         <Container 
           fluid 
           className={classes.containerMiddle}
           style={{ maxWidth: '85%' }}
         >
-          <Container>
-            <Text size="lg" c="accent.5" ta="left"> 
+          <Container style={{ maxWidth: '80%' }}>
+            <Text className={classes.middleText}> 
               {TECHNOLOGIES_CONFIG.text}
             </Text>
           </Container>
         </Container>
+
+        {/* BOTTOM CONTAINER */}
         <Container fluid style={{ maxWidth: '80%' }} py={80} className={classes.containerBottom}>
           <Flex justify="space-between" align="center" gap="xl"> 
             <Box w="50%" align="center">
@@ -147,7 +151,7 @@ const TechnologiesSection = () => {
                   </motion.div>
                 );
               })}
-            </Stack>
+              </Stack>
             </Box>
           </Flex>
         </Container>
