@@ -15,7 +15,9 @@ const PORT = process.env.PORT || 8080;
 // initializing the app
 app.use(cors());
 app.use(express.json());
-app.use(authRoutes);
+
+// All authRoutes start with /api/auth
+app.use("api/auth", authRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
