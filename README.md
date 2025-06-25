@@ -24,7 +24,7 @@ docker-compose up
 ## Once Running
 
 - Frontend available at: http://localhost:3000
-- Backend available at: http://localhost:5050
+- Backend available at: http://localhost:8080
 
 ---
 
