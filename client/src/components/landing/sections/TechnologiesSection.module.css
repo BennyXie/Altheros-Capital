@@ -1,0 +1,64 @@
+.technologies{
+  background: var(--color-bg-white); 
+  position: relative;
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+
+.containerTop{
+  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%); /* need to like generalize this in theme.ks */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.containerMiddle{
+  background-color: var(--gray-50);
+   border-radius: 12px;
+  padding: 10px;
+}
+
+.middleText{
+  font-size: 1.2rem;
+  color: black !important;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.containerBottom{
+  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+
+.featureCard {
+  width: 400px;
+  height: 100px;
+  cursor: pointer;
+  background-color: var(--color-white) !important;
+  padding: 7px;
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-card-hover) !important;
+  border-color: var(--mantine-color-accent-4);
+  transform: scale(1.02);
+}
+
+.featureTitle{
+  font-size: 1rem !important;
+}
+
+.featureText {
+  font-size: 1rem !important;
+}
+
+
+.appMockup{
+  width: 300px;
+  height: 530px;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
