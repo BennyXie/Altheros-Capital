@@ -86,22 +86,29 @@ const AboutPage = () => {
           className={classes.background}
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        
-        <div className={classes.gradientOverlay} />
-        <div className={classes.grainOverlay} />
-        
-        <Container size="xl" className={classes.container}>
-          <motion.div variants={slideInLeft}>
-            <Stack gap="md" className={classes.content}>
-              <Title order={1} className={classes.title}>
-                Premium healthcare{' '}
-                <span className={classes.highlightedText}>
-                  shouldn't be a luxury
-                </span>
-              </Title>
-            </Stack>
-          </motion.div>
-        </Container>
+
+        <div className={classes.overlay}>
+          <Container
+            size="xl"
+            className={classes.container}
+          >
+            <motion.div variants={slideInLeft}>
+              <Stack gap="md" className={classes.content}>
+                <Title order={1} className={classes.title}>
+                  Premium healthcare
+                  <br />
+                  <span className={classes.highlightedText}>
+                    shouldn't be a
+                  </span>
+                  <br />
+                  <span className={classes.highlightedText}>
+                    luxury
+                  </span>
+                </Title>
+              </Stack>
+            </motion.div>
+          </Container>
+        </div>
       </section>
 
       {/* Content Section */}
