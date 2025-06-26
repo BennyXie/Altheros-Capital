@@ -9,7 +9,7 @@ const saltRounds = 10;
 async function testCognito(req, res) {
   try {
     const response = await signUpUser({
-      username: "testuing@example.com",
+      username: "test@example.com",
       password: "TestPass123!",
       givenName: "John",
       familyName: "Smith",
@@ -22,8 +22,7 @@ async function testCognito(req, res) {
 }
 
 async function signUpHelper(req, res) {
-  //TODO
-  //1. We need to modify the database schema to include the password.
+  //Notice: The password is hashed before being stored in the database to ensure security.
   try {
     const role = req.body.role;
 
@@ -41,13 +40,16 @@ async function signUpHelper(req, res) {
         health_provider_id,
         is_active,
         cognito_sub,
+        password
       } = req.body;
+
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       const query = `
         INSERT INTO patients (
           email, first_name, last_name, dob, gender, address, phone_number,
-          insurance, current_medication, health_provider_id, is_active, cognito_sub
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          insurance, current_medication, health_provider_id, is_active, cognito_sub, password
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       `;
 
       const values = [
@@ -63,6 +65,7 @@ async function signUpHelper(req, res) {
         health_provider_id,
         is_active,
         cognito_sub,
+        hashedPassword
       ];
 
       await db.query(query, values);
