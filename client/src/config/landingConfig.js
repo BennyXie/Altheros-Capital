@@ -187,15 +187,23 @@ export const CTA_CONFIG = {
 export const NAVIGATION_CONFIG = {
   logo: logoImage, // Update with actual logo path
   menuItems: [
-    { label: 'Features', href: '#features' },
-    { label: 'About', href: '#about' },
-    { label: 'Testimonials', href: '#testimonials' },
+    { label: 'About', href: '/about' },
     { label: 'Contact', href: '#contact' }
   ],
-  ctaButton: {
-    label: 'CTA Button',
-    href: '/signup'
-  }
+  ctaButtons: [
+    {
+      label: 'Login',
+      href: '/login',
+      variant: 'outline',
+      color: 'blue'
+    },
+    {
+      label: 'Get Started',
+      href: '/signup',
+      variant: 'filled',
+      color: 'blue'
+    }
+  ]
 };
 
 // SEO and metadata
