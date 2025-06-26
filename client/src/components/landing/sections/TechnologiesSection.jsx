@@ -87,11 +87,16 @@ const TechnologiesSection = () => {
           className={classes.containerMiddle}
           style={{ maxWidth: '85%' }}
         >
-          <Container style={{ maxWidth: '80%' }}>
-            <Text className={classes.middleText}> 
-              {TECHNOLOGIES_CONFIG.text}
-            </Text>
-          </Container>
+          <motion.div
+            variants={fadeInUp}
+            transition={{ delay: 0.1 }}
+          >
+            <Container style={{ maxWidth: '80%' }}>
+              <Text className={classes.middleText}> 
+                {TECHNOLOGIES_CONFIG.text}
+              </Text>
+            </Container>
+          </motion.div>
         </Container>
 
         {/* BOTTOM CONTAINER */}

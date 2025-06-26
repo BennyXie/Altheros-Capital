@@ -1,16 +1,18 @@
 .technologies{
-  background: var(--bg-primary);
+  background: var(--color-bg-white); 
   position: relative;
+  padding-bottom: 20px;
+  padding-top: 20px;
 }
 
 .containerTop{
-  background-color: #5E8C51; /* need to like generalize this in theme.ks */
+  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%); /* need to like generalize this in theme.ks */
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
 }
 
 .containerMiddle{
-  background-color: #F0EEE2;
+  background-color: var(--gray-50);
    border-radius: 12px;
   padding: 10px;
 }
@@ -23,10 +25,9 @@
 }
 
 .containerBottom{
-  background-color: #5E8C51; 
+  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-  margin-bottom: 30px;
 }
 
 
@@ -34,7 +35,7 @@
   width: 400px;
   height: 100px;
   cursor: pointer;
-  background: var(--bg-primary);
+  background-color: var(--color-white) !important;
   padding: 7px;
 }
 
@@ -57,7 +58,7 @@
 .appMockup{
   width: 300px;
   height: 530px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
