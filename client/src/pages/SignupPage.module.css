@@ -1,0 +1,82 @@
+/* Signup Page Styles */
+.signupPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-bg-white));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.signupContainer {
+  width: 100%;
+  max-width: 450px;
+}
+
+.signupPaper {
+  padding: 2rem;
+  background: var(--color-bg-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-text-secondary);
+}
+
+.form {
+  gap: 1rem;
+}
+
+.submitButton {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  background: var(--color-primary-dark);
+}
+
+.googleButton {
+  background: white;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.googleButton:hover {
+  transform: translateY(-2px);
+  background: var(--color-bg-light);
+}
+
+.divider {
+  margin: 1.5rem 0;
+}
+
+.loginLink {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.loginLinkText {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.loginLinkText:hover {
+  text-decoration: underline;
+}

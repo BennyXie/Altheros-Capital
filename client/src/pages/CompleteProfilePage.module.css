@@ -1,0 +1,136 @@
+/* Complete Profile Page Styles */
+.profilePage {
+  min-height: 100vh;
+  background: var(--color-bg-light);
+  padding: 2rem 0;
+}
+
+.profileContainer {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profileHeader {
+  background: var(--color-bg-white);
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.profileTitle {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.profileSubtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.progressSection {
+  margin-bottom: 1rem;
+}
+
+.progressText {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.profileForm {
+  background: var(--color-bg-white);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.formSection {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.formSection:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sectionTitle {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.formGrid {
+  gap: 1rem;
+}
+
+.dobContainer {
+  position: relative;
+}
+
+.dobInput {
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.dobError {
+  color: var(--color-error, #ff6b6b);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.genderGroup {
+  gap: 0.5rem;
+}
+
+.genderRadio {
+  accent-color: var(--color-primary);
+}
+
+.submitButton {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  background: var(--color-primary-dark);
+}
+
+.submitButton:disabled {
+  background: var(--color-bg-medium);
+  color: var(--color-text-muted);
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1rem 0;
+  }
+  
+  .profileHeader {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profileForm {
+    padding: 1.5rem;
+  }
+  
+  .formSection {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+}

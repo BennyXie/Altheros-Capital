@@ -151,6 +151,7 @@ export const NAVIGATION_CONFIG = {
   logo: logoImage, // Update with actual logo path
   menuItems: [
     { label: 'About', href: '/about' },
+    { label: 'Providers', href: '/providers' },
     { label: 'Contact', href: '#contact' }
   ],
   ctaButtons: [

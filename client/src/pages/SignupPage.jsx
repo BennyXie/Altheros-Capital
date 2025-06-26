@@ -3,6 +3,7 @@ import { Container, Title, Text, Paper, TextInput, PasswordInput, Button, Stack,
 import { IconBrandGoogle } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { slideInLeft, staggerContainer } from '../animations/variants';
+import classes from './SignupPage.module.css';
 
 /**
  * Signup Page Component
