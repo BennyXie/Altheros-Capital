@@ -19,7 +19,12 @@ function App() {
   return (
     <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications />
-      <Router>
+      <Router 
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}
+      >
         <ScrollToTop />
         <AppShell
           header={{ height: 60 }}
