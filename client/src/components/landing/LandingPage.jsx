@@ -4,6 +4,7 @@ import HeroSection from './sections/HeroSection';
 import FeaturesSection from './sections/FeaturesSection';
 import AboutSection from './sections/AboutSection';
 import TestimonialsSection from './sections/TestimonialsSection';
+import TechnologiesSection from './sections/TechnologiesSection';
 import CTASection from './sections/CTASection';
 
 /**
@@ -41,6 +42,8 @@ const LandingPage = () => {
       
       {/* Testimonials Section - Social proof and customer feedback */}
       <TestimonialsSection />
+
+      <TechnologiesSection />
       
       {/* CTA Section - Final conversion opportunity */}
       <CTASection />
