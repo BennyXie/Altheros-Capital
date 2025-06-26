@@ -25,6 +25,7 @@ async function signUpHelper(req, res) {
   //Notice: The password is hashed before being stored in the database to ensure security.
   try {
     const role = req.body.role;
+    const now = new Date().toISOString();
 
     if (role === "patient") {
       const {
@@ -35,21 +36,34 @@ async function signUpHelper(req, res) {
         gender,
         address,
         phone_number,
-        insurance,
-        current_medication,
+        insurance = null,
+        current_medication = null,
         health_provider_id,
-        is_active,
         cognito_sub,
-        password
+        password,
+        symptoms = [],
+        languages = [],
+        preferences = {},
       } = req.body;
+
+      const {
+        preferredProviderGender = null,
+        smsOptIn = false,
+        languagePreference = null,
+        insuranceRequired = false,
+        optInContact = false,
+      } = preferences;
 
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+      //Insert patient into the database
       const query = `
         INSERT INTO patients (
           email, first_name, last_name, dob, gender, address, phone_number,
-          insurance, current_medication, health_provider_id, is_active, cognito_sub, password
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          insurance, current_medication, health_provider_id, is_active,
+          cognito_sub, password, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        RETURNING patient_id;
       `;
 
       const values = [
@@ -63,13 +77,62 @@ async function signUpHelper(req, res) {
         insurance,
         current_medication,
         health_provider_id,
-        is_active,
+        true,
         cognito_sub,
-        hashedPassword
+        hashedPassword,
+        now, // created_at
+        now, // updated_at
       ];
 
-      await db.query(query, values);
-      return res.redirect("/helloworld"); 
+      const result = await db.query(query, values);
+      const patientId = result.rows[0].patient_id;  // Get the newly created patient ID
+
+      // Insert symptoms if provided
+      for (const symptom of symptoms) {
+        const insertSymptomQuery = `
+          INSERT INTO symptoms (patient_id, symptom_text, recorded_at)
+          VALUES ($1, $2, $3)
+        `;
+        const symptomValues = [patientId, symptom, now];
+        await db.query(insertSymptomQuery, symptomValues);
+      }
+
+      // Insert languages if provided
+      const patientLan = languages.join(" ");
+      const insertLanguageQuery = `
+        INSERT INTO patient_language (patient_id, language)
+        VALUES ($1, $2)
+      `;
+      const languageValues = [patientId, patientLan];
+      await db.query(insertLanguageQuery, languageValues);
+
+      // Insert patient preferences if provided
+      const insertPrefQuery = `
+        INSERT INTO patient_preferences (
+          patient_id,
+          preferred_provider_gender,
+          sms_opt_in,
+          language_preference,
+          insurance_required,
+          opt_in_contact,
+          created_at,
+          updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+      `;
+
+      const insertPrefValues = [
+        patientId,
+        preferredProviderGender,
+        smsOptIn,
+        languagePreference,
+        insuranceRequired,
+        optInContact,
+        now,
+      ];
+
+      await db.query(insertPrefQuery, insertPrefValues);
+
+      return res.redirect("/helloworld");
     } else if (role === "provider") {
       const {
         cognito_sub,
@@ -81,14 +144,13 @@ async function signUpHelper(req, res) {
         license,
         gender,
         bio,
-        is_active,
       } = req.body;
 
       const query = `
         INSERT INTO providers (
           cognito_sub, first_name, last_name, email, phone_number, address,
-          license, gender, bio, is_active
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          license, gender, bio, is_active, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       `;
 
       const values = [
@@ -101,10 +163,14 @@ async function signUpHelper(req, res) {
         license,
         gender,
         bio,
-        is_active,
+        true,
+        now, // created_at
+        now  // updated_at
       ];
 
       await db.query(query, values);
+
+
       return res.redirect("/helloworld"); 
     }
 
