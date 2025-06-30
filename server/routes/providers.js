@@ -115,16 +115,27 @@ router.get('/', async (req, res) => {
   GET /providers/:id (gets info of single provider)
     Returns provider info from DB
 */
-router.get('/:id', (req, res) => {
-  // TODO 
+router.get("/:id", async (req, res) => {
+  const providerId = req.params.id;
 
   try {
-    // TODO 
-  } catch (err) {
-    // TODO
-  }
+    const result = await db.oneOrNone(
+      `SELECT provider_id, first_name, last_name, email, phone_number, address, gender, bio 
+       FROM providers 
+       WHERE provider_id = $1 AND is_active = true`,
+      [providerId]
+    );
 
-})
+    if (!result) {
+      return res.status(404).json({ error: "Provider not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error("DB error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
 
 
 module.exports = router;
