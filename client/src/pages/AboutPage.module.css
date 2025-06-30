@@ -1,0 +1,118 @@
+/* About Page Hero Styles - Matching Landing Page Hero Exactly */
+.heroSection {
+  background: var(--color-bg-hero);
+  color: var(--color-text-primary);
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  z-index: 2;
+  width: 100%;
+  height: 85vh;
+}
+
+.heroSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-hero-overlay);
+  z-index: 1;
+}
+
+.grainOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.1;
+  z-index: 2;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.gradientOverlay {
+  /* This is handled by the ::before pseudo-element above */
+  display: none;
+}
+
+.overlay {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 4rem 1rem;
+}
+
+.container {
+  margin-left: 150px !important;
+}
+
+.content {
+  color: var(--color-text-primary);
+}
+
+.title {
+  color: var(--color-text-primary) !important;
+  margin-bottom: 1rem;
+  font-size: 5rem !important;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.highlightedText {
+  color: var(--color-text-primary) !important;
+  font-weight: 700;
+}
+
+.description {
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.buttons {
+  flex-direction: column !important;
+  gap: 30px;
+  align-items: flex-start !important;
+}
+
+.button {
+  background: var(--color-bg-white) !important;
+  color: var(--color-primary) !important;
+  border: none !important;
+  transition: transform 0.2s ease;
+  font-weight: 600;
+}
+
+.button:hover {
+  transform: translateY(-5px);
+  background: var(--color-bg-white) !important;
+  box-shadow: var(--shadow-button);
+}
+
+/* Responsive Design - Matching Landing Page Exactly */
+@media (max-width: 1000px) {
+  .title {
+    font-size: 3rem !important;
+  }
+  .container {
+    margin-left: 10px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    min-height: 70vh;
+  }
+}
