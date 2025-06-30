@@ -37,6 +37,7 @@
   --color-primary-lighter: var(--mint-lighter);
   --color-primary-dark: var(--mint-dark);
   --color-primary-darker: var(--mint-darker);
+  --color-secondary: var(--sage-medium);
 
   /* 📝 Text Colors */
   --color-black: #000000;
@@ -59,7 +60,8 @@
   --color-bg-features: var(--color-bg-white);      /* White features */
   --color-bg-about: var(--sage-light);             /* Light sage about */
   --color-bg-testimonials: var(--gray-100);        /* Light gray testimonials */
-  --color-bg-cta: var(--mint-primary);             /* Mint CTA */
+  --color-bg-cta: var(--color-bg-white);           /* White CTA section background */
+  --color-bg-cta-card: #f0f9f4;                    /* Light pastel green CTA card */
   --color-bg-footer: var(--gray-800);              /* Dark footer */
 
   /* 🔲 Borders */
@@ -67,11 +69,11 @@
   --color-border-light: var(--gray-200);
   --color-border-hover: var(--mint-primary);
 
-  /* � Gradients */
-  --gradient-hero-overlay: linear-gradient(to right, rgba(127, 228, 168, 0.8) 0%, rgba(127, 228, 168, 0.4) 40%, transparent 70%);
+  /* 🌈 Gradients */
+  --gradient-hero-overlay: linear-gradient(to right, rgba(127, 228, 168, 0.9) 0%, rgba(127, 228, 168, 0.6) 30%, rgba(127, 228, 168, 0.3) 60%, transparent 100%);
   --gradient-primary: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
 
-  /* �🌫️ Shadows */
+  /* 🌫️ Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);

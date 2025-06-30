@@ -1,0 +1,258 @@
+/* Provider Access Page Styles */
+.providerPage {
+  min-height: 100vh;
+}
+
+.heroSection {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-bg-white));
+  overflow: hidden;
+}
+
+.heroContainer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.heroContent {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 1.2;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.heroHighlight {
+  color: white;
+  font-weight: 700;
+}
+
+.contentSection {
+  padding: 5rem 0;
+}
+
+.sectionTitle {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.sectionDescription {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.benefitsGrid {
+  margin-top: 3rem;
+}
+
+.benefitCard {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.benefitIcon {
+  margin-bottom: 1rem;
+}
+
+.benefitTitle {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.benefitDescription {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.requirementsSection {
+  background: var(--color-bg-light);
+  padding: 5rem 0;
+}
+
+.requirementsGrid {
+  margin-top: 3rem;
+}
+
+.requirementCard {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.requirementCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.requirementHeader {
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.requirementIcon {
+  background: var(--color-primary-light);
+  border-radius: 12px;
+}
+
+.requirementTitle {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.requirementList {
+  margin-top: 1rem;
+}
+
+.applicationSection {
+  padding: 5rem 0;
+}
+
+.applicationGrid {
+  margin-top: 3rem;
+}
+
+.stepCard {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.stepHeader {
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stepNumber {
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.stepTitle {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.stepDescription {
+  color: var(--color-text-secondary);
+}
+
+.ctaSection {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  padding: 5rem 0;
+}
+
+.ctaContent {
+  text-align: center;
+}
+
+.ctaTitle {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.ctaDescription {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+}
+
+.ctaButtons {
+  justify-content: center;
+  gap: 1rem;
+}
+
+.ctaPrimary {
+  background: white;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.ctaPrimary:hover {
+  transform: translateY(-2px);
+}
+
+.ctaSecondary {
+  border-color: white;
+  color: white;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.ctaSecondary:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+  }
+  
+  .contentSection,
+  .requirementsSection,
+  .applicationSection,
+  .ctaSection {
+    padding: 3rem 0;
+  }
+  
+  .benefitsGrid,
+  .requirementsGrid,
+  .applicationGrid {
+    margin-top: 2rem;
+  }
+  
+  .benefitCard,
+  .requirementCard,
+  .stepCard {
+    padding: 1.25rem;
+  }
+  
+  .ctaButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+}
