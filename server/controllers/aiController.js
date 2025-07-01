@@ -16,3 +16,5 @@ async function postAI(req, res) {
     }
 
 }
+
+module.exports = { postAI };
