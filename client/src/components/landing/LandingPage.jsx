@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { staggerContainer } from '../../animations/variants';
 import HeroSection from './sections/HeroSection';
 import FeaturesSection from './sections/FeaturesSection';
-import AboutSection from './sections/AboutSection';
-import TestimonialsSection from './sections/TestimonialsSection';
+// import AboutSection from './sections/AboutSection';
+// import TestimonialsSection from './sections/TestimonialsSection';
+import TechnologiesSection from './sections/TechnologiesSection';
 import CTASection from './sections/CTASection';
 
 /**
@@ -37,10 +38,13 @@ const LandingPage = () => {
       <FeaturesSection />
       
       {/* About Section - Company/product information */}
-      <AboutSection />
+      {/* <AboutSection /> */}
       
       {/* Testimonials Section - Social proof and customer feedback */}
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
+
+      {/* Technologies Section - Showcase technology stack */}
+      <TechnologiesSection />
       
       {/* CTA Section - Final conversion opportunity */}
       <CTASection />
