@@ -1,4 +1,4 @@
-  import { Drawer, ActionIcon, Image, Container, Group, Button, Menu, ScrollArea } from "@mantine/core";
+  import { Drawer, ActionIcon, Image, Container, Group, UnstyledButton, Button, Menu, ScrollArea } from "@mantine/core";
   import { useDisclosure } from "@mantine/hooks";
   import { IconX, IconMenu2 } from '@tabler/icons-react';
   import { IconChevronDown } from "@tabler/icons-react";
@@ -133,13 +133,13 @@
                   </Link>
                 </motion.div>
               ))}
-            </Group>
+            </Group> 
 
             {/* Mobile Menu */}
             <ActionIcon
-                variant="subtle"
+                // variant="subtle"
                 size="lg"
-                className={classes.mobileMenuButton}
+                className={classes.mobileMenuButton}      
                 visibleFrom="base"
                 hiddenFrom="md"
                 onClick={toggle}
@@ -153,7 +153,14 @@
                 position="right"   
                 size="80%"             // 80 % width on mobile
                 padding="md"
-                title={BRAND_CONFIG.companyName}
+                title={                           /* ← React node, not just string */
+                  <Image
+                    w={120}
+                    fit="contain"
+                    src={NAVIGATION_CONFIG.logo}
+                    fallbackSrc={BRAND_CONFIG.companyName}
+                  />
+                }
                 transitionProps={{
                   transition: 'slide-left',      
                   duration: 350,
@@ -164,17 +171,16 @@
               >
                 <ScrollArea h="100%">
                   {NAVIGATION_CONFIG.menuItems.map((item) => (
-                    <Button
+                    <UnstyledButton
                       key={item.label}
-                      variant="subtle"
-                      fullWidth
+                      fullWidthUnstyledButton 
                       size="lg"
                       justify="flex-start"
                       onClick={() => handleNavigation(item.href)}
                       className={classes.mobileNavLink}
                     >
                       {item.label}
-                    </Button>
+                    </UnstyledButton>
                   ))}
 
                   <Button fullWidth mt="md" radius="xl"
