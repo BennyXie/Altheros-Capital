@@ -1,4 +1,5 @@
 import logoImage from "../assets/logo.png";
+import fullLogo from "../assets/mwh-logo.png";
 import Snoopy from "../assets/previewImages/snoopy.png";
 import WoodStock from "../assets/previewImages/woodstock.png";
 
@@ -35,8 +36,8 @@ export const BRAND_CONFIG = {
 
 // Hero section content
 export const HERO_CONFIG = {
-  headline: 'Redefining Access',
-  highlightedText: 'Reimagining Care',
+  headline: 'Redefining Access.',
+  highlightedText: 'Reimagining Care.',
   subHeadline: 'Goes Here',
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
   primaryCTA: 'Connect with a Provider',
@@ -185,7 +186,7 @@ export const CTA_CONFIG = {
 
 // Navigation and routing
 export const NAVIGATION_CONFIG = {
-  logo: logoImage, // Update with actual logo path
+  logo: fullLogo, // Update with actual logo path
   menuItems: [
     { label: 'About', href: '/about' },
     { label: 'Providers', href: '/providers' },
@@ -196,13 +197,13 @@ export const NAVIGATION_CONFIG = {
       label: 'Login',
       href: '/login',
       variant: 'outline',
-      color: 'blue'
+      color: 'white',
     },
     {
       label: 'Get Started',
       href: '/signup',
       variant: 'filled',
-      color: 'blue'
+      color: 'green',
     }
   ]
 };

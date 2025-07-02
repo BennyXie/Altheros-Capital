@@ -7,6 +7,23 @@
  */
 
 :root {
+
+  /* logo */
+  --logo-light-green: #ADD7AB;
+  --logo-medium-green: #5BB06B;
+  --logo-dark-green: #308858;
+  
+
+  --darkest-green: #1B4E32;
+
+  --cta-green-hover: #3F9B69;
+  /* --cta-green: #308858; */
+  --cta-green: var(--logo-dark-green);
+  --cta-white-hover: #D6E7DE;
+
+  --medium-light-green: #83BD8F;
+
+
   /* 🌿 Primary Minty Pastel Green */
   --mint-primary: #7FE4A8;        /* True minty green */
   --mint-light: #9AEAB8;          /* Lighter mint */
@@ -40,29 +57,39 @@
   --color-secondary: var(--sage-medium);
 
   /* 📝 Text Colors */
-  --color-black: #000000;
+  --color-black: #1F1F1F;
+  --color-black-green: #34473C;
   --color-white: #ffffff;
-  --color-text-primary: var(--gray-900);       /* Dark text for light backgrounds */
+  --color-off-white: #F7F8F9;
+  --color-text-primary: var(--black-green);       /* Dark text for light backgrounds */
   --color-text-secondary: var(--gray-700);     /* Secondary text */
   --color-text-muted: var(--gray-500);         /* Muted text */
   --color-text-light: var(--gray-400);         /* Light text */
   --color-text-white: var(--color-white);      /* White text for dark backgrounds */
 
   /* 🏗️ Background Colors */
-  --color-bg-white: var(--color-white);
+  --color-bg-white: var(--color-off-white);
   --color-bg-light: var(--gray-50);
   --color-bg-medium: var(--gray-100);
   --color-bg-dark: var(--gray-800);
 
   /* 🎨 Section Backgrounds (Light to Dark Progression) */
-  --color-bg-header: var(--color-bg-white);        /* White header */
+  --color-bg-header: var(--color-white);        /* White header */
   --color-bg-hero: var(--mint-lighter);            /* Very light mint hero */
   --color-bg-features: var(--color-bg-white);      /* White features */
   --color-bg-about: var(--sage-light);             /* Light sage about */
   --color-bg-testimonials: var(--gray-100);        /* Light gray testimonials */
   --color-bg-cta: var(--color-bg-white);           /* White CTA section background */
   --color-bg-cta-card: #f0f9f4;                    /* Light pastel green CTA card */
-  --color-bg-footer: var(--gray-800);              /* Dark footer */
+  --color-bg-footer: var(--darkest-green);              /* Dark footer */
+
+
+  /* buttons */
+  --color-bg-cta-green: var(--cta-green);
+  --color-bg-cta-green-hover: var(--cta-green-hover);
+  --color-bg-cta-white: var(--color-white);
+  --color-bg-cta-white-hover: var(--cta-white-hover);
+
 
   /* 🔲 Borders */
   --color-border: var(--gray-300);
@@ -82,7 +109,7 @@
   --shadow-button-hover: 0 8px 20px rgba(127, 228, 168, 0.35);
 
   /* 🎯 Interactive States */
-  --color-hover: var(--color-primary-dark);
+  --color-hover: var(--medium-light-green);
   --color-active: var(--color-primary-darker);
   --color-focus: var(--color-primary);
 }
