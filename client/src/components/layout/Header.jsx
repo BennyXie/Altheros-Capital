@@ -1,5 +1,6 @@
-  import { Image, Container, Group, Button, Menu, Text } from "@mantine/core";
+  import { Drawer, ActionIcon, Image, Container, Group, Button, Menu, ScrollArea } from "@mantine/core";
   import { useDisclosure } from "@mantine/hooks";
+  import { IconX, IconMenu2 } from '@tabler/icons-react';
   import { IconChevronDown } from "@tabler/icons-react";
   import { motion } from "framer-motion";
   import { Link, useLocation } from "react-router-dom";
@@ -28,6 +29,7 @@
     const [opened, { toggle, close }] = useDisclosure(false);
     const location = useLocation();
 
+
     const handleNavigation = (href) => {
       // Handle contact link - scroll to footer on any page
       if (href === '#contact') {
@@ -50,6 +52,7 @@
       <header className={classes.header}>
         <Container size="xl">
           <Group justify="space-between" h={60}>
+
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -58,15 +61,16 @@
             >
               <Link to="/" style={{ textDecoration: 'none' }}>
                 <Group gap="xs" align="center">
-                  {/* <div style={{width:"20%"}}> */}
-                    <Image 
-                      w={140}              // Mantine shorthand → width: 120px
-                      // maw={160}            // max-width: 140px (optional safety cap)
-                      fit="contain"
-                      src={NAVIGATION_CONFIG.logo}
-                      fallbackSrc={BRAND_CONFIG.companyName}
-                    />
-                  {/* </div> */}
+                  <motion.div whileHover={{scale:1.02}}>
+                     <Image 
+                        w={140}              // Mantine shorthand → width: 120px
+                        // maw={160}            // max-width: 140px (optional safety cap)
+                        fit="contain"
+                        src={NAVIGATION_CONFIG.logo}
+                        fallbackSrc={BRAND_CONFIG.companyName}
+                      />
+                  </motion.div>
+                   
                   
                     
                   {/* <img 
@@ -132,51 +136,59 @@
             </Group>
 
             {/* Mobile Menu */}
-            <Menu
-              shadow="md"
-              width={200}
-              opened={opened}
-              onChange={toggle}
-              position="bottom-end"
-            >
-              <Menu.Target>
-                <Button
-                  variant="subtle"
-                  className={classes.mobileMenuButton}
-                  rightSection={<IconChevronDown size={16} />}
-                >
-                  Menu
-                </Button>
-              </Menu.Target>
+            <ActionIcon
+                variant="subtle"
+                size="lg"
+                className={classes.mobileMenuButton}
+                visibleFrom="base"
+                hiddenFrom="md"
+                onClick={toggle}
+              >
+                <IconMenu2 size={24} />
+              </ActionIcon>
 
-              <Menu.Dropdown className={classes.mobileDropdown}>
-                {NAVIGATION_CONFIG.menuItems.map((item) => (
-                  <Menu.Item
-                    key={item.label}
-                    onClick={() => handleNavigation(item.href)}
-                    className={classes.mobileMenuItem}
-                    component={item.href.startsWith('#') ? 'button' : Link}
-                    to={!item.href.startsWith('#') ? item.href : undefined}
-                  >
-                    {item.label}
-                  </Menu.Item>
-                ))}
+              <Drawer
+                opened={opened}
+                onClose={close}
+                position="right"   
+                size="80%"             // 80 % width on mobile
+                padding="md"
+                title={BRAND_CONFIG.companyName}
+                transitionProps={{
+                  transition: 'slide-left',      
+                  duration: 350,
+                }}
+                styles={{
+                  title: { fontWeight: 700 },
+                }}
+              >
+                <ScrollArea h="100%">
+                  {NAVIGATION_CONFIG.menuItems.map((item) => (
+                    <Button
+                      key={item.label}
+                      variant="subtle"
+                      fullWidth
+                      size="lg"
+                      justify="flex-start"
+                      onClick={() => handleNavigation(item.href)}
+                      className={classes.mobileNavLink}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
 
-                <Menu.Divider />
-                
-                {NAVIGATION_CONFIG.ctaButtons.map((button) => (
-                  <Menu.Item
-                    key={button.label}
-                    onClick={close}
-                    className={classes.mobileCTAItem}
+                  <Button fullWidth mt="md" radius="xl"
+                    className={`${classes.ctaButton} ${classes.green}`}
                     component={Link}
-                    to={button.href}
+                    to={NAVIGATION_CONFIG.ctaButtons[0].href}
+                    onClick={close}
                   >
-                    {button.label}
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
+                    {NAVIGATION_CONFIG.ctaButtons[0].label}
+                  </Button>
+                </ScrollArea>
+              </Drawer>
+
+            
           </Group>
         </Container>
       </header>
