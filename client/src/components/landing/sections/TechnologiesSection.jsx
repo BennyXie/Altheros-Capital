@@ -81,19 +81,14 @@ const TechnologiesSection = () => {
             </Stack>
           </motion.div>
 
-          {/* Middle Text Card - Non-animated Overlay */}
-          <Container size="lg" mb={60}>
-            <Paper 
-              className={classes.middleCard}
-              radius="lg"
-              p="xl"
-              shadow="md"
-            >
-              <Text className={classes.middleText}> 
+          {/* Wall-to-Wall Banner */}
+          <motion.div variants={fadeInUp} transition={{ delay: 0.3 }}>
+            <div className={classes.banner}>
+              <Text className={classes.bannerText}> 
                 {TECHNOLOGIES_CONFIG.text}
               </Text>
-            </Paper>
-          </Container>
+            </div>
+          </motion.div>
 
           {/* Interactive Cards Section */}
           <Flex justify="space-between" align="center" gap="xl"> 
