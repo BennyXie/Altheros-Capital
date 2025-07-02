@@ -133,12 +133,12 @@ const DashboardPage = () => {
                         variant="light"
                         color="green"
                         leftSection={<IconCalendar size={16} />}
-                        disabled
                         size="sm"
+                        component={Link}
+                        to="/appointments"
                       >
-                        Schedule Appointment
+                        Manage Appointments
                       </Button>
-                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
                     </Stack>
                   </Stack>
                 </Card>

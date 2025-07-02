@@ -1,0 +1,38 @@
+.appointmentsContainer {
+  background-color: var(--bg-primary);
+  min-height: calc(100vh - 60px);
+}
+
+.appointmentCard {
+  transition: transform 0.2s ease;
+}
+
+.appointmentCard:hover {
+  transform: translateY(-2px);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+}
+
+.quickActions {
+  margin-top: 2rem;
+}
+
+.appointmentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .appointmentsContainer {
+    padding: 1rem;
+  }
+  
+  .quickActions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

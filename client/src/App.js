@@ -3,7 +3,7 @@ import { Notifications } from '@mantine/notifications';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage } from './pages';
+import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -51,6 +51,7 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/complete-profile" element={<CompleteProfilePage />} />
+              <Route path="/appointments" element={<AppointmentsPage />} />
             </Routes>
           </AppShell.Main>
           
