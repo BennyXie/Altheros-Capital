@@ -1,33 +1,28 @@
-.technologies{
+.technologies {
   background: var(--color-bg-white); 
   position: relative;
-  padding-bottom: 20px;
-  padding-top: 20px;
 }
 
-.containerTop{
-  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%); /* need to like generalize this in theme.ks */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.containerMiddle{
-  background-color: var(--gray-50);
-   border-radius: 12px;
-  padding: 10px;
-}
-
-.middleText{
-  font-size: 1.2rem;
-  color: black !important;
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.containerBottom{
+.mainContainer {
   background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.middleCard {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-md);
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.middleText {
+  font-size: 1.2rem;
+  color: var(--color-text-primary) !important;
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
 }
 
 
@@ -35,30 +30,48 @@
   width: 400px;
   height: 100px;
   cursor: pointer;
-  background-color: var(--color-white) !important;
-  padding: 7px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+  padding: 16px;
 }
 
 .featureCard:hover {
   transform: translateY(-8px);
-  box-shadow: var(--shadow-card-hover) !important;
-  border-color: var(--mantine-color-accent-4);
-  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-hover);
 }
 
-.featureTitle{
-  font-size: 1rem !important;
+.featureTitle {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.featureCard:hover .featureTitle {
+  color: var(--color-primary-dark);
 }
 
 .featureText {
   font-size: 1rem !important;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
 }
 
 
-.appMockup{
+.appMockup {
   width: 300px;
   height: 530px;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+}
+
+.appMockup:hover {
+  box-shadow: var(--shadow-md);
 }

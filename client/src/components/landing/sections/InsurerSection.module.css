@@ -1,0 +1,38 @@
+.insurer {
+  background: var(--color-bg-light);
+  padding: 40px 0;
+}
+
+.paper {
+  background: white;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
+}
+
+.title {
+  color: var(--color-text-primary) !important;
+  font-size: 24px !important;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 20px !important;
+  }
+  
+  .searchInput {
+    max-width: 100%;
+  }
+}

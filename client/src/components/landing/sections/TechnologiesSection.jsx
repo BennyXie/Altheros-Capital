@@ -46,91 +46,84 @@ const TechnologiesSection = () => {
         whileInView="animate"
         viewport={{ once: true }}
       >
-        {/* TOP CONTAINER */}
+        {/* MAIN CONTAINER - Header and Cards */}
         <Container 
-          fluid style={{ maxWidth: '80%' }} 
-          py={20} 
-          className={classes.containerTop}
+          size="xl"
+          className={classes.mainContainer}
+          py={80}
         >
-          <Container fluid style={{ maxWidth: '85%' }} className={classes.containerTop}>
-              <motion.div variants={fadeInUp}>
-                <Stack align="right" > 
-                  <Title
-                    order={1}
-                    ta="left"
-                    c="dark"
-                    size={40}
-                  >
-                    {TECHNOLOGIES_CONFIG.title}
-                  </Title>
+          {/* Header */}
+          <motion.div variants={fadeInUp}>
+            <Stack align="center" mb={40}> 
+              <Title
+                order={1}
+                ta="center"
+                c="white"
+                size={48}
+                style={{ marginBottom: '8px' }}
+              >
+                {TECHNOLOGIES_CONFIG.title}
+              </Title>
 
-                  <Title
-                    order={1}
-                    ta="left"
-                    c="dark"
-                    size={40}
-                  >
-                    {TECHNOLOGIES_CONFIG.title2}
-                  </Title>
+              <Title
+                order={1}
+                ta="center"
+                c="white"
+                size={48}
+                style={{ marginBottom: '20px' }}
+              >
+                {TECHNOLOGIES_CONFIG.title2}
+              </Title>
 
-                  <Text size="lg" c="black" ta="left"> 
-                    {TECHNOLOGIES_CONFIG.description}
-                  </Text>
-                </Stack>
-              </motion.div>
-          </Container>
-        </Container>
+              <Text size="lg" c="white" ta="center" style={{ opacity: 0.9 }}> 
+                {TECHNOLOGIES_CONFIG.description}
+              </Text>
+            </Stack>
+          </motion.div>
 
-        {/* MIDDLE CONTAINER */}
-        <Container 
-          fluid 
-          className={classes.containerMiddle}
-          style={{ maxWidth: '85%' }}
-        >
-          <motion.div
-            variants={fadeInUp}
-            transition={{ delay: 0.1 }}
-          >
-            <Container style={{ maxWidth: '80%' }}>
+          {/* Middle Text Card - Non-animated Overlay */}
+          <Container size="lg" mb={60}>
+            <Paper 
+              className={classes.middleCard}
+              radius="lg"
+              p="xl"
+              shadow="md"
+            >
               <Text className={classes.middleText}> 
                 {TECHNOLOGIES_CONFIG.text}
               </Text>
-            </Container>
-          </motion.div>
-        </Container>
+            </Paper>
+          </Container>
 
-        {/* BOTTOM CONTAINER */}
-        <Container fluid style={{ maxWidth: '80%' }} py={80} className={classes.containerBottom}>
+          {/* Interactive Cards Section */}
           <Flex justify="space-between" align="center" gap="xl"> 
-            <Box w="50%" align="center">
+            <Box w="50%" style={{ display: 'flex', justifyContent: 'center' }}>
               <motion.div
                 variants={fadeInUp}
                 transition={{ delay: 0.1 }}
               >
                 <Paper 
                   className={classes.appMockup}
-                  radius= "lg"
+                  radius="lg"
                 >
                   {hoveredIndex !== null ? (
                     <Image 
-                      src = {cards[hoveredIndex].preview}
-                      alt = {cards[hoveredIndex].previewAlt}
-                      fit  = "contain"
+                      src={cards[hoveredIndex].preview}
+                      alt={cards[hoveredIndex].previewAlt}
+                      fit="contain"
                     />
                   ) : (
-                    <Text>
+                    <Text c="white" ta="center">
                       Hover an Item to preview
                     </Text>
                   )}
-
                 </Paper>
               </motion.div>
             </Box>
             
             <Box w="50%">
               <Stack align="center">
-              {cards.map((card, index) => {
-                return(
+                {cards.map((card, index) => (
                   <motion.div
                     key={index}
                     variants={fadeInUp}
@@ -138,24 +131,21 @@ const TechnologiesSection = () => {
                   >
                     <Paper 
                       className={classes.featureCard}
-                      radius= "lg"
+                      radius="lg"
                       withBorder
-                      key = {index}
                       onMouseEnter={() => setHoveredIndex(index)}
                       onMouseLeave={() => setHoveredIndex(null)}
-
                     > 
-                      <Title className = {classes.featureTitle}>
+                      <Title className={classes.featureTitle}>
                         {card.title}
                       </Title>
                       
-                      <Text className = {classes.featureText}>
+                      <Text className={classes.featureText}>
                         {card.description}
                       </Text>
                     </Paper>
                   </motion.div>
-                );
-              })}
+                ))}
               </Stack>
             </Box>
           </Flex>
