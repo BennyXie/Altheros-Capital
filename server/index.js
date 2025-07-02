@@ -6,6 +6,7 @@ const cors = require("cors");
 const db = require("./db/pool")
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes   = require("./routes/aiRoutes")
+const calendlyRoutes = require("./routes/calendlyRoute");
 
 // using express
 const app = express();
@@ -22,6 +23,10 @@ app.use("/api/auth", authRoutes);
 
 // AI routes
 app.use("/ai", aiRoutes);
+
+// All calendlyRoutes start with /calendly
+app.use("/calendly", calendlyRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
