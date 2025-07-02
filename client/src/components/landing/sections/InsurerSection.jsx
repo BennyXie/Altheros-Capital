@@ -14,7 +14,7 @@ import classes from "./InsurerSection.module.css";
 const InsurerSection = () => {
   return (
     <section className={classes.insurer}>
-      <Container size="lg" className={classes.container}>
+      <Container size="xl" className={classes.container}>
         <motion.div
           variants={fadeInUp}
           initial="initial"

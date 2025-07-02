@@ -13,14 +13,8 @@
   background: var(--color-bg-white);
   border-top: 1px solid var(--color-border-light);
   border-bottom: 1px solid var(--color-border-light);
-  padding: 3rem 0;
+  padding: 3rem 2rem;
   margin: 3rem 0;
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -91,7 +85,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .banner {
-    padding: 2rem 0;
+    padding: 2rem 1rem;
     margin: 2rem 0;
   }
   
@@ -102,6 +96,13 @@
   
   .featureCard {
     width: 100%;
-    max-width: 350px;
+    max-width: 100%;
+    min-width: 280px;
+  }
+  
+  .appMockup {
+    width: 100%;
+    max-width: 280px;
+    height: 400px;
   }
 }

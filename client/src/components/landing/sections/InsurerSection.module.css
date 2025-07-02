@@ -24,7 +24,6 @@
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border-light);
   transform: translateY(0); /* Center the card at the boundary */
-  max-width: 600px;
   width: 100%;
 }
 
