@@ -14,12 +14,13 @@ import classes from "./InsurerSection.module.css";
 const InsurerSection = () => {
   return (
     <section className={classes.insurer}>
-      <Container size="lg" py={60}>
+      <Container size="lg" className={classes.container}>
         <motion.div
           variants={fadeInUp}
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
+          className={classes.cardWrapper}
         >
           <Paper className={classes.paper} p="xl" radius="md">
             <Stack gap="md" align="center">

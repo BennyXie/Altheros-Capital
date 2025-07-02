@@ -1,12 +1,31 @@
 .insurer {
-  background: var(--color-bg-light);
-  padding: 40px 0;
+  background: transparent;
+  position: relative;
+  margin-top: -120px; /* Pull the section up to overlap with hero */
+  z-index: 10; /* Ensure it appears above the hero section */
+  padding-bottom: 0; /* Remove bottom padding to eliminate deadspace */
+  margin-bottom: -120px; /* Pull the next section up to eliminate gap */
+}
+
+.container {
+  position: relative;
+  z-index: 11;
+}
+
+.cardWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px; /* Reduce height to make card more compact */
 }
 
 .paper {
   background: white;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border-light);
+  transform: translateY(0); /* Center the card at the boundary */
+  max-width: 600px;
+  width: 100%;
 }
 
 .title {
@@ -28,6 +47,16 @@
 }
 
 @media (max-width: 768px) {
+  .insurer {
+    margin-top: -80px; /* Smaller overlap on mobile */
+    padding-bottom: 0; /* No bottom padding on mobile either */
+    margin-bottom: -80px; /* Pull next section up on mobile too */
+  }
+  
+  .cardWrapper {
+    min-height: 180px; /* Smaller height on mobile */
+  }
+  
   .title {
     font-size: 20px !important;
   }

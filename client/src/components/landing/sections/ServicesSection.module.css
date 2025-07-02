@@ -1,6 +1,8 @@
 .services {
   background: var(--color-bg-white);
   position: relative;
+  margin-top: -120px; /* Pull up significantly to eliminate deadspace */
+  padding-top: 140px; /* Reduce padding to bring content closer to insurance card */
 }
 
 .title {
@@ -78,6 +80,10 @@
 }
 
 @media (max-width: 768px) {
+  .services {
+    padding-top: 100px; /* Reduce padding on mobile for tighter spacing */
+  }
+  
   .title,
   .subtitle {
     font-size: 36px !important;
