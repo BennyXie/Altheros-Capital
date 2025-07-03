@@ -1,9 +1,9 @@
   import { Drawer, Image, Container, Group, UnstyledButton, Button, ScrollArea } from "@mantine/core";
-  import { useDisclosure } from "@mantine/hooks";
-  import { IconMenu2 } from '@tabler/icons-react';
+  import { useMediaQuery, useDisclosure } from "@mantine/hooks";
+  import { useEffect, useState } from 'react';
   import { motion } from "framer-motion";
   import { Link, useLocation } from "react-router-dom";
-  import { useState } from 'react';
+  import { IconMenu2 } from '@tabler/icons-react';
   import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
   import classes from "./Header.module.css";
 
@@ -28,7 +28,14 @@
   const Header = () => {
     const [opened, { toggle, close }] = useDisclosure(false);
     const [isLoaded, setLoaded] = useState(false);
+    const isDesktop = useMediaQuery('(min-width: 768px');
     const location = useLocation();
+
+    useEffect(() => {
+    if (opened && isDesktop) {
+      close();
+    }
+  }, [opened, isDesktop, close]);
 
 
     const handleNavigation = (href) => {
