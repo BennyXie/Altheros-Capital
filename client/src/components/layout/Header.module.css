@@ -22,16 +22,16 @@
 .desktopNav {
     display: flex !important;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .navLink {
     background: none !important;
     border: none !important;
     color: var(--color-text-primary) !important;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 500;
-    padding: 0.2rem 0.1rem;
+    padding: 0.6rem 1.2rem;
     cursor: pointer;
     transition: background-color 0.5s ease, border-radius 0.5s ease;
     text-decoration: none !important;
@@ -150,12 +150,10 @@
 
 /* Tablet responsive design */
 @media (max-width: 1024px) {
-    .desktopNav {
-        gap: 0.5rem;
-    }
+
 
     .navLink {
-        font-size: 0.8rem;
+        /* font-size: 0.8rem; */
         padding: 0.4rem 0.8rem;
     }
 
@@ -203,22 +201,5 @@
 
     .logo {
         font-size: 1rem;
-    }
-
-    .mobileMenuButton {
-        font-size: 0.8rem;
-        /* padding: 0.4rem 0.8rem; */
-    }
-}
-
-/* Large screens - prevent nav from being too spread out */
-@media (min-width: 1200px) {
-    .desktopNav {
-        gap: 1.5rem;
-    }
-
-    .navLink {
-        font-size: 0.9rem;
-        padding: 0.6rem 1.2rem;
     }
 }
