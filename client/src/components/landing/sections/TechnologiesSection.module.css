@@ -1,64 +1,124 @@
-.technologies{
+.technologies {
   background: var(--color-bg-white); 
   position: relative;
-  padding-bottom: 20px;
-  padding-top: 20px;
 }
 
-.containerTop{
-  background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%); /* need to like generalize this in theme.ks */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.containerMiddle{
-  background-color: var(--gray-50);
-   border-radius: 12px;
-  padding: 10px;
-}
-
-.middleText{
-  font-size: 1.2rem;
-  color: black !important;
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.containerBottom{
+.mainContainer {
   background: linear-gradient(135deg, var(--mint-primary) 0%, var(--mint-dark) 100%);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.banner {
+  background: var(--color-bg-white);
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 3rem 2rem;
+  margin: 3rem -2rem; /* Negative horizontal margin to extend beyond container */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.bannerText {
+  font-size: 1.5rem;
+  color: var(--color-text-primary) !important;
+  text-align: center !important;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-weight: 500;
+  max-width: 900px;
+  padding: 0 2rem;
 }
 
 
 .featureCard {
   width: 400px;
-  height: 100px;
+  height: 120px;
   cursor: pointer;
-  background-color: var(--color-white) !important;
-  padding: 7px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+  padding: 16px;
 }
 
 .featureCard:hover {
   transform: translateY(-8px);
-  box-shadow: var(--shadow-card-hover) !important;
-  border-color: var(--mantine-color-accent-4);
-  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-hover);
 }
 
-.featureTitle{
-  font-size: 1rem !important;
+.featureTitle {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.featureCard:hover .featureTitle {
+  color: var(--color-primary-dark);
 }
 
 .featureText {
   font-size: 1rem !important;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
 }
 
 
-.appMockup{
+.appMockup {
   width: 300px;
   height: 530px;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+}
+
+.appMockup:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .banner {
+    padding: 2rem 1rem;
+    margin: 2rem 0;
+  }
+  
+  .bannerText {
+    font-size: 1.25rem;
+    padding: 0 1rem;
+  }
+  
+  .cardsContainer {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  
+  .imagePreview {
+    display: none !important;
+  }
+  
+  .cardsColumn {
+    width: 100% !important;
+  }
+  
+  .featureCard {
+    width: 320px; /* Fixed width for consistency */
+    max-width: 320px;
+    min-width: 320px;
+    height: 120px; /* Increased from 100px to accommodate text better */
+    min-height: 120px; /* Ensure consistent height */
+  }
+  
+  .appMockup {
+    width: 100%;
+    max-width: 280px;
+    height: 400px;
+  }
 }
