@@ -34,7 +34,7 @@
 
 .featureCard {
   width: 400px;
-  height: 100px;
+  height: 120px;
   cursor: pointer;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border-light);
@@ -94,10 +94,25 @@
     padding: 0 1rem;
   }
   
+  .cardsContainer {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  
+  .imagePreview {
+    display: none !important;
+  }
+  
+  .cardsColumn {
+    width: 100% !important;
+  }
+  
   .featureCard {
-    width: 100%;
-    max-width: 100%;
-    min-width: 280px;
+    width: 320px; /* Fixed width for consistency */
+    max-width: 320px;
+    min-width: 320px;
+    height: 120px; /* Increased from 100px to accommodate text better */
+    min-height: 120px; /* Ensure consistent height */
   }
   
   .appMockup {

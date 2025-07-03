@@ -91,8 +91,8 @@ const TechnologiesSection = () => {
           </motion.div>
 
           {/* Interactive Cards Section */}
-          <Flex justify="space-between" align="center" gap="xl"> 
-            <Box w="50%" style={{ display: 'flex', justifyContent: 'center' }}>
+          <Flex justify="space-between" align="center" gap="xl" className={classes.cardsContainer}> 
+            <Box w="50%" className={classes.imagePreview} style={{ display: 'flex', justifyContent: 'center' }}>
               <motion.div
                 variants={fadeInUp}
                 transition={{ delay: 0.1 }}
@@ -116,7 +116,7 @@ const TechnologiesSection = () => {
               </motion.div>
             </Box>
             
-            <Box w="50%">
+            <Box w="50%" className={classes.cardsColumn}>
               <Stack align="center">
                 {cards.map((card, index) => (
                   <motion.div
