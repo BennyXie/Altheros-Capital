@@ -9,46 +9,53 @@ function getEmailById(map, id) {
   return null;
 }
 
-function handleJoin(socket, room, username) {
-  socket.join(room);
-  const { timestamp } = socket.data;
+// function handleJoin(socket, room, username) {
+//   socket.join(room);
+//   const { timestamp } = socket.data;
 
-  const message = chatService.formatMessage(
-    username,
-    `${username} has joined the chat`,
-    timestamp
-  );
-  socket.server.to(room).emit("something", message);
-  console.log(`${username} joined room ${room}`);
-}
+//   const message = chatService.formatMessage(
+//     username,
+//     `${username} has joined the chat`,
+//     timestamp
+//   );
+//   socket.server.to(room).emit("something", message);
+//   console.log(`${username} joined room ${room}`);
+// }
 
 function handleMessage(socket, data, connectedUsers, userDisplayNames, io) {
-  const { text, timestamp } = data;
-  const userEmail = getEmailById(connectedUsers, socket.id);
-  const sender = userDisplayNames[userEmail];
+  // Added recipientEmail
+  const { text, timestamp, recipientEmail } = data;
+  // Get user email from socket instead
+  const userEmail = socket.user.email;
+  const sender = userDisplayNames.get(userEmail);
 
-  if (!text || !sender) return;
+  if (!text || !recipientEmail || !connectedUsers.has(recipientEmail)) return;
 
   const message = chatService.formatMessage(sender, text, timestamp);
 
-  io.to(room).emit("something", message);
+  // Send message to recipient
+  const recipientSocketId = connectedUsers.get(recipientEmail);
+  io.to(recipientSocketId).emit("receive_message", message);
+
+  // Echos back messsge to sender
+  socket.emit("receive_message", message);
 }
 
-function handleDisconnect(socket, room, username) {
-  socket.leave(room);
-  const { timestamp } = socket.data;
+// function handleDisconnect(socket, room, username) {
+//   socket.leave(room);
+//   const { timestamp } = socket.data;
 
-  const message = chatService.formatMessage(
-    username,
-    `${username} has left the chat`,
-    timestamp
-  );
-  socket.server.to(room).emit("something", message);
-  console.log(`${username} left room ${room}`);
-}
+//   const message = chatService.formatMessage(
+//     username,
+//     `${username} has left the chat`,
+//     timestamp
+//   );
+//   socket.server.to(room).emit("something", message);
+//   console.log(`${username} left room ${room}`);
+// }
 
 module.exports = {
-  handleJoin,
+  // handleJoin,
   handleMessage,
-  handleDisconnect,
+  // handleDisconnect,
 };
