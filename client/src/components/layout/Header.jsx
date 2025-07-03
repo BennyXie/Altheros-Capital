@@ -1,7 +1,6 @@
   import { Drawer, Image, Container, Group, UnstyledButton, Button, ScrollArea } from "@mantine/core";
   import { useDisclosure } from "@mantine/hooks";
-  import { IconX, IconMenu2 } from '@tabler/icons-react';
-  import { IconChevronDown } from "@tabler/icons-react";
+  import { IconMenu2 } from '@tabler/icons-react';
   import { motion } from "framer-motion";
   import { Link, useLocation } from "react-router-dom";
   import { useState } from 'react';
@@ -122,7 +121,6 @@
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ 
-                    duration: 0.5, delay: 0.4 + (index * 0.1),
                     type: "spring",
                     stiffness: 100,
                     ease: "circIn",

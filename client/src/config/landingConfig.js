@@ -1,4 +1,3 @@
-import logoImage from "../assets/logo.png";
 import fullLogo from "../assets/mwh-logo.png";
 import Snoopy from "../assets/previewImages/snoopy.png";
 import WoodStock from "../assets/previewImages/woodstock.png";
