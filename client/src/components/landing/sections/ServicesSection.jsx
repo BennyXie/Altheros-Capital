@@ -5,7 +5,6 @@ import {
   SimpleGrid,
   Paper,
   Stack,
-  Box,
 } from "@mantine/core";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from "../../../animations/variants";
