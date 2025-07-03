@@ -17,11 +17,14 @@
   --darkest-green: #1B4E32;
 
   --cta-green-hover: #3F9B69;
+
   /* --cta-green: #308858; */
   --cta-green: var(--logo-dark-green);
   --cta-white-hover: #D6E7DE;
 
   --medium-light-green: #83BD8F;
+
+  --gray-green: ;
 
 
   /* 🌿 Primary Minty Pastel Green */
@@ -49,7 +52,7 @@
   --gray-900: #202124;            /* Darkest gray */
 
   /* 🎯 Core Color Variables */
-  --color-primary: var(--mint-primary);
+  --color-primary: var(--cta-green-hover);
   --color-primary-light: var(--mint-light);
   --color-primary-lighter: var(--mint-lighter);
   --color-primary-dark: var(--mint-dark);
@@ -61,7 +64,7 @@
   --color-black-green: #34473C;
   --color-white: #ffffff;
   --color-off-white: #F7F8F9;
-  --color-text-primary: var(--black-green);       /* Dark text for light backgrounds */
+  --color-text-primary: var(--color-black-green);       /* Dark text for light backgrounds */
   --color-text-secondary: var(--gray-700);     /* Secondary text */
   --color-text-muted: var(--gray-500);         /* Muted text */
   --color-text-light: var(--gray-400);         /* Light text */
@@ -109,7 +112,7 @@
   --shadow-button-hover: 0 8px 20px rgba(127, 228, 168, 0.35);
 
   /* 🎯 Interactive States */
-  --color-hover: var(--medium-light-green);
+  --color-hover: var(--cta-green-hover);
   --color-active: var(--color-primary-darker);
   --color-focus: var(--color-primary);
 }

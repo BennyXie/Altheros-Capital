@@ -1,9 +1,10 @@
-  import { Drawer, ActionIcon, Image, Container, Group, UnstyledButton, Button, Menu, ScrollArea } from "@mantine/core";
+  import { Drawer, Image, Container, Group, UnstyledButton, Button, ScrollArea } from "@mantine/core";
   import { useDisclosure } from "@mantine/hooks";
   import { IconX, IconMenu2 } from '@tabler/icons-react';
   import { IconChevronDown } from "@tabler/icons-react";
   import { motion } from "framer-motion";
   import { Link, useLocation } from "react-router-dom";
+  import { useState } from 'react';
   import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
   import classes from "./Header.module.css";
 
@@ -27,6 +28,7 @@
    */
   const Header = () => {
     const [opened, { toggle, close }] = useDisclosure(false);
+    const [isLoaded, setLoaded] = useState(false);
     const location = useLocation();
 
 
@@ -70,17 +72,6 @@
                         fallbackSrc={BRAND_CONFIG.companyName}
                       />
                   </motion.div>
-                   
-                  
-                    
-                  {/* <img 
-                    src="/favicon.ico" 
-                    alt="Logo" 
-                    style={{ width: 24, height: 24 }}
-                  /> */}
-                  {/* <Text size="xl" fw={700} className={classes.logo}>
-                    {BRAND_CONFIG.companyName}
-                  </Text> */}
                 </Group>
               </Link>
             </motion.div>
@@ -90,9 +81,20 @@
               {NAVIGATION_CONFIG.menuItems.map((item, index) => (
                 <motion.div
                   key={item.label}
+                  // initial={{ opacity: 0, y: -20 }}
+                  // animate={{ opacity: 1, y: 0 }}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  // exit={{ x: 0 }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 100,
+                    ease: "circIn",
+                    duration: (isLoaded? 0.02 : 0.5), 
+                    delay: (isLoaded? 0 : index * 0.1) 
+                  }}
+                  onAnimationComplete={() => setLoaded(true)}
+                  whileHover={{scale:1.03}}
                 >
                   {item.href.startsWith('#') ? (
                     <button
@@ -119,7 +121,14 @@
                   key={button.label}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + (index * 0.1) }}
+                  transition={{ 
+                    duration: 0.5, delay: 0.4 + (index * 0.1),
+                    type: "spring",
+                    stiffness: 100,
+                    ease: "circIn",
+                    duration: (isLoaded? 0.02 : 0.5), 
+                    delay: (isLoaded? 0 : index * 0.1) 
+                  }}
                 >
                   <Link to={button.href} style={{ textDecoration: 'none' }}>
                     <Button 
@@ -136,16 +145,16 @@
             </Group> 
 
             {/* Mobile Menu */}
-            <ActionIcon
+            <UnstyledButton
                 // variant="subtle"
                 size="lg"
-                className={classes.mobileMenuButton}      
+                className={classes.mobileMenuButton}  
                 visibleFrom="base"
                 hiddenFrom="md"
                 onClick={toggle}
               >
                 <IconMenu2 size={24} />
-              </ActionIcon>
+              </UnstyledButton>
 
               <Drawer
                 opened={opened}
@@ -153,7 +162,7 @@
                 position="right"   
                 size="80%"             // 80 % width on mobile
                 padding="md"
-                title={                           /* ← React node, not just string */
+                title={                      
                   <Image
                     w={120}
                     fit="contain"
@@ -165,32 +174,50 @@
                   transition: 'slide-left',      
                   duration: 350,
                 }}
-                styles={{
-                  title: { fontWeight: 700 },
-                }}
               >
                 <ScrollArea h="100%">
                   {NAVIGATION_CONFIG.menuItems.map((item) => (
-                    <UnstyledButton
-                      key={item.label}
-                      fullWidthUnstyledButton 
-                      size="lg"
-                      justify="flex-start"
-                      onClick={() => handleNavigation(item.href)}
-                      className={classes.mobileNavLink}
-                    >
-                      {item.label}
-                    </UnstyledButton>
+                      item.href.startsWith('#') ? (
+
+                      <UnstyledButton
+                        key={item.label}
+                        fullWidthUnstyledButton 
+                        size="lg"
+                        justify="flex-start"
+                        onClick={() => handleNavigation(item.href)}
+                        className={classes.mobileNavLink}
+                      >
+                        {item.label}
+                      </UnstyledButton> ) : (
+                        <UnstyledButton
+                          key={item.label}
+                          className={classes.mobileNavLink}
+                          component={Link}
+                          to={item.href}
+                          fullWidth
+                          onClick={close}
+                        >
+                          {item.label}
+                        </UnstyledButton>
+                      )
+                    // </motion.div>
                   ))}
 
-                  <Button fullWidth mt="md" radius="xl"
-                    className={`${classes.ctaButton} ${classes.green}`}
-                    component={Link}
-                    to={NAVIGATION_CONFIG.ctaButtons[0].href}
-                    onClick={close}
-                  >
-                    {NAVIGATION_CONFIG.ctaButtons[0].label}
-                  </Button>
+                  {NAVIGATION_CONFIG.ctaButtons.map((btn, i) => (
+                    <Link key={btn.label} to={btn.href} style={{ textDecoration: 'none' }}>
+                      <Button
+                        fullWidth
+                        mt={i === 0 ? 'md' : 8}          /* space between the two */
+                        radius="xl"
+                        variant={btn.variant}            /* same as desktop  */
+                        color={btn.color}                /* same as desktop  */
+                        className={`${classes.ctaButton} ${classes[btn.color]}`}
+                        onClick={close}                  /* close drawer on tap */
+                      >
+                        {btn.label}
+                      </Button>
+                    </Link>
+                  ))}
                 </ScrollArea>
               </Drawer>
 
