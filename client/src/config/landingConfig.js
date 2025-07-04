@@ -1,4 +1,4 @@
-import logoImage from "../assets/logo.png";
+import fullLogo from "../assets/mwh-logo.png";
 import Snoopy from "../assets/previewImages/snoopy.png";
 import WoodStock from "../assets/previewImages/woodstock.png";
 
@@ -37,6 +37,7 @@ export const BRAND_CONFIG = {
 export const HERO_CONFIG = {
   headline: 'Redefining Access.',
   highlightedText: 'Reimagining Care.',
+
   subHeadline: 'Smart System Access Service System',
   description: 'Advanced technology platform for seamless healthcare access and management.',
   primaryCTA: 'Get started',
@@ -231,7 +232,7 @@ export const CONTACT_CONFIG = {
 
 // Navigation and routing
 export const NAVIGATION_CONFIG = {
-  logo: logoImage, // Update with actual logo path
+  logo: fullLogo, // Update with actual logo path
   menuItems: [
     { label: 'About', href: '/about' },
     { label: 'Providers', href: '/providers' },
@@ -242,13 +243,13 @@ export const NAVIGATION_CONFIG = {
       label: 'Login',
       href: '/login',
       variant: 'outline',
-      color: 'blue'
+      color: 'white',
     },
     {
       label: 'Get Started',
       href: '/signup',
       variant: 'filled',
-      color: 'blue'
+      color: 'green',
     }
   ]
 };
