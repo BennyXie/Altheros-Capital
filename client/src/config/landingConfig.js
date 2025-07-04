@@ -17,30 +17,66 @@ import WoodStock from "../assets/previewImages/woodstock.png";
 // Company and brand information
 export const BRAND_CONFIG = {
   companyName: 'Midwest Health',
-  tagline: 'Your Tagline Here',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  tagline: 'Smart System Access Service System',
+  description: 'Advanced technology platform for seamless healthcare access and management.',
   
   // Contact and support
-  supportEmail: 'support@company.com',
-  salesEmail: 'sales@company.com',
+  supportEmail: 'support@midwesthealth.com',
+  salesEmail: 'sales@midwesthealth.com',
   phone: '+1 (555) 123-4567',
   
   // Social media links
   social: {
-    twitter: 'https://twitter.com/company',
-    linkedin: 'https://linkedin.com/company/company',
-    facebook: 'https://facebook.com/company'
+    twitter: 'https://twitter.com/midwesthealth',
+    linkedin: 'https://linkedin.com/company/midwesthealth',
+    facebook: 'https://facebook.com/midwesthealth'
   }
 };
 
 // Hero section content
 export const HERO_CONFIG = {
-  headline: 'Redefining Access',
-  highlightedText: 'Reimagining Care',
-  subHeadline: 'Goes Here',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
-  primaryCTA: 'Connect with a Provider',
-  secondaryCTA: 'Connect with a Therapist'
+  headline: 'Redefining Access.',
+  highlightedText: 'Reimagining Care.',
+  subHeadline: 'Smart System Access Service System',
+  description: 'Advanced technology platform for seamless healthcare access and management.',
+  primaryCTA: 'Get started',
+  secondaryCTA: 'Find a therapist'
+};
+
+// Insurer cost estimation section
+export const INSURER_CONFIG = {
+  title: 'Choose your insurer to estimate costs:',
+  subtitle: 'Select list of insurance begins',
+  placeholder: 'Search for your insurance provider...'
+};
+
+// Services overview section
+export const SERVICES_CONFIG = {
+  title: "Let's Build the Future",
+  subtitle: 'of Care—Together',
+  description: 'Our Services ->',
+  services: [
+    {
+      title: 'Behavioral Health Access',
+      description: 'Telehealth, therapy, medication management, and crisis response that drive patient engagement and care outcomes.',
+      category: 'behavioral'
+    },
+    {
+      title: 'Primary Care Support',
+      description: 'Preventative services, chronic care management, and coordinated primary care that ensure more efficient, value-based care.',
+      category: 'primary'
+    },
+    {
+      title: 'Care Navigation', 
+      description: 'AI-powered tools for case management, care logistics, and seamless transitions of care - together as an ecosystem.',
+      category: 'navigation'
+    },
+    {
+      title: 'Operational Enablement',
+      description: 'End-to-end platform including scheduling, documentation, medication management, and transparent care flows.',
+      category: 'operational'
+    }
+  ]
 };
 
 export const TECHNOLOGIES_CONFIG = {
@@ -70,7 +106,7 @@ export const TECHNOLOGIES_CONFIG = {
       description: 'for data insights and resource management',
     },
     {
-       title: 'HIPPA-GRade Security',
+       title: 'HIPPA-Grade Security',
       description: 'and compliance across every touchpoint',
     },
   ]
@@ -177,10 +213,20 @@ export const TESTIMONIALS_CONFIG = {
 // CTA section content
 export const CTA_CONFIG = {
   title: 'Get Started with Midwest Health',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  description: 'Smart System Access Service System helps you connect with the right care when you need it most.',
   primaryCTA: 'Find Your Therapist',
-  secondaryCTA: 'Secondary CTA',
-  disclaimer: 'Optional disclaimer text • Additional info • More details'
+  secondaryCTA: 'Contact Us',
+  urgency: '',
+  benefits: []
+};
+
+// Contact section content  
+export const CONTACT_CONFIG = {
+  title: 'Any questions?',
+  subtitle: 'Contact us!',
+  placeholder: 'Enter your message here...',
+  buttonText: 'Send Message',
+  footerText: 'Insert footer (extra links/legal/copyright)'
 };
 
 // Navigation and routing

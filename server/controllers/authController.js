@@ -29,9 +29,9 @@ async function signUpHelper(req, res) {
 
     if (role === "patient") {
       const {
-        email,
-        first_name,
-        last_name,
+        //email
+        //first_name
+        //last_name
         dob,
         gender,
         address,
@@ -39,13 +39,14 @@ async function signUpHelper(req, res) {
         insurance = null,
         current_medication = null,
         health_provider_id,
-        cognito_sub,
+        //cognito_sub
         password,
         symptoms = [],
         languages = [],
         preferences = {},
+        user = {},
       } = req.body;
-
+      const { cognito_sub, email, first_name, last_name } = user;
       const {
         preferredProviderGender = null,
         smsOptIn = false,
@@ -85,7 +86,7 @@ async function signUpHelper(req, res) {
       ];
 
       const result = await db.query(query, values);
-      const patientId = result.rows[0].patient_id;  // Get the newly created patient ID
+      const patientId = result.rows[0].patient_id; // Get the newly created patient ID
 
       // Insert symptoms if provided
       for (const symptom of symptoms) {
@@ -135,43 +136,66 @@ async function signUpHelper(req, res) {
       return res.redirect("/helloworld");
     } else if (role === "provider") {
       const {
-        cognito_sub,
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        address,
-        license,
+        insurance_networks = [],
+        location,
+        specialty = [],
         gender,
-        bio,
+        experience_years,
+        education,
+        focus_groups = [],
+        about_me,
+        languages = [],
+        hobbies,
+        quote,
+        calendly_url,
+        headshot_url,
+        password,
+        user = {},
       } = req.body;
 
+      const { cognito_sub, email, first_name, last_name } = user;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
       const query = `
-        INSERT INTO providers (
-          cognito_sub, first_name, last_name, email, phone_number, address,
-          license, gender, bio, is_active, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      `;
+      INSERT INTO providers (
+        cognito_sub, email, password, first_name, last_name,
+        insurance_networks, location, specialty, gender, experience_years,
+        education, focus_groups, about_me, languages, hobbies, quote,
+        calendly_url, headshot_url, created_at, updated_at
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16,
+        $17, $18, $19, $20
+      )
+    `;
 
-      const values = [
-        cognito_sub,
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        address,
-        license,
-        gender,
-        bio,
-        true,
-        now, // created_at
-        now  // updated_at
-      ];
+    const values = [
+      cognito_sub,
+      email,
+      hashedPassword,
+      first_name,
+      last_name,
+      insurance_networks,
+      location,
+      specialty,
+      gender,
+      experience_years,
+      education,
+      focus_groups,
+      about_me,
+      languages,
+      hobbies,
+      quote,
+      calendly_url,
+      headshot_url,
+      now, // created_at
+      now, // updated_at
+    ];
 
-      await db.query(query, values);
+    await db.query(query, values);
 
-
-      return res.redirect("/helloworld"); 
+    return res.redirect("/helloworld");
     }
 
     return res.status(400).json({ error: "Invalid role provided" });
