@@ -60,17 +60,21 @@ function initializeSocket(server) {
     console.log(`${name} connected (socket ID: ${socket.id})`);
 
     /**
+     * Code to Join a chat room
+     * Front end needs to emit:
+     * socket.emit("join_chat, { chatId, timestamp }")
+     */
+    socket.on("join_chat", ({ chatId, timestamp }) => {
+        socket.join(chatId);
+        console.log(`${name} joined room ${chatId}`);
+        chatController.handleJoin(socket, chatId, name, timestamp);
+    });
+
+    /**
      * Event: When user sends message, send to controller
-     * Lilly is going to implement chatController.handleMessage
      */
     socket.on("send_message", (data) => {
-      chatController.handleMessage(
-        socket,
-        data,
-        connectedUsers,
-        userDisplayNames,
-        io
-      );
+      chatController.handleMessage(socket,data,io);
     });
 
     /**
@@ -79,7 +83,7 @@ function initializeSocket(server) {
     socket.on("disconnect", () => {
       connectedUsers.delete(email);
       userDisplayNames.delete(email);
-      console.log(`${name} disconnected`);
+      chatController.handleDisconnect(socket, io);
     });
   });
 
