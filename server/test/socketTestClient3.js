@@ -1,30 +1,16 @@
 const { io } = require("socket.io-client");
 
-// Replace with your local backend address
 const socket = io("http://localhost:8080", {
   auth: {
     token: "eyJraWQiOiJKUnJJVTIra1pGNERDU3MxcUowOVhxbnNPUHRibzVMYmZvR21FRVNJM3lJPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiMkwyOFVIZWtYWTh4UlR0ZUpZLXYtUSIsInN1YiI6IjMxN2JhNTMwLTIwNDEtNzAwNS05M2Y1LTY4ZmM1Nzg0M2VjZiIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0yLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMl9nQlhBVk1YVUsiLCJjb2duaXRvOnVzZXJuYW1lIjoiMzE3YmE1MzAtMjA0MS03MDA1LTkzZjUtNjhmYzU3ODQzZWNmIiwiZ2l2ZW5fbmFtZSI6IlByYW5hdiIsImF1ZCI6IjNtOXV0dHA4MmdnZjhndTYybG0xMmVhN2o2IiwiZXZlbnRfaWQiOiJkZjg0MTJlYi1iOWVmLTQ4ZGMtOTEzNy1kZGU3ZDAzNDBjZGUiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTc1MTU4NzM2NSwiZXhwIjoxNzUxNTkwOTY1LCJpYXQiOjE3NTE1ODczNjUsImZhbWlseV9uYW1lIjoiU3ViYmlhaCIsImp0aSI6ImIxZjE4Njk2LWM2YjItNGJhYi04MWY2LTU3NGVhMDAxOGZiOCIsImVtYWlsIjoicHJhbmF2c3ViYmlhaEBnbWFpbC5jb20ifQ.QfWfuMolsf8z2bziM8jQS95a-FFn2xhP_HCzZKt6JWdSxhLRKtKxSo9_eivdp1zK06-0DQWELy6oHinZPzDaKhQgTtc_jLxg46aqMuB9oKY2U2BrUCRjfveE4qF4XSxpJdKWkNP9MoFB--rX9JZQ3yguwwTafk0BjSGHOpNYhT7LY0YpwbHeOmefIgMdaiPpecVAuOXFfUDqK-mE4_gkk-uI1RwOjIjTD4FtupiE1xxW8Nuyj2hpNgpWZjwh7pXYQCVpUsSJX7IwqfceKFRw3oZinhtEDAou8zJh9zl4ObTWYG3QnH3uhBamD7V_UsM3oWioONEZxCPxhPCivcGLJA",
   },
 });
 
-// Simulate join_chat
 socket.emit("join_chat", {
-  chatId: "room-A",
+  chatId: "room-B",
   timestamp: new Date().toISOString(),
 });
 
-// Listen for incoming messages
 socket.on("receive_message", (msg) => {
-  console.log("[User A received]", msg);
+  console.log("[User C received]", msg);
 });
-
-// Send message after 2 seconds
-setTimeout(() => {
-  socket.emit("send_message", {
-    chatId: "room-A",
-    text: "Hello from User A",
-    timestamp: new Date().toISOString(),
-  });
-}, 2000);
-
-
