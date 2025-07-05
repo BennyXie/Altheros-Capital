@@ -12,6 +12,7 @@ RUN npm ci
 COPY . .
 
 # Port used by Express
+# Suggested port
 EXPOSE 5050
 
 # Start the backend

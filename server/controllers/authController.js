@@ -1,4 +1,3 @@
-const pool = require("../db/pool");
 const { signUpUser } = require("../services/cognitoService");
 const db = require("../db/pool")
 const bcrypt = require('bcrypt');

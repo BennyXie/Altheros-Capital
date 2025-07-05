@@ -6,7 +6,7 @@ function getEmailById(map, id) {
       return email;
     }
   }
-  return null;
+  return;
 }
 
 // function handleJoin(socket, room, username) {
