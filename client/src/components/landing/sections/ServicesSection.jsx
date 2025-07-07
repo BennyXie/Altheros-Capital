@@ -13,7 +13,7 @@ import classes from "./ServicesSection.module.css";
 
 /**
  * Services Overview Section Component
- * 
+ *
  * Showcases the four main service categories with visual diagram layout
  * as shown in the design: Behavioral Health, Primary Care, Care Navigation, and Operational Enablement
  */
@@ -44,15 +44,21 @@ const ServicesSection = () => {
 
           {/* Services Grid */}
           <motion.div variants={fadeInUp} transition={{ delay: 0.2 }}>
-            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" className={classes.grid}>
+            <SimpleGrid
+              cols={{ base: 1, md: 2 }}
+              spacing="xl"
+              className={classes.grid}
+            >
               {SERVICES_CONFIG.services.map((service, index) => (
                 <motion.div
                   key={service.title}
                   variants={fadeInUp}
                   transition={{ delay: 0.1 * (index + 1) }}
                 >
-                  <Paper 
-                    className={`${classes.serviceCard} ${classes[service.category]}`}
+                  <Paper
+                    className={`${classes.serviceCard} ${
+                      classes[service.category]
+                    }`}
                     p="xl"
                     radius="lg"
                   >

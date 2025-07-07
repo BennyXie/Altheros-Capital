@@ -32,12 +32,11 @@ import classes from "./TechnologiesSection.module.css";
  * )
  */
 
-
 const TechnologiesSection = () => {
   // Feature data from configuration
   const cards = TECHNOLOGIES_CONFIG.cards;
 
-  const[hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   return (
     <section id="technologies" className={classes.technologies}>
       <motion.div
@@ -47,20 +46,16 @@ const TechnologiesSection = () => {
         viewport={{ once: true }}
       >
         {/* MAIN CONTAINER - Header and Cards */}
-        <Container 
-          size="xl"
-          className={classes.mainContainer}
-          py={80}
-        >
+        <Container size="xxl" className={classes.mainContainer} py={80}>
           {/* Header */}
           <motion.div variants={fadeInUp}>
-            <Stack align="center" mb={40}> 
+            <Stack align="center" mb={40}>
               <Title
                 order={1}
                 ta="center"
-                c="white"
                 size={48}
-                style={{ marginBottom: '8px' }}
+                style={{ marginBottom: "8px" }}
+                className={classes.titleText}
               >
                 {TECHNOLOGIES_CONFIG.title}
               </Title>
@@ -70,12 +65,13 @@ const TechnologiesSection = () => {
                 ta="center"
                 c="white"
                 size={48}
-                style={{ marginBottom: '20px' }}
+                style={{ marginBottom: "20px" }}
+                className={classes.titleText}
               >
                 {TECHNOLOGIES_CONFIG.title2}
               </Title>
 
-              <Text size="lg" c="white" ta="center" style={{ opacity: 0.9 }}> 
+              <Text size="xl" c="black" ta="center" style={{ opacity: 0.9 }}>
                 {TECHNOLOGIES_CONFIG.description}
               </Text>
             </Stack>
@@ -84,25 +80,28 @@ const TechnologiesSection = () => {
           {/* Wall-to-Wall Banner */}
           <motion.div variants={fadeInUp} transition={{ delay: 0.3 }}>
             <div className={classes.banner}>
-              <Text className={classes.bannerText}> 
+              <Text className={classes.bannerText}>
                 {TECHNOLOGIES_CONFIG.text}
               </Text>
             </div>
           </motion.div>
 
           {/* Interactive Cards Section */}
-          <Flex justify="space-between" align="center" gap="xl" className={classes.cardsContainer}> 
-            <Box w="50%" className={classes.imagePreview} style={{ display: 'flex', justifyContent: 'center' }}>
-              <motion.div
-                variants={fadeInUp}
-                transition={{ delay: 0.1 }}
-              >
-                <Paper 
-                  className={classes.appMockup}
-                  radius="lg"
-                >
+          <Flex
+            justify="space-between"
+            align="center"
+            gap="xl"
+            className={classes.cardsContainer}
+          >
+            <Box
+              w="50%"
+              className={classes.imagePreview}
+              style={{ display: "flex", justifyContent: "center" }}
+            >
+              <motion.div variants={fadeInUp} transition={{ delay: 0.1 }}>
+                <Paper className={classes.appMockup} radius="lg">
                   {hoveredIndex !== null ? (
-                    <Image 
+                    <Image
                       src={cards[hoveredIndex].preview}
                       alt={cards[hoveredIndex].previewAlt}
                       fit="contain"
@@ -115,7 +114,7 @@ const TechnologiesSection = () => {
                 </Paper>
               </motion.div>
             </Box>
-            
+
             <Box w="50%" className={classes.cardsColumn}>
               <Stack align="center">
                 {cards.map((card, index) => (
@@ -124,17 +123,17 @@ const TechnologiesSection = () => {
                     variants={fadeInUp}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <Paper 
+                    <Paper
                       className={classes.featureCard}
                       radius="lg"
                       withBorder
                       onMouseEnter={() => setHoveredIndex(index)}
                       onMouseLeave={() => setHoveredIndex(null)}
-                    > 
+                    >
                       <Title className={classes.featureTitle}>
                         {card.title}
                       </Title>
-                      
+
                       <Text className={classes.featureText}>
                         {card.description}
                       </Text>

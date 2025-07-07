@@ -1,21 +1,29 @@
-import { Container, Title, Text, Button, Group, Stack, Paper } from '@mantine/core';
-import { motion } from 'framer-motion';
-import { fadeInUp } from '../../../animations/variants';
-import { CTA_CONFIG } from '../../../config/landingConfig';
-import classes from './CTASection.module.css';
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Group,
+  Stack,
+  Paper,
+} from "@mantine/core";
+import { motion } from "framer-motion";
+import { fadeInUp } from "../../../animations/variants";
+import { CTA_CONFIG } from "../../../config/landingConfig";
+import classes from "./CTASection.module.css";
 
 /**
  * Call-to-Action Section Component
- * 
+ *
  * Final conversion section that encourages users to take action.
  * Should be compelling and create urgency without being pushy.
- * 
+ *
  * Typically includes:
  * - Compelling headline
  * - Brief value reminder
  * - Primary and secondary CTAs
  * - Optional urgency element
- * 
+ *
  * @component
  * @example
  * return (
@@ -32,25 +40,25 @@ const CTASection = () => {
           whileInView="animate"
           viewport={{ once: true }}
         >
-          <Paper 
-            radius="xl" 
-            p="xl" 
-            shadow="lg"
-            className={classes.ctaCard}
-          >
+          <Paper radius="xl" p="xl" shadow="lg" className={classes.ctaCard}>
             <Stack align="center" ta="center" gap="xl">
               <div>
                 <Title order={2} c="dark" className={classes.title}>
                   {CTA_CONFIG.title}
                 </Title>
-                <Text size="xl" c="gray.7" className={classes.description} mt="md">
+                <Text
+                  size="xl"
+                  c="gray.7"
+                  className={classes.description}
+                  mt="md"
+                >
                   {CTA_CONFIG.description}
                 </Text>
               </div>
 
               <Group justify="center" className={classes.buttonGroup}>
-                <Button 
-                  size="xl" 
+                <Button
+                  size="xl"
                   variant="filled"
                   className={classes.primaryButton}
                 >

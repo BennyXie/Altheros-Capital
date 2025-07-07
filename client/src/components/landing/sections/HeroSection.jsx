@@ -44,8 +44,8 @@ const HeroSection = () => {
         >
           <motion.div variants={slideInLeft}>
             <Stack gap="md" className={classes.content}>
-              <Title order={1} className={classes.title}>
-                {HERO_CONFIG.headline}
+              <Title order={1}>
+                <span className={classes.title}>{HERO_CONFIG.headline}</span>
                 <br />
                 <span className={classes.highlightedText}>
                   {HERO_CONFIG.highlightedText}
