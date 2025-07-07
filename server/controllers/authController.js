@@ -8,11 +8,12 @@ const saltRounds = 10;
 
 async function testCognito(req, res) {
   try {
+    const { username, password, givenName, familyName } = req.body;
     const response = await signUpUser({
-      username: "test@example.com",
-      password: "TestPass123!",
-      givenName: "John",
-      familyName: "Smith",
+      username: username,
+      password: password,
+      givenName: givenName,
+      familyName: familyName,
     });
     res.json({ message: "Signup request sent", response });
   } catch (err) {
