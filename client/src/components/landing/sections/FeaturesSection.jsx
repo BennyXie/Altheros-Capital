@@ -102,7 +102,7 @@ const FeaturesSection = () => {
                       size={60}
                       radius="md"
                       variant="light"
-                      color={feature.color}
+                      color={"red"}
                       className={classes.featureIcon}
                     >
                       <IconComponent size={30} />
