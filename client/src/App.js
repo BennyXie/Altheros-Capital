@@ -1,48 +1,58 @@
-import { MantineProvider, AppShell } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { theme } from './styles/theme';
-import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
-import { Header, Footer } from './components/layout';
-import ScrollToTop from './components/ScrollToTop';
+import { MantineProvider, AppShell } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { theme } from "./styles/theme";
+import { LandingPage } from "./components/landing";
+import {
+  AboutPage,
+  LoginPage,
+  SignupPage,
+  DashboardPage,
+  CompleteProfilePage,
+  ProviderAccessPage,
+  AppointmentsPage,
+} from "./pages";
+import { Header, Footer } from "./components/layout";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Import Mantine core styles
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 // Import global color system
-import './styles/colors.css';
+import "./styles/colors.css";
 
 // Main UI component
 function App() {
   return (
     <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications />
-      <Router 
+      <Router
         future={{
           v7_startTransition: true,
-          v7_relativeSplatPath: true
+          v7_relativeSplatPath: true,
         }}
       >
         <ScrollToTop />
         <AppShell
           header={{ height: 60 }}
           padding={0}
-          style={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
-            flexDirection: 'column'
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <AppShell.Header>
             <Header />
           </AppShell.Header>
-          
-          <AppShell.Main style={{ 
-            paddingTop: 60, 
-            flex: 1
-          }}>
+
+          <AppShell.Main
+            style={{
+              paddingTop: 60,
+              flex: 1,
+            }}
+          >
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -50,11 +60,14 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/complete-profile" element={<CompleteProfilePage />} />
+              <Route
+                path="/complete-profile"
+                element={<CompleteProfilePage />}
+              />
               <Route path="/appointments" element={<AppointmentsPage />} />
             </Routes>
           </AppShell.Main>
-          
+
           <Footer />
         </AppShell>
       </Router>
