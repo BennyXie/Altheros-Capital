@@ -10,7 +10,7 @@ router.get("/protected", verifyToken, (req, res) => {
   });
 });
 
-router.get("/test-cognito", testCognito);
+router.post("/test-cognito", testCognito);
 router.post("/signup", verifyToken, signUpHelper);
 
 
