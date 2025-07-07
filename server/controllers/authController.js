@@ -6,7 +6,7 @@ const saltRounds = 10;
 //For password verify, we need to run const isMatch = await bcrypt.compare(plainPassword, hashedPassword).
 
 
-async function testCognito(req, res) {
+async function cognito_signup(req, res) {
   try {
     const { username, password, givenName, familyName } = req.body;
     const response = await signUpUser({
@@ -207,4 +207,4 @@ async function signUpHelper(req, res) {
 }
 
 
-module.exports = { testCognito, signUpHelper };
+module.exports = { cognito_signup, signUpHelper };
