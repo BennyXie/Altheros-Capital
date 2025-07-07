@@ -1,6 +1,9 @@
 import { MantineProvider, AppShell } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import PasswordReset from './components/PasswordReset';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
 import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
@@ -19,45 +22,62 @@ function App() {
   return (
     <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications />
-      <Router 
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
-        <ScrollToTop />
-        <AppShell
-          header={{ height: 60 }}
-          padding={0}
-          style={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
-            flexDirection: 'column'
+      <AuthProvider>
+        <Router 
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
           }}
         >
-          <AppShell.Header>
-            <Header />
-          </AppShell.Header>
-          
-          <AppShell.Main style={{ 
-            paddingTop: 60, 
-            flex: 1
-          }}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/providers" element={<ProviderAccessPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/complete-profile" element={<CompleteProfilePage />} />
-              <Route path="/appointments" element={<AppointmentsPage />} />
-            </Routes>
-          </AppShell.Main>
-          
-          <Footer />
-        </AppShell>
-      </Router>
+          <ScrollToTop />
+          <AppShell
+            header={{ height: 60 }}
+            padding={0}
+            style={{ 
+              minHeight: '100vh', 
+              display: 'flex', 
+              flexDirection: 'column'
+            }}
+          >
+            <AppShell.Header>
+              <Header />
+            </AppShell.Header>
+            
+            <AppShell.Main style={{ 
+              paddingTop: 60, 
+              flex: 1
+            }}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/providers" element={<ProviderAccessPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/reset-password" element={<PasswordReset />} />
+                
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/complete-profile" element={
+                  <ProtectedRoute>
+                    <CompleteProfilePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/appointments" element={
+                  <ProtectedRoute>
+                    <AppointmentsPage />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </AppShell.Main>
+            
+            <Footer />
+          </AppShell>
+        </Router>
+      </AuthProvider>
     </MantineProvider>
   );
 }

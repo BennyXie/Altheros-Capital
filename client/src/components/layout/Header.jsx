@@ -6,13 +6,17 @@ import {
     UnstyledButton,
     Button,
     ScrollArea,
+    Menu,
+    Avatar,
+    Text,
 } from "@mantine/core";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { IconMenu2 } from "@tabler/icons-react";
+import { IconMenu2, IconUser, IconLogout, IconDashboard } from "@tabler/icons-react";
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
+import { useAuth } from "../../context/AuthContext";
 import classes from "./Header.module.css";
 
 /**
@@ -38,6 +42,7 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
+    const { isAuthenticated, user, logout } = useAuth();
 
     useEffect(() => {
         if (opened && isDesktop) {
@@ -61,6 +66,11 @@ const Header = () => {
             }
         }
         close(); // Close dropdown after clicking
+    };
+
+    const handleLogout = () => {
+        logout();
+        close();
     };
 
     return (
@@ -130,36 +140,70 @@ const Header = () => {
                         ))}
 
                         {/* CTA Buttons */}
-                        {NAVIGATION_CONFIG.ctaButtons.map((button, index) => (
-                            <motion.div
-                                key={button.label}
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 100,
-                                    ease: "circIn",
-                                    duration: isLoaded ? 0.02 : 0.5,
-                                    delay: isLoaded ? 0 : index * 0.1,
-                                }}
-                            >
-                                <Link
-                                    to={button.href}
-                                    style={{ textDecoration: "none" }}
-                                >
+                        {isAuthenticated ? (
+                            // Authenticated user menu
+                            <Menu shadow="md" width={200}>
+                                <Menu.Target>
                                     <Button
-                                        variant={button.variant}
-                                        color={button.color}
-                                        className={`${classes.ctaButton} ${
-                                            classes[button.color]
-                                        }`} // ensures correct button colors are applied
-                                        radius={15}
+                                        variant="subtle"
+                                        leftSection={<Avatar size="sm" radius="xl"><IconUser size={16} /></Avatar>}
+                                        style={{ color: 'var(--color-text-primary)' }}
                                     >
-                                        {button.label}
+                                        {user?.given_name || 'User'}
                                     </Button>
-                                </Link>
-                            </motion.div>
-                        ))}
+                                </Menu.Target>
+
+                                <Menu.Dropdown>
+                                    <Menu.Item
+                                        component={Link}
+                                        to="/dashboard"
+                                        leftSection={<IconDashboard size={16} />}
+                                    >
+                                        Dashboard
+                                    </Menu.Item>
+                                    <Menu.Divider />
+                                    <Menu.Item
+                                        leftSection={<IconLogout size={16} />}
+                                        onClick={handleLogout}
+                                        color="red"
+                                    >
+                                        Logout
+                                    </Menu.Item>
+                                </Menu.Dropdown>
+                            </Menu>
+                        ) : (
+                            // Non-authenticated CTA buttons
+                            NAVIGATION_CONFIG.ctaButtons.map((button, index) => (
+                                <motion.div
+                                    key={button.label}
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 100,
+                                        ease: "circIn",
+                                        duration: isLoaded ? 0.02 : 0.5,
+                                        delay: isLoaded ? 0 : index * 0.1,
+                                    }}
+                                >
+                                    <Link
+                                        to={button.href}
+                                        style={{ textDecoration: "none" }}
+                                    >
+                                        <Button
+                                            variant={button.variant}
+                                            color={button.color}
+                                            className={`${classes.ctaButton} ${
+                                                classes[button.color]
+                                            }`} // ensures correct button colors are applied
+                                            radius={15}
+                                        >
+                                            {button.label}
+                                        </Button>
+                                    </Link>
+                                </motion.div>
+                            ))
+                        )}
                     </Group>
 
                     {/* Mobile Menu */}
