@@ -41,7 +41,8 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { isAuthenticated, logout, getUserAttributes } = useAuth();
+    const { isAuthenticated, logout, getUserAttributes, getUserAttributesFromToken } = useAuth();
+    const [userDisplayName, setUserDisplayName] = useState('User');
 
     useEffect(() => {
         if (opened && isDesktop) {
@@ -49,12 +50,36 @@ const Header = () => {
         }
     }, [opened, isDesktop, close]);
 
-    // Get user attributes for display
-    const userAttributes = getUserAttributes();
-    const displayName = userAttributes?.given_name || 
-                       userAttributes?.name || 
-                       userAttributes?.email?.split('@')[0] || 
-                       'User';
+    // Get user attributes for display - try both methods
+    useEffect(() => {
+        const fetchUserName = async () => {
+            if (isAuthenticated) {
+                // First try the direct user attributes
+                const userAttributes = getUserAttributes();
+                let displayName = userAttributes?.given_name || 
+                                userAttributes?.name || 
+                                userAttributes?.email?.split('@')[0];
+
+                // If we don't have a name, try getting it from the JWT token
+                if (!displayName || displayName === userAttributes?.email?.split('@')[0]) {
+                    try {
+                        const tokenAttributes = await getUserAttributesFromToken();
+                        displayName = tokenAttributes?.given_name || 
+                                    tokenAttributes?.name || 
+                                    tokenAttributes?.email?.split('@')[0] || 
+                                    'User';
+                    } catch (error) {
+                        console.error('Error getting user name from token:', error);
+                        displayName = displayName || 'User';
+                    }
+                }
+
+                setUserDisplayName(displayName || 'User');
+            }
+        };
+
+        fetchUserName();
+    }, [isAuthenticated, getUserAttributes, getUserAttributesFromToken]);
 
     const handleNavigation = (href) => {
         // Handle contact link - scroll to footer on any page
@@ -155,7 +180,7 @@ const Header = () => {
                                         leftSection={<Avatar size="sm" radius="xl"><IconUser size={16} /></Avatar>}
                                         style={{ color: 'var(--color-text-primary)' }}
                                     >
-                                        {displayName}
+                                        {userDisplayName}
                                     </Button>
                                 </Menu.Target>
 

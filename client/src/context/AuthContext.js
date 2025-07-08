@@ -156,6 +156,33 @@ export const AuthProvider = ({ children }) => {
     };
   };
 
+  // Get user attributes from JWT ID token (alternative method)
+  const getUserAttributesFromToken = async () => {
+    try {
+      const session = await fetchAuthSession();
+      const idToken = session.tokens?.idToken;
+      
+      if (idToken) {
+        // Parse JWT payload to get user claims
+        const payload = idToken.payload;
+        console.log('JWT ID Token Payload:', payload); // Debug log
+        return {
+          email: payload.email,
+          given_name: payload.given_name,
+          family_name: payload.family_name,
+          name: payload.name,
+          sub: payload.sub,
+          ...payload
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting user attributes from token:', error);
+      return null;
+    }
+  };
+
   const value = {
     user: state.user,
     isAuthenticated: state.isAuthenticated,
@@ -167,6 +194,7 @@ export const AuthProvider = ({ children }) => {
     getAccessToken,
     getIdToken,
     getUserAttributes,
+    getUserAttributesFromToken,
     checkAuthState,
   };
 
