@@ -39,4 +39,4 @@ docker-compose down -v
 ### Notes
 
 - The backend expects a .env file inside server/ that contains the required environment variables (feel free to ask Pranav for the file info if needed)
-- The frontend .env file has been blocked out of the docker-compose for now, as I don't think they have anything yet (uncomment lines when needed)
+- The frontend expects a .env file inside client/ that contains the required environment variables (feel free to ask Andreas for the file info if needed)
