@@ -33,7 +33,6 @@ app.use("/providers", providersRoutes);
 
 app.use("/appointments", appointmentRoutes);
 
-app.listen(PORT, () => {
 // AI routes
 app.use("/ai", aiRoutes);
 
