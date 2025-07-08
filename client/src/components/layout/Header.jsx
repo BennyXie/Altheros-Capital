@@ -8,7 +8,6 @@ import {
     ScrollArea,
     Menu,
     Avatar,
-    Text,
 } from "@mantine/core";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
@@ -42,7 +41,7 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { isAuthenticated, user, logout, getUserAttributes } = useAuth();
+    const { isAuthenticated, logout, getUserAttributes } = useAuth();
 
     useEffect(() => {
         if (opened && isDesktop) {

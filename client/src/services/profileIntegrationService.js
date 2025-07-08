@@ -26,12 +26,6 @@ class ProfileIntegrationService {
       };
 
       // Prepare the complete profile payload
-      const payload = {
-        role,
-        user,
-        ...profileData
-      };
-
       // For patient role, structure the data according to your backend expectations
       if (role === 'patient') {
         const completePayload = {
@@ -123,4 +117,5 @@ class ProfileIntegrationService {
   }
 }
 
-export default new ProfileIntegrationService();
+const profileIntegrationService = new ProfileIntegrationService();
+export default profileIntegrationService;
