@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import { staggerContainer } from '../../animations/variants';
 import HeroSection from './sections/HeroSection';
-import FeaturesSection from './sections/FeaturesSection';
-import AboutSection from './sections/AboutSection';
-import TestimonialsSection from './sections/TestimonialsSection';
+import InsurerSection from './sections/InsurerSection';
+import ServicesSection from './sections/ServicesSection';
+// import AboutSection from './sections/AboutSection';
+// import TestimonialsSection from './sections/TestimonialsSection';
+import TechnologiesSection from './sections/TechnologiesSection';
 import CTASection from './sections/CTASection';
+//import ContactSection from './sections/ContactSection';
 
 /**
  * Main Landing Page Component
@@ -33,14 +36,14 @@ const LandingPage = () => {
       {/* Hero Section - Primary call-to-action and value proposition */}
       <HeroSection />
       
-      {/* Features Section - Highlight key features and benefits */}
-      <FeaturesSection />
+      {/* Insurer Section - Cost estimation with insurance provider search */}
+      <InsurerSection />
       
-      {/* About Section - Company/product information */}
-      <AboutSection />
+      {/* Services Section - Four main service categories */}
+      <ServicesSection />
       
-      {/* Testimonials Section - Social proof and customer feedback */}
-      <TestimonialsSection />
+      {/* Technologies Section - Smart Features, Seamless Experience */}
+      <TechnologiesSection />
       
       {/* CTA Section - Final conversion opportunity */}
       <CTASection />
