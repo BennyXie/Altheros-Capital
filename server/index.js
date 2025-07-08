@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const aiRoutes   = require("./routes/aiRoutes")
 const calendlyRoutes = require("./routes/calendlyRoute");
 const { initializeSocket } = require('./services/socketService');
+const headshotRoutes = require("./routes/headshotRoutes");
 
 // using express
 const app = express();
@@ -31,6 +32,8 @@ app.use("/ai", aiRoutes);
 
 // All calendlyRoutes start with /calendly
 app.use("/calendly", calendlyRoutes);
+
+app.use("/api/providers", headshotRoutes);
 
 // WebSocket installation
 initializeSocket(server);
