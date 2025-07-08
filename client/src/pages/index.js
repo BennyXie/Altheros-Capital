@@ -5,3 +5,4 @@ export { default as DashboardPage } from './DashboardPage';
 export { default as CompleteProfilePage } from './CompleteProfilePage';
 export { default as ProviderAccessPage } from './ProviderAccessPage';
 export { default as AppointmentsPage } from './AppointmentsPage';
+export { default as TestingPage } from './TestingPage';

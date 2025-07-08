@@ -42,13 +42,20 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, user, logout, getUserAttributes } = useAuth();
 
     useEffect(() => {
         if (opened && isDesktop) {
             close();
         }
     }, [opened, isDesktop, close]);
+
+    // Get user attributes for display
+    const userAttributes = getUserAttributes();
+    const displayName = userAttributes?.given_name || 
+                       userAttributes?.name || 
+                       userAttributes?.email?.split('@')[0] || 
+                       'User';
 
     const handleNavigation = (href) => {
         // Handle contact link - scroll to footer on any page
@@ -149,7 +156,7 @@ const Header = () => {
                                         leftSection={<Avatar size="sm" radius="xl"><IconUser size={16} /></Avatar>}
                                         style={{ color: 'var(--color-text-primary)' }}
                                     >
-                                        {user?.given_name || 'User'}
+                                        {displayName}
                                     </Button>
                                 </Menu.Target>
 

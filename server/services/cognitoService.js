@@ -1,6 +1,7 @@
 const {
   CognitoIdentityProviderClient,
   SignUpCommand,
+  AdminDeleteUserCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { getSecretHash } = require("../utils/hashUtils");
 
@@ -27,4 +28,15 @@ async function signUpUser({ username, password, givenName, familyName }) {
   return await cognito.send(command);
 }
 
-module.exports = { signUpUser };
+async function deleteUser(username) {
+  const userPoolId = process.env.COGNITO_USER_POOL_ID;
+
+  const command = new AdminDeleteUserCommand({
+    UserPoolId: userPoolId,
+    Username: username,
+  });
+
+  return await cognito.send(command);
+}
+
+module.exports = { signUpUser, deleteUser };

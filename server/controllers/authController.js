@@ -1,5 +1,5 @@
 const pool = require("../db/pool");
-const { signUpUser } = require("../services/cognitoService");
+const { signUpUser, deleteUser } = require("../services/cognitoService");
 const db = require("../db/pool")
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -206,5 +206,66 @@ async function signUpHelper(req, res) {
   }
 }
 
+async function deleteUserAndData(req, res) {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
 
-module.exports = { testCognito, signUpHelper };
+    // Start a transaction
+    await db.query('BEGIN');
+
+    try {
+      // Find the user in the database first
+      const userQuery = 'SELECT * FROM patients WHERE email = $1 UNION SELECT * FROM providers WHERE email = $1';
+      const userResult = await db.query(userQuery, [email]);
+      
+      if (userResult.rows.length === 0) {
+        await db.query('ROLLBACK');
+        return res.status(404).json({ error: "User not found in database" });
+      }
+
+      const user = userResult.rows[0];
+      const isPatient = user.patient_id !== undefined;
+
+      if (isPatient) {
+        // Delete patient-related data
+        await db.query('DELETE FROM symptoms WHERE patient_id = $1', [user.patient_id]);
+        await db.query('DELETE FROM patient_language WHERE patient_id = $1', [user.patient_id]);
+        await db.query('DELETE FROM patient_preferences WHERE patient_id = $1', [user.patient_id]);
+        await db.query('DELETE FROM patients WHERE patient_id = $1', [user.patient_id]);
+      } else {
+        // Delete provider data
+        await db.query('DELETE FROM providers WHERE provider_id = $1', [user.provider_id]);
+      }
+
+      // Delete from Cognito
+      await deleteUser(email);
+
+      // Commit the transaction
+      await db.query('COMMIT');
+
+      res.json({ 
+        message: "User deleted successfully from both Cognito and database",
+        deletedUser: {
+          email: user.email,
+          type: isPatient ? 'patient' : 'provider'
+        }
+      });
+    } catch (error) {
+      // Rollback the transaction on error
+      await db.query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ 
+      error: "Failed to delete user", 
+      details: error.message 
+    });
+  }
+}
+
+module.exports = { testCognito, signUpHelper, deleteUserAndData };

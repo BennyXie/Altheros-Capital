@@ -1,6 +1,6 @@
 // imports
 // define where to load environment variables
-require('dotenv').config({ path: './server/.env' });
+require('dotenv').config({ path: './.env' });
 const express = require("express");
 const http = require("http");
 const cors = require("cors");

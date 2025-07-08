@@ -1,24 +1,19 @@
 /**
  * Authentication Context and Provider
  * 
- * Provides authentication state management throughout the application.
- * Handles login, logout, user session management, and protected routes.
+ * Provides Amplify-based authentication state management throughout the application.
+ * Handles OAuth login, logout, user session management, and automatic token handling.
  */
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import cognitoService from '../services/cognitoService';
+import { fetchAuthSession, signOut, signInWithRedirect, getCurrentUser } from 'aws-amplify/auth';
 
 // Auth action types
 const AUTH_ACTIONS = {
-  LOGIN_START: 'LOGIN_START',
-  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  LOGIN_FAILURE: 'LOGIN_FAILURE',
-  LOGOUT: 'LOGOUT',
   SET_USER: 'SET_USER',
   SET_LOADING: 'SET_LOADING',
-  SIGNUP_START: 'SIGNUP_START',
-  SIGNUP_SUCCESS: 'SIGNUP_SUCCESS',
-  SIGNUP_FAILURE: 'SIGNUP_FAILURE',
+  LOGOUT: 'LOGOUT',
+  SET_ERROR: 'SET_ERROR',
 };
 
 // Initial auth state
@@ -27,49 +22,31 @@ const initialState = {
   isAuthenticated: false,
   isLoading: true,
   error: null,
-  accessToken: null,
-  idToken: null,
 };
 
 // Auth reducer
 const authReducer = (state, action) => {
   switch (action.type) {
-    case AUTH_ACTIONS.LOGIN_START:
-    case AUTH_ACTIONS.SIGNUP_START:
+    case AUTH_ACTIONS.SET_USER:
       return {
         ...state,
-        isLoading: true,
-        error: null,
-      };
-    
-    case AUTH_ACTIONS.LOGIN_SUCCESS:
-      return {
-        ...state,
-        user: action.payload.user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        accessToken: action.payload.accessToken,
-        idToken: action.payload.idToken,
-      };
-    
-    case AUTH_ACTIONS.SIGNUP_SUCCESS:
-      return {
-        ...state,
+        user: action.payload,
+        isAuthenticated: !!action.payload,
         isLoading: false,
         error: null,
       };
     
-    case AUTH_ACTIONS.LOGIN_FAILURE:
-    case AUTH_ACTIONS.SIGNUP_FAILURE:
+    case AUTH_ACTIONS.SET_LOADING:
       return {
         ...state,
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
+        isLoading: action.payload,
+      };
+    
+    case AUTH_ACTIONS.SET_ERROR:
+      return {
+        ...state,
         error: action.payload,
-        accessToken: null,
-        idToken: null,
+        isLoading: false,
       };
     
     case AUTH_ACTIONS.LOGOUT:
@@ -79,24 +56,6 @@ const authReducer = (state, action) => {
         isAuthenticated: false,
         isLoading: false,
         error: null,
-        accessToken: null,
-        idToken: null,
-      };
-    
-    case AUTH_ACTIONS.SET_USER:
-      return {
-        ...state,
-        user: action.payload.user,
-        isAuthenticated: true,
-        isLoading: false,
-        accessToken: action.payload.accessToken,
-        idToken: action.payload.idToken,
-      };
-    
-    case AUTH_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        isLoading: action.payload,
       };
     
     default:
@@ -113,139 +72,88 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing session on app load
   useEffect(() => {
-    const checkAuthState = async () => {
-      try {
-        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
-        
-        // Check if Cognito is configured
-        if (!cognitoService.isConfigured()) {
-          console.warn('Cognito not configured - running in development mode');
-          dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
-          return;
-        }
-        
-        // Check if user has stored tokens and validate session
-        if (cognitoService.isAuthenticated()) {
-          const currentUser = await cognitoService.getCurrentUser();
-          dispatch({
-            type: AUTH_ACTIONS.SET_USER,
-            payload: {
-              user: currentUser.user,
-              accessToken: currentUser.accessToken,
-              idToken: currentUser.idToken,
-            },
-          });
-        } else {
-          dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
-      }
-    };
-
     checkAuthState();
   }, []);
 
-  // Login function
-  const login = async (email, password) => {
-    dispatch({ type: AUTH_ACTIONS.LOGIN_START });
-    
+  const checkAuthState = async () => {
     try {
-      // Check if Cognito is configured
-      if (!cognitoService.isConfigured()) {
-        throw new Error('Authentication is not configured. Please set up your environment variables.');
-      }
-
-      const result = await cognitoService.signIn(email, password);
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
-      dispatch({
-        type: AUTH_ACTIONS.LOGIN_SUCCESS,
-        payload: {
-          user: result.user,
-          accessToken: result.accessToken,
-          idToken: result.idToken,
-        },
-      });
+      // Check if user is authenticated
+      const user = await getCurrentUser();
       
-      return result;
+      dispatch({ type: AUTH_ACTIONS.SET_USER, payload: user });
     } catch (error) {
-      dispatch({
-        type: AUTH_ACTIONS.LOGIN_FAILURE,
-        payload: error.message || 'Login failed',
-      });
-      throw error;
+      console.log('No authenticated user found');
+      dispatch({ type: AUTH_ACTIONS.SET_USER, payload: null });
     }
   };
 
-  // Signup function
-  const signup = async (email, password, givenName, familyName) => {
-    dispatch({ type: AUTH_ACTIONS.SIGNUP_START });
-    
+  // Login function (redirect to Cognito Hosted UI)
+  const login = async () => {
     try {
-      // Check if Cognito is configured
-      if (!cognitoService.isConfigured()) {
-        throw new Error('Authentication is not configured. Please set up your environment variables.');
-      }
-
-      const result = await cognitoService.signUp(email, password, givenName, familyName);
-      
-      dispatch({ type: AUTH_ACTIONS.SIGNUP_SUCCESS });
-      
-      return result;
+      await signInWithRedirect();
     } catch (error) {
-      dispatch({
-        type: AUTH_ACTIONS.SIGNUP_FAILURE,
-        payload: error.message || 'Signup failed',
-      });
-      throw error;
+      console.error('Login error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
     }
   };
 
-  // Confirm signup function
-  const confirmSignup = async (email, verificationCode) => {
+  // Signup function (redirect to Cognito Hosted UI)
+  const signup = async () => {
     try {
-      const result = await cognitoService.confirmSignUp(email, verificationCode);
-      return result;
+      await signInWithRedirect();
     } catch (error) {
-      throw error;
+      console.error('Signup error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
     }
   };
 
   // Logout function
-  const logout = () => {
-    cognitoService.signOut();
-    dispatch({ type: AUTH_ACTIONS.LOGOUT });
-  };
-
-  // Forgot password function
-  const forgotPassword = async (email) => {
+  const logout = async () => {
     try {
-      const result = await cognitoService.forgotPassword(email);
-      return result;
+      await signOut();
+      dispatch({ type: AUTH_ACTIONS.LOGOUT });
     } catch (error) {
-      throw error;
+      console.error('Logout error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
     }
   };
 
-  // Confirm forgot password function
-  const confirmForgotPassword = async (email, verificationCode, newPassword) => {
+  // Get current user's JWT token (for API calls)
+  const getAccessToken = async () => {
     try {
-      const result = await cognitoService.confirmForgotPassword(email, verificationCode, newPassword);
-      return result;
+      const session = await fetchAuthSession();
+      return session.tokens?.accessToken?.toString();
     } catch (error) {
-      throw error;
+      console.error('Error getting access token:', error);
+      return null;
     }
   };
 
-  // Resend confirmation code
-  const resendConfirmationCode = async (email) => {
+  // Get current user's ID token (contains user attributes)
+  const getIdToken = async () => {
     try {
-      const result = await cognitoService.resendConfirmationCode(email);
-      return result;
+      const session = await fetchAuthSession();
+      return session.tokens?.idToken?.toString();
     } catch (error) {
-      throw error;
+      console.error('Error getting ID token:', error);
+      return null;
     }
+  };
+
+  // Get user attributes (for display purposes)
+  const getUserAttributes = () => {
+    if (!state.user) return null;
+    
+    // In Amplify v6, attributes are nested under user.attributes
+    return {
+      email: state.user.attributes?.email || state.user.signInDetails?.loginId,
+      given_name: state.user.attributes?.given_name || state.user.attributes?.['custom:given_name'],
+      family_name: state.user.attributes?.family_name || state.user.attributes?.['custom:family_name'],
+      name: state.user.attributes?.name,
+      ...state.user.attributes
+    };
   };
 
   const value = {
@@ -253,15 +161,13 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     error: state.error,
-    accessToken: state.accessToken,
-    idToken: state.idToken,
     login,
     signup,
-    confirmSignup,
     logout,
-    forgotPassword,
-    confirmForgotPassword,
-    resendConfirmationCode,
+    getAccessToken,
+    getIdToken,
+    getUserAttributes,
+    checkAuthState,
   };
 
   return (

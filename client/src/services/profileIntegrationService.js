@@ -1,12 +1,11 @@
 /**
  * Complete Profile Integration Service
  * 
- * Handles the integration between Cognito authentication and your backend
+ * Handles the integration between OAuth authentication and your backend
  * user profile completion system.
  */
 
 import apiService from './apiService';
-import cognitoService from './cognitoService';
 
 class ProfileIntegrationService {
   /**
@@ -93,15 +92,14 @@ class ProfileIntegrationService {
 
   /**
    * Get current user profile from backend
+   * Note: With OAuth, user data should be passed as parameters or retrieved from AuthContext
    * @returns {Promise} - Promise that resolves with user profile
    */
   async getCurrentUserProfile() {
     try {
-      const cognitoUser = await cognitoService.getCurrentUser();
       const backendProfile = await apiService.getUserProfile();
       
       return {
-        cognito: cognitoUser,
         profile: backendProfile
       };
     } catch (error) {
