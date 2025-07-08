@@ -44,7 +44,7 @@ function handleMessage(socket, data, io) {
   // Get user email from socket instead
   const sender = socket.user.name;
 
-  if (!text || !chatId ) return;
+  if (!text || !chatId || !sender) return;
 
   const message = chatService.formatMessage(sender, text, timestamp);
 
@@ -68,7 +68,7 @@ function handleDisconnect(socket, io) {
     timestamp
     );
 
-    socket.to(room).emit("receive_message", message);
+    socket.server.to(room).emit("receive_message", message);
     console.log(`${name} left room ${room}`);
   }
 }
