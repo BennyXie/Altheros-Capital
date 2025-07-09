@@ -21,14 +21,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { useAuth } from '../context/AuthContext';
+import profileIntegrationService from '../services/profileIntegrationService';
 
 /**
  * Complete Profile Page Component
  * 
- * Form to collect comprehensive user information
+ * Form to collect comprehensive user information and integrate with backend
  */
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     dob: '',
     gender: '',
@@ -180,7 +184,7 @@ const CompleteProfilePage = () => {
            formData.phoneNumber.trim();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!isFormValid()) {
@@ -192,19 +196,52 @@ const CompleteProfilePage = () => {
       return;
     }
 
-    console.log('Form Data:', formData);
-    
-    notifications.show({
-      title: 'Profile Updated!',
-      message: 'Your profile has been successfully completed',
-      color: 'green',
-      icon: <IconCheck size={16} />
-    });
+    if (!user) {
+      notifications.show({
+        title: 'Authentication Error',
+        message: 'User session not found. Please log in again.',
+        color: 'red'
+      });
+      navigate('/login');
+      return;
+    }
 
-    // Navigate back to dashboard after successful submission
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1500);
+    setIsLoading(true);
+
+    try {
+      // Integrate with backend - complete user profile
+      await profileIntegrationService.completeUserProfile(
+        user, // Cognito user data
+        {
+          ...formData,
+          // Add any additional mapping needed for your backend
+          password: 'temp_password', // You might handle this differently
+        },
+        'patient' // Default role, could be made configurable
+      );
+      
+      notifications.show({
+        title: 'Profile Completed!',
+        message: 'Your profile has been successfully saved to our system',
+        color: 'green',
+        icon: <IconCheck size={16} />
+      });
+
+      // Navigate back to dashboard after successful submission
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+
+    } catch (error) {
+      console.error('Profile completion error:', error);
+      notifications.show({
+        title: 'Profile Save Failed',
+        message: error.message || 'Failed to save your profile. Please try again.',
+        color: 'red'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -426,6 +463,7 @@ const CompleteProfilePage = () => {
                   <Button 
                     type="submit"
                     disabled={!isFormValid()}
+                    loading={isLoading}
                     leftSection={<IconCheck size={16} />}
                   >
                     Complete Profile

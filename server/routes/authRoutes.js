@@ -13,5 +13,4 @@ router.get("/protected", verifyToken, (req, res) => {
 router.post("/cognito-signup", cognito_signup);
 router.post("/signup", verifyToken, signUpHelper);
 
-
 module.exports = router;

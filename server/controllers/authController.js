@@ -206,5 +206,4 @@ async function signUpHelper(req, res) {
   }
 }
 
-
 module.exports = { cognito_signup, signUpHelper };

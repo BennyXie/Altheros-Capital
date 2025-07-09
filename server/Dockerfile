@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 
 # Port used by Express
-EXPOSE 5050
+EXPOSE 8080
 
 # Start the backend
 CMD ["npm", "run", "dev"]
