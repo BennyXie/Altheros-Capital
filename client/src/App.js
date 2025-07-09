@@ -7,7 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
+import { AboutPage, LoginPage, SignupPage, RoleSelectionPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, ProviderCompleteProfilePage, AppointmentsPage } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -55,6 +55,7 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/providers" element={<ProviderAccessPage />} />
+                <Route path="/auth" element={<RoleSelectionPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 
@@ -67,6 +68,11 @@ function App() {
                 <Route path="/complete-profile" element={
                   <ProtectedRoute>
                     <CompleteProfilePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider-complete-profile" element={
+                  <ProtectedRoute>
+                    <ProviderCompleteProfilePage />
                   </ProtectedRoute>
                 } />
                 <Route path="/appointments" element={

@@ -46,7 +46,7 @@ class ApiClient {
       // If authentication failed, user might need to re-login
       if (error.name === 'NotAuthorizedException') {
         console.log('User not authenticated, redirecting to login...');
-        window.location.href = '/login';
+        window.location.href = '/auth';
       }
       
       throw error;

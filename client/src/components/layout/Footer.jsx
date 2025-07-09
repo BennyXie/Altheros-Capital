@@ -86,10 +86,10 @@ const Footer = () => {
                 <Text size="sm" fw={600} className={classes.sectionTitle}>
                   Services
                 </Text>
-                <Text size="xs" component="a" href="/signup" className={classes.footerLink}>
+                <Text size="xs" component="a" href="/auth" className={classes.footerLink}>
                   Get Started
                 </Text>
-                <Text size="xs" component="a" href="/login" className={classes.footerLink}>
+                <Text size="xs" component="a" href="/auth" className={classes.footerLink}>
                   Login
                 </Text>
                 <Text size="xs" component="a" href="/providers" className={classes.footerLink}>

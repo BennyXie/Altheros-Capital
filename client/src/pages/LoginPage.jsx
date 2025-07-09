@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { Container, Title, Button, Stack, Paper, Text, Group } from '@mantine/core';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Container, Title, Button, Stack, Paper, Text, Group, Badge } from '@mantine/core';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { IconLogin, IconUserPlus } from '@tabler/icons-react';
+import { IconLogin, IconUserPlus, IconUser, IconStethoscope } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import classes from './LoginPage.module.css';
 
@@ -14,10 +14,15 @@ import classes from './LoginPage.module.css';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, login, signup } = useAuth();
 
-  // Get return URL from location state or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Get role from URL parameters
+  const role = searchParams.get('role') || 'patient';
+  
+  // Get return URL from location state or default based on role
+  const defaultPath = role === 'provider' ? '/provider-complete-profile' : '/dashboard';
+  const from = location.state?.from?.pathname || defaultPath;
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -34,6 +39,24 @@ const LoginPage = () => {
     signup(); // This will redirect to Cognito Hosted UI via Amplify
   };
 
+  // Role-specific configurations
+  const roleConfig = {
+    patient: {
+      icon: <IconUser size={24} />,
+      title: 'Patient Sign In',
+      subtitle: 'Access your health dashboard and connect with providers',
+      badgeColor: 'blue'
+    },
+    provider: {
+      icon: <IconStethoscope size={24} />,
+      title: 'Provider Sign In',
+      subtitle: 'Manage your practice and connect with patients',
+      badgeColor: 'green'
+    }
+  };
+
+  const currentConfig = roleConfig[role] || roleConfig.patient;
+
   return (
     <div className={classes.loginPage}>
       <Container className={classes.loginContainer}>
@@ -45,9 +68,20 @@ const LoginPage = () => {
           <Paper className={classes.loginPaper}>
             <Stack className={classes.form}>
               <div>
-                <Title order={2} className={classes.title}>Welcome to Altheros Capital</Title>
+                <Group justify="center" mb="md">
+                  <Badge 
+                    size="lg" 
+                    variant="light" 
+                    color={currentConfig.badgeColor}
+                    leftSection={currentConfig.icon}
+                  >
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </Badge>
+                </Group>
+                
+                <Title order={2} className={classes.title}>{currentConfig.title}</Title>
                 <Text className={classes.subtitle} ta="center">
-                  Secure authentication powered by AWS Cognito
+                  {currentConfig.subtitle}
                 </Text>
               </div>
 
@@ -74,9 +108,9 @@ const LoginPage = () => {
               </Stack>
 
               <Group justify="center">
-                <Link to="/" style={{ textDecoration: 'none' }}>
+                <Link to="/auth" style={{ textDecoration: 'none' }}>
                   <Text size="sm" c="dimmed">
-                    ← Back to home
+                    ← Choose different role
                   </Text>
                 </Link>
               </Group>

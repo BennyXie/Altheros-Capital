@@ -45,9 +45,10 @@ async function signUpHelper(req, res) {
         symptoms = [],
         languages = [],
         preferences = {},
-        user = {},
       } = req.body;
-      const { cognito_sub, email, first_name, last_name } = user;
+      
+      // Get user info from JWT token (attached by verifyToken middleware)
+      const { sub: cognito_sub, email, given_name: first_name, family_name: last_name } = req.user;
       const {
         preferredProviderGender = null,
         smsOptIn = false,
@@ -151,10 +152,10 @@ async function signUpHelper(req, res) {
         calendly_url,
         headshot_url,
         password,
-        user = {},
       } = req.body;
 
-      const { cognito_sub, email, first_name, last_name } = user;
+      // Get user info from JWT token (attached by verifyToken middleware)
+      const { sub: cognito_sub, email, given_name: first_name, family_name: last_name } = req.user;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       const query = `
