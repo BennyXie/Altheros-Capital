@@ -1,8 +1,12 @@
 const express = require('express')
-const app = express()
+const router = express()
 
-app.get('/symptoms', async (_req, res) => {
-    const { rows } = await pool.query(`SELECT * FROM symptoms ORDER BY name`);
-    res.json({ symptoms: rows });
+router.get('/symptoms', async (req, res) => {
+    try {
+        const symptoms = await symptomsService.listSymptoms();
+        res.json({ symptoms });         
+      } catch (err) {
+        console.log(err);                      
+      }
 });
   

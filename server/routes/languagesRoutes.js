@@ -1,7 +1,12 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const router = express();
+const languagesService = require('../services/languagesService');
 
-app.get('/languages', async (_req, res) => {
-    const { rows } = await pool.query(`SELECT * FROM languages ORDER BY name`);
-    res.json({ languages: rows });
+router.get('/languages', async (req, res) => {
+    try {
+        const languages = await languagesService.listLanguages();
+        res.json({ languages });               
+    } catch (err) {
+        console.log(err);                            
+    }
 });
