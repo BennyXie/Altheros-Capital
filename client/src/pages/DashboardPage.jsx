@@ -2,7 +2,6 @@ import { Container, Title, Text, Grid, Card, Stack, Button, Group, Avatar, Badge
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboardList } from '@tabler/icons-react';
-import UserManagementTest from '../components/UserManagementTest';
 
 /**
  * User Dashboard Page Component
@@ -284,11 +283,6 @@ const DashboardPage = () => {
               </Group>
             </Group>
           </Card>
-
-          {/* Testing Component - Only for Development */}
-          {process.env.NODE_ENV === 'development' && (
-            <UserManagementTest />
-          )}
         </Stack>
       </motion.div>
     </Container>

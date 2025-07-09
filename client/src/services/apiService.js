@@ -97,18 +97,6 @@ class ApiService {
       body: JSON.stringify(updates),
     });
   }
-
-  /**
-   * Delete user from both Cognito and database (for testing purposes)
-   * @param {string} email - User email to delete
-   * @returns {Promise} - Promise that resolves when user is deleted
-   */
-  async deleteUser(email) {
-    return this.makeRequest('/api/auth/delete-user', {
-      method: 'DELETE',
-      body: JSON.stringify({ email }),
-    });
-  }
 }
 
 const apiService = new ApiService();

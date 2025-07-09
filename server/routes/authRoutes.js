@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { testCognito, signUpHelper, deleteUserAndData} = require("../controllers/authController");
+const { testCognito, signUpHelper } = require("../controllers/authController");
 const verifyToken = require("../middleware/verifyToken");
 
 router.get("/protected", verifyToken, (req, res) => {
@@ -12,7 +12,5 @@ router.get("/protected", verifyToken, (req, res) => {
 
 router.post("/test-cognito", testCognito);
 router.post("/signup", verifyToken, signUpHelper);
-router.delete("/delete-user", deleteUserAndData);
-
 
 module.exports = router;

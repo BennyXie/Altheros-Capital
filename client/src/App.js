@@ -7,7 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage, TestingPage } from './pages';
+import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -74,11 +74,6 @@ function App() {
                     <AppointmentsPage />
                   </ProtectedRoute>
                 } />
-                
-                {/* Testing Route - Development Only */}
-                {process.env.NODE_ENV === 'development' && (
-                  <Route path="/testing" element={<TestingPage />} />
-                )}
               </Routes>
             </AppShell.Main>
             
