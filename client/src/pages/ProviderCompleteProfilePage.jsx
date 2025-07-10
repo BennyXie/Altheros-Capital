@@ -46,8 +46,7 @@ const ProviderCompleteProfilePage = () => {
     hobbies: '',
     quote: '',
     calendly_url: '',
-    headshot_url: '',
-    password: ''
+    headshot_url: ''
   });
 
   // Form options
@@ -126,7 +125,7 @@ const ProviderCompleteProfilePage = () => {
   };
 
   const calculateProgress = () => {
-    const requiredFields = ['location', 'specialty', 'gender', 'experience_years', 'education', 'password'];
+    const requiredFields = ['location', 'specialty', 'gender', 'experience_years', 'education'];
     const filledRequired = requiredFields.filter(field => {
       if (Array.isArray(formData[field])) {
         return formData[field].length > 0;
@@ -141,7 +140,8 @@ const ProviderCompleteProfilePage = () => {
       'languages',
       'hobbies',
       'quote',
-      'calendly_url'
+      'calendly_url',
+      'headshot_url'
     ];
     const filledOptional = optionalFields.filter(field => {
       if (Array.isArray(formData[field])) {
@@ -161,8 +161,7 @@ const ProviderCompleteProfilePage = () => {
            formData.specialty.length > 0 && 
            formData.gender && 
            formData.experience_years && 
-           formData.education.trim() &&
-           formData.password.trim();
+           formData.education.trim();
   };
 
   const handleSubmit = async (e) => {
@@ -204,7 +203,7 @@ const ProviderCompleteProfilePage = () => {
       });
 
       // Redirect to dashboard or success page
-      navigate('/dashboard');
+      navigate('/provider-dashboard');
       
     } catch (error) {
       console.error('Error creating provider profile:', error);
@@ -308,16 +307,6 @@ const ProviderCompleteProfilePage = () => {
                       required
                     />
                   </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <TextInput
-                      label="Password"
-                      type="password"
-                      placeholder="Create a secure password"
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      required
-                    />
-                  </Grid.Col>
                 </Grid>
 
                 <Textarea
@@ -389,6 +378,17 @@ const ProviderCompleteProfilePage = () => {
                   placeholder="https://calendly.com/your-username"
                   value={formData.calendly_url}
                   onChange={(e) => handleInputChange('calendly_url', e.target.value)}
+                />
+
+                {/* Profile Photo */}
+                <Divider label="Profile Photo" labelPosition="center" />
+
+                <TextInput
+                  label="Headshot URL (Optional)"
+                  placeholder="https://example.com/your-photo.jpg"
+                  value={formData.headshot_url}
+                  onChange={(e) => handleInputChange('headshot_url', e.target.value)}
+                  description="Link to your professional headshot photo"
                 />
 
                 {/* Submit */}
