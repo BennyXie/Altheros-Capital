@@ -3,10 +3,12 @@
  * 
  * Provides Amplify-based authentication state management throughout the application.
  * Handles OAuth login, logout, user session management, and automatic token handling.
+ * Enhanced with role-based authentication for patients and providers.
  */
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { fetchAuthSession, signOut, signInWithRedirect, getCurrentUser } from 'aws-amplify/auth';
+import { fetchAuthSession, signOut, getCurrentUser } from 'aws-amplify/auth';
+import AuthService from '../services/authService';
 
 // Auth action types
 const AUTH_ACTIONS = {
@@ -82,6 +84,17 @@ export const AuthProvider = ({ children }) => {
       // Check if user is authenticated
       const user = await getCurrentUser();
       
+      // If user is authenticated, handle role assignment
+      if (user) {
+        const redirectPath = await AuthService.handlePostAuthRole(user);
+        
+        // If we have a redirect path and it's not the current path, navigate
+        if (redirectPath && window.location.pathname !== redirectPath) {
+          window.location.href = redirectPath;
+          return;
+        }
+      }
+      
       dispatch({ type: AUTH_ACTIONS.SET_USER, payload: user });
     } catch (error) {
       console.log('No authenticated user found');
@@ -89,20 +102,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login function (redirect to Cognito Hosted UI)
-  const login = async () => {
+  // Login function with role support
+  const login = async (role = 'patient') => {
     try {
-      await signInWithRedirect();
+      await AuthService.loginWithRole(role);
     } catch (error) {
       console.error('Login error:', error);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
     }
   };
 
-  // Signup function (redirect to Cognito Hosted UI)
-  const signup = async () => {
+  // Signup function with role support
+  const signup = async (role = 'patient') => {
     try {
-      await signInWithRedirect();
+      await AuthService.signupWithRole(role);
     } catch (error) {
       console.error('Signup error:', error);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });

@@ -6,4 +6,5 @@ export { default as DashboardPage } from './DashboardPage';
 export { default as CompleteProfilePage } from './CompleteProfilePage';
 export { default as ProviderAccessPage } from './ProviderAccessPage';
 export { default as ProviderCompleteProfilePage } from './ProviderCompleteProfilePage';
+export { default as ProviderDashboard } from './ProviderDashboard';
 export { default as AppointmentsPage } from './AppointmentsPage';

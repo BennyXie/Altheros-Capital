@@ -32,11 +32,11 @@ const LoginPage = () => {
   }, [isAuthenticated, navigate, from]);
 
   const handleLogin = () => {
-    login(); // This will redirect to Cognito Hosted UI via Amplify
+    login(role); // Pass role to login function
   };
 
   const handleSignup = () => {
-    signup(); // This will redirect to Cognito Hosted UI via Amplify
+    signup(role); // Pass role to signup function
   };
 
   // Role-specific configurations

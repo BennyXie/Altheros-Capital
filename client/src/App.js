@@ -5,9 +5,10 @@ import { Amplify } from 'aws-amplify';
 import amplifyConfig from './config/amplifyConfig';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AuthCallback from './components/AuthCallback';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, RoleSelectionPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, ProviderCompleteProfilePage, AppointmentsPage } from './pages';
+import { AboutPage, LoginPage, SignupPage, RoleSelectionPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, ProviderCompleteProfilePage, ProviderDashboard, AppointmentsPage } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -56,28 +57,36 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/providers" element={<ProviderAccessPage />} />
                 <Route path="/auth" element={<RoleSelectionPage />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 
-                {/* Protected Routes */}
+                {/* Protected Routes - Patient Only */}
                 <Route path="/dashboard" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="patient">
                     <DashboardPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/complete-profile" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="patient">
                     <CompleteProfilePage />
                   </ProtectedRoute>
                 } />
+                <Route path="/appointments" element={
+                  <ProtectedRoute requiredRole="patient">
+                    <AppointmentsPage />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected Routes - Provider Only */}
                 <Route path="/provider-complete-profile" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="provider">
                     <ProviderCompleteProfilePage />
                   </ProtectedRoute>
                 } />
-                <Route path="/appointments" element={
-                  <ProtectedRoute>
-                    <AppointmentsPage />
+                <Route path="/provider-dashboard" element={
+                  <ProtectedRoute requiredRole="provider">
+                    <ProviderDashboard />
                   </ProtectedRoute>
                 } />
               </Routes>

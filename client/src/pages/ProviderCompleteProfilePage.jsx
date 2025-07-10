@@ -202,7 +202,7 @@ const ProviderCompleteProfilePage = () => {
         icon: <IconCheck size={16} />
       });
 
-      // Redirect to dashboard or success page
+      // Redirect to provider dashboard
       navigate('/provider-dashboard');
       
     } catch (error) {
