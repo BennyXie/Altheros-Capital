@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { cognito_signup, signUpHelper} = require("../controllers/authController");
+const {
+  cognito_signup,
+  signUpHelper,
+  addToGroup,
+} = require("../controllers/authController");
 const verifyToken = require("../middleware/verifyToken");
 
 router.get("/protected", verifyToken, (req, res) => {
@@ -12,5 +16,6 @@ router.get("/protected", verifyToken, (req, res) => {
 
 router.post("/cognito-signup", cognito_signup);
 router.post("/signup", verifyToken, signUpHelper);
+router.post("/add-to-group", verifyToken, addToGroup);
 
 module.exports = router;
