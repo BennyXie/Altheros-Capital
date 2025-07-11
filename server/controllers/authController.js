@@ -1,5 +1,5 @@
 const pool = require("../db/pool");
-const { signUpUser } = require("../services/cognitoService");
+const { signUpUser, addUserToGroup} = require("../services/cognitoService");
 const db = require("../db/pool")
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -206,4 +206,12 @@ async function signUpHelper(req, res) {
   }
 }
 
-module.exports = { cognito_signup, signUpHelper };
+async function addToGroup(req, res) {
+  const {state} = req.body;
+  const username = req.user["username"];
+  const groupName = state === "signup:patients" ? "patients" : "providers";
+  await addUserToGroup(username, groupName);
+  res.status(200).json({ message: `User added to group ${groupName}` });
+}
+
+module.exports = { cognito_signup, signUpHelper, addToGroup};
