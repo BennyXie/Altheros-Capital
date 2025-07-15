@@ -5,7 +5,6 @@ import { Amplify } from 'aws-amplify';
 import amplifyConfig from './config/amplifyConfig';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import AuthBypassToggle from './components/ui/AuthBypassToggle';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
 import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
@@ -80,9 +79,6 @@ function App() {
             
             <Footer />
           </AppShell>
-          
-          {/* Development Auth Toggle - only visible in development */}
-          <AuthBypassToggle />
         </Router>
       </AuthProvider>
     </MantineProvider>
