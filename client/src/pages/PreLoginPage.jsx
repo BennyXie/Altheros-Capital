@@ -30,7 +30,8 @@ const PreLoginPage = () => {
                     {/* Patient Card */}
                     <Card
                         component="a"
-                        href="/patient"
+                        // href="/patient"
+                        href="/login"
                         withBorder
                         radius="md"
                         p="xl"
@@ -66,7 +67,8 @@ const PreLoginPage = () => {
                     {/* Provider Card */}
                     <Card
                         component="a"
-                        href="/provider"
+                        // href="/provider"
+                        href="login"
                         withBorder
                         radius="md"
                         p="xl"
