@@ -3,3 +3,6 @@ node_modules
 *.env
 
 client/build/
+
+# Cal.com Docker setup
+calcom-docker/

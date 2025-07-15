@@ -25,6 +25,7 @@ docker-compose up
 
 - Frontend available at: http://localhost:3000
 - Backend available at: http://localhost:8080
+- Cal.com available at: http://localhost:3001
 
 ---
 
@@ -40,3 +41,5 @@ docker-compose down -v
 
 - The backend expects a .env file inside server/ that contains the required environment variables (feel free to ask Pranav for the file info if needed)
 - The frontend expects a .env file inside client/ that contains the required environment variables (feel free to ask Andreas for the file info if needed)
+- Cal.com is self-hosted and includes its own database and Redis instance
+- Copy `cal.env.example` to `cal.env` and update the values for Cal.com configuration

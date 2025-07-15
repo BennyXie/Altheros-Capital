@@ -7,9 +7,9 @@ const cors = require("cors");
 const db = require("./db/pool")
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes   = require("./routes/aiRoutes")
-const calendlyRoutes = require("./routes/calendlyRoute");
 const { initializeSocket } = require('./services/socketService');
 const headshotRoutes = require("./routes/headshotRoutes");
+const webhookRoutes = require("./routes/webhookRoutes");
 
 // using express
 const app = express();
@@ -30,8 +30,8 @@ app.use("/api/auth", authRoutes);
 // AI routes
 app.use("/ai", aiRoutes);
 
-// All calendlyRoutes start with /calendly
-app.use("/calendly", calendlyRoutes);
+// General webhook routes
+app.use("/api/webhooks", webhookRoutes);
 
 app.use("/api/providers", headshotRoutes);
 
