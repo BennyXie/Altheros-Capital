@@ -258,7 +258,7 @@ export const NAVIGATION_CONFIG = {
   ctaButtons: [
     {
       label: "Login",
-      href: "/login",
+      href: "/prelogin",
       variant: "outline",
       color: "white",
     },
