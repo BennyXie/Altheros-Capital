@@ -10,10 +10,10 @@ import {
     Textarea,
     Button,
     ActionIcon,
+    Stack,
 } from "@mantine/core";
 import { IconUser, IconStethoscope, IconArrowRight } from "@tabler/icons-react";
-// import Footer from './../components/layout/Footer';
-// import Header from './../components/layout/Header';
+import { LOGIN_SELECTION_CONFIG } from "./../config/preLoginConfig";
 
 const PreLoginPage = () => {
     return (
@@ -21,85 +21,58 @@ const PreLoginPage = () => {
             {/* <Header /> */}
 
             {/* Hero “I’m a Patient / I’m a Provider” cards */}
-            <Container my="xl">
+            <Container fluid my="xl" px="6rem" py="3vh">
                 <SimpleGrid
                     cols={2}
                     spacing="xl"
-                    breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+                    breakpoints={[{ maxWidth: "md", cols: 1 }]}
+                    style={{ gridAutoRows: "minmax(75vh, auto)" }}
                 >
-                    {/* Patient Card */}
-                    <Card
-                        component="a"
-                        // href="/patient"
-                        href="/login"
-                        withBorder
-                        radius="md"
-                        p="xl"
-                        sx={(theme) => ({
-                            backgroundColor: theme.colors.green[1],
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            height: 300,
-                            textDecoration: "none",
-                            color: "inherit",
-                        })}
-                    >
-                        <IconUser size={64} />
-                        <Box>
-                            <Text align="center" weight={700} size="xl">
-                                I’m a Patient
-                            </Text>
-                            <Text align="center" size="sm" mt="xs">
-                                Book appointments & manage care
-                            </Text>
-                        </Box>
-                        <ActionIcon
-                            variant="transparent"
-                            size="lg"
-                            sx={{ marginLeft: "auto" }}
+                    {LOGIN_SELECTION_CONFIG.cards.map(({ text, subtext, icon: Icon, bg, href }, idx) => (
+                        <Card
+                            key={idx}
+                            component="a"
+                            href={href}
+                            withBorder
+                            radius="md"
+                            p="xl"
+                            bg={bg}
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                height: "100%",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
                         >
-                            <IconArrowRight size={24} />
-                        </ActionIcon>
-                    </Card>
+                            <Stack
+                                align="center"
+                                justify="center"
+                                gap="xl"
+                                style={{ flex: 1 }}
+                            >
+                                <Icon size={LOGIN_SELECTION_CONFIG.iconSize} />
+                                <Box>
+                                    <Text align="center" fw={600} fz="2.5rem">
+                                        {text}
+                                    </Text>
+                                    <Text align="center" fz="sm" mt="xs">
+                                        {subtext}
+                                    </Text>
+                                </Box>
+                            </Stack>
 
-                    {/* Provider Card */}
-                    <Card
-                        component="a"
-                        // href="/provider"
-                        href="login"
-                        withBorder
-                        radius="md"
-                        p="xl"
-                        sx={(theme) => ({
-                            backgroundColor: theme.colors.teal[2],
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            height: 300,
-                            textDecoration: "none",
-                            color: "inherit",
-                        })}
-                    >
-                        <IconStethoscope size={64} />
-                        <Box>
-                            <Text align="center" weight={700} size="xl">
-                                I’m a Provider
-                            </Text>
-                            <Text align="center" size="sm" mt="xs">
-                                Access provider portal & manage patients
-                            </Text>
-                        </Box>
-                        <ActionIcon
-                            variant="transparent"
-                            size="lg"
-                            sx={{ marginLeft: "auto" }}
-                        >
-                            <IconArrowRight size={24} />
-                        </ActionIcon>
-                    </Card>
+                            <ActionIcon
+                                variant="transparent"
+                                size="lg"
+                                style={{ marginLeft: "auto", color:"inherit"}}
+                            >
+                                <IconArrowRight size={40} />
+                            </ActionIcon>
+                        </Card>
+                    ))}
                 </SimpleGrid>
             </Container>
 

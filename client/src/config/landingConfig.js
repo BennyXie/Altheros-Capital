@@ -238,6 +238,7 @@ export const CTA_CONFIG = {
   benefits: [],
 };
 
+
 // Contact section content
 export const CONTACT_CONFIG = {
   title: "Any questions?",
