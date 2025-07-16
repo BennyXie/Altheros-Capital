@@ -11,7 +11,9 @@ import {
     ActionIcon,
 } from "@mantine/core";
 import { IconArrowRight } from "@tabler/icons-react";
+
 import { LOGIN_SELECTION_CONFIG } from "../config/preLoginConfig";
+import AuthService from "../services/authService";
 
 const MotionCard = motion(Card);
 const MotionActionIcon = motion(ActionIcon);
@@ -51,14 +53,13 @@ export default function PreLoginPage() {
                     cols={2}
                     spacing="xl"
                     breakpoints={[
-                        { maxWidth: 900, cols: 1 }, // tablets & phones
-                        { maxWidth: 1200, cols: 2 }, // small laptops
+                        { maxWidth: 900, cols: 1 },
+                        { maxWidth: 1200, cols: 2 },
                     ]}
-                    // style={{ gridAutoRows: "minmax(65vh, auto)" }}
                 >
                     {cards.map(
                         (
-                            { text, subtext, icon: Icon, bg, hoverbg, href },
+                            { text, subtext, icon: Icon, bg, hoverbg },
                             idx
                         ) => {
                             const cardVariants = {
@@ -84,11 +85,13 @@ export default function PreLoginPage() {
                                 },
                             };
 
+                            // Determine role from card text
+                            const role = text.toLowerCase().includes('provider') ? 'provider' : 'patient';
+
                             return (
                                 <MotionCard
                                     key={idx}
-                                    component="a"
-                                    href={href}
+                                    onClick={() => AuthService.loginWithRole(role)}
                                     withBorder
                                     radius="md"
                                     p="xl"
@@ -104,6 +107,7 @@ export default function PreLoginPage() {
                                         height: "100%",
                                         textDecoration: "none",
                                         color: "inherit",
+                                        cursor: "pointer",
                                     }}
                                     className={styles.cardRoot}
                                 >
