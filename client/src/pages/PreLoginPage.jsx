@@ -13,12 +13,11 @@ import {
 import { IconArrowRight } from "@tabler/icons-react";
 import { LOGIN_SELECTION_CONFIG } from "../config/preLoginConfig";
 
-const MotionGrid = motion(SimpleGrid);
 const MotionCard = motion(Card);
 const MotionActionIcon = motion(ActionIcon);
 const MotionLine = motion.div; // the growing shaft
 
-/* how far the shaft should grow (px) */
+/* how far the arrow line should grow (px) */
 const arrowVariants = {
     rest: { width: 28 },
     hover: { width: 40, transition: { type: "spring", stiffness: 300 } },
@@ -35,7 +34,13 @@ export default function PreLoginPage() {
     const { cards, iconSize } = LOGIN_SELECTION_CONFIG;
 
     return (
-        <Container fluid my="xl" px="6rem" py="3rem" className={styles.container}>
+        <Container
+            fluid
+            my="xl"
+            px="6rem"
+            py="3rem"
+            className={styles.container}
+        >
             <motion.div
                 variants={gridVariants}
                 initial="hidden"
@@ -56,9 +61,12 @@ export default function PreLoginPage() {
                             { text, subtext, icon: Icon, bg, hoverbg, href },
                             idx
                         ) => {
-                            /* build a variant object that uses this card’s colors */
                             const cardVariants = {
                                 hidden: { opacity: 0, x: -60 },
+                                transition: {
+                                    duration: 1,
+                                    ease: "easeIn",
+                                },
                                 rest: {
                                     opacity: 1,
                                     x: 0,
@@ -84,8 +92,6 @@ export default function PreLoginPage() {
                                     withBorder
                                     radius="md"
                                     p="xl"
-                                    /* remove bg={bg} ↓  */
-                                    // bg={bg}
                                     variants={cardVariants}
                                     initial="hidden"
                                     animate="rest"
