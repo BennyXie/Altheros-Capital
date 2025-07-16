@@ -39,6 +39,9 @@
     --light-teal: #79a9a5;
     --lime-green: #b1df9d;
 
+    --light-teal-hover: #88beb9;
+    --lime-green-hover: #bff0aa;
+
     /* 🔘 Neutral Grays */
     --gray-50: #f8f9fa; /* Lightest gray */
     --gray-100: #f1f3f4; /* Very light gray */
@@ -101,6 +104,9 @@
 
     --color-provider-cta: var(--light-teal);
     --color-patient-cta: var(--lime-green);
+
+    --color-provider-cta-hover: var(--light-teal-hover);
+    --color-patient-cta-hover: var(--lime-green-hover);
 
     /* 🔲 Borders */
     --color-border: var(--gray-300);

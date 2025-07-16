@@ -68,6 +68,22 @@ const authReducer = (state, action) => {
 // Create auth context
 const AuthContext = createContext();
 
+// Mock user data for development bypass mode
+const mockUser = {
+  userId: 'dev-user-123',
+  username: 'dev-user',
+  attributes: {
+    email: 'dev@example.com',
+    given_name: 'Development',
+    family_name: 'User',
+    name: 'Development User',
+    sub: 'dev-user-123'
+  },
+  signInDetails: {
+    loginId: 'dev@example.com'
+  }
+};
+
 // Auth provider component
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -81,7 +97,16 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
-      // Check if user is authenticated
+      // Check if auth bypass is enabled for development
+      const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
+      
+      if (bypassAuth) {
+        console.log('Auth bypass enabled - using mock user');
+        dispatch({ type: AUTH_ACTIONS.SET_USER, payload: mockUser });
+        return;
+      }
+      
+      // Check if user is authenticated normally
       const user = await getCurrentUser();
       
       // If user is authenticated, handle role assignment
@@ -135,6 +160,12 @@ export const AuthProvider = ({ children }) => {
 
   // Get current user's JWT token (for API calls)
   const getAccessToken = async () => {
+    // Return mock token when auth is bypassed
+    const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
+    if (bypassAuth) {
+      return 'mock-access-token-for-development';
+    }
+    
     try {
       const session = await fetchAuthSession();
       return session.tokens?.accessToken?.toString();
@@ -146,6 +177,12 @@ export const AuthProvider = ({ children }) => {
 
   // Get current user's ID token (contains user attributes)
   const getIdToken = async () => {
+    // Return mock token when auth is bypassed
+    const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
+    if (bypassAuth) {
+      return 'mock-id-token-for-development';
+    }
+    
     try {
       const session = await fetchAuthSession();
       return session.tokens?.idToken?.toString();

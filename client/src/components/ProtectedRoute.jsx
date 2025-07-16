@@ -3,12 +3,14 @@
  * 
  * Wrapper component that protects routes requiring authentication and role-based access.
  * Redirects unauthenticated users to login page and users with wrong roles to appropriate pages.
+ * Can be bypassed in development mode for frontend testing.
  */
 
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Container, Loader, Stack, Text, Alert } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, requiredRole = null, allowedRoles = [] }) => {
@@ -59,6 +61,33 @@ const ProtectedRoute = ({ children, requiredRole = null, allowedRoles = [] }) =>
 
     getUserRole();
   }, [user, isAuthenticated]);
+
+  // Check if authentication bypass is enabled for development
+  const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
+
+  // If auth bypass is enabled, show development notice and render children
+  if (bypassAuth) {
+    return (
+      <>
+        <Alert 
+          variant="light" 
+          color="orange" 
+          title="Development Mode" 
+          icon={<IconInfoCircle />}
+          mb="md"
+          style={{ 
+            position: 'sticky', 
+            top: 60, 
+            zIndex: 100,
+            margin: '0 1rem 1rem 1rem' 
+          }}
+        >
+          Authentication is bypassed for frontend development. Set REACT_APP_BYPASS_AUTH=false to enable protection.
+        </Alert>
+        {children}
+      </>
+    );
+  }
 
   // Show loading spinner while checking authentication and role
   if (isLoading || roleLoading) {
