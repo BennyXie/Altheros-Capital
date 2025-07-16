@@ -8,7 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AuthCallback from './components/AuthCallback';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, PreLoginPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
+import { AboutPage, PreLoginPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage, ProviderDashboard } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -81,11 +81,6 @@ function App() {
                 } />
                 
                 {/* Protected Routes - Provider Only */}
-                <Route path="/provider-complete-profile" element={
-                  <ProtectedRoute requiredRole="provider">
-                    <ProviderCompleteProfilePage />
-                  </ProtectedRoute>
-                } />
                 <Route path="/provider-dashboard" element={
                   <ProtectedRoute requiredRole="provider">
                     <ProviderDashboard />

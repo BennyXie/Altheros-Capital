@@ -1,3 +1,4 @@
+export { default as ProviderDashboard } from './ProviderDashboard';
 export { default as AboutPage } from "./AboutPage";
 export { default as LoginPage } from "./LoginPage";
 export { default as SignupPage } from "./SignupPage";
