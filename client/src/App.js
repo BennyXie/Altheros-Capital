@@ -7,7 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { theme } from './styles/theme';
 import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
+import { AboutPage, PreLoginPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
 import { Header, Footer } from './components/layout';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -53,6 +53,8 @@ function App() {
             }}>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
+
+                <Route path="/prelogin" element={<PreLoginPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/providers" element={<ProviderAccessPage />} />
                 <Route path="/login" element={<LoginPage />} />
