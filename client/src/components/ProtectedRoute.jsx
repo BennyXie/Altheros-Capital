@@ -101,9 +101,9 @@ const ProtectedRoute = ({ children, requiredRole = null, allowedRoles = [] }) =>
     );
   }
 
-  // If not authenticated, redirect to role selection page
+  // If not authenticated, redirect to pre-login page
   if (!isAuthenticated) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/prelogin" state={{ from: location }} replace />;
   }
 
   // Check role-based access
