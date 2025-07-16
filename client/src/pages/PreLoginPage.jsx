@@ -1,3 +1,5 @@
+import styles from "./PreLoginPage.module.css";
+
 import { motion } from "framer-motion";
 import {
     Container,
@@ -33,17 +35,21 @@ export default function PreLoginPage() {
     const { cards, iconSize } = LOGIN_SELECTION_CONFIG;
 
     return (
-        <Container fluid my="xl" px="6rem" py="3rem">
+        <Container fluid my="xl" px="6rem" py="3rem" className={styles.container}>
             <motion.div
                 variants={gridVariants}
                 initial="hidden"
                 animate="visible"
             >
                 <SimpleGrid
+                    className={styles.grid}
                     cols={2}
                     spacing="xl"
-                    breakpoints={[{ maxWidth: "md", cols: 1 }]}
-                    style={{ gridAutoRows: "minmax(65vh, auto)" }}
+                    breakpoints={[
+                        { maxWidth: 900, cols: 1 }, // tablets & phones
+                        { maxWidth: 1200, cols: 2 }, // small laptops
+                    ]}
+                    // style={{ gridAutoRows: "minmax(65vh, auto)" }}
                 >
                     {cards.map(
                         (
@@ -57,11 +63,12 @@ export default function PreLoginPage() {
                                     opacity: 1,
                                     x: 0,
                                     backgroundColor: bg,
-                                    boxShadow: 'rgba(0,0,0,0) 0px 0px 0px 0px',
+                                    boxShadow: "rgba(0,0,0,0) 0px 0px 0px 0px",
                                 },
                                 hover: {
                                     backgroundColor: hoverbg,
-                                    boxShadow: 'rgba(0,0,0,0.2) 0px 6px 16px 0px',
+                                    boxShadow:
+                                        "rgba(0,0,0,0.2) 0px 6px 16px 0px",
                                     transition: {
                                         duration: 0.4,
                                         ease: "easeOut",
@@ -92,6 +99,7 @@ export default function PreLoginPage() {
                                         textDecoration: "none",
                                         color: "inherit",
                                     }}
+                                    className={styles.cardRoot}
                                 >
                                     {/*  card body  */}
                                     <Stack
@@ -100,12 +108,23 @@ export default function PreLoginPage() {
                                         gap="xl"
                                         style={{ flex: 1 }}
                                     >
-                                        <Icon size={iconSize} />
+                                        <Icon
+                                            size={iconSize}
+                                            className={styles.cardIcon}
+                                        />
                                         <Box ta="center">
-                                            <Text fw={600} fz="2.5rem">
+                                            <Text
+                                                fw={600}
+                                                fz="2.5rem"
+                                                className={styles.cardTitle}
+                                            >
                                                 {text}
                                             </Text>
-                                            <Text fz="sm" mt="xs">
+                                            <Text
+                                                fz="md"
+                                                mt="xs"
+                                                className={styles.cardSub}
+                                            >
                                                 {subtext}
                                             </Text>
                                         </Box>
@@ -129,6 +148,7 @@ export default function PreLoginPage() {
                                         }}
                                     >
                                         <MotionLine
+                                            className={styles.arrowShaft}
                                             variants={arrowVariants}
                                             style={{
                                                 height: 2.5,
@@ -137,6 +157,7 @@ export default function PreLoginPage() {
                                             }}
                                         />
                                         <IconArrowRight
+                                            className={styles.arrowHead}
                                             size={24}
                                             stroke={2.5}
                                             style={{

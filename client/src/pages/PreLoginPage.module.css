@@ -1,0 +1,53 @@
+/* preLogin.module.css  */
+.grid {
+    /* desktop: keep your tall hero rows */
+    grid-auto-rows: minmax(65vh, auto);
+    margin-top: 0.7rem;
+}
+
+@media (max-width: 1000px) {
+    .cardIcon {
+        width: 38% !important;
+        height: 38% !important;
+    }
+    .cardTitle {
+        font-size: 1.8rem !important;
+    }
+    .cardSub {
+        font-size: 0.95rem !important;
+    }
+    .arrowShaft {
+        width: 34px !important;
+    } /* rest state width  */
+    .arrowHead {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    .grid {
+        grid-template-columns: 1fr !important; /* becomes a single col */
+        grid-auto-rows: auto !important;
+    }
+    .cardRoot {
+        min-height: 14rem !important; /* tune: 200–260px */
+        height: auto !important; /* defeat inline 100% */
+
+        /* thinner (narrower) */
+        max-width: 90% !important;
+        width: 100% !important;
+        margin-inline: auto !important; /* center in column */
+
+        /* tighter internal padding */
+        padding-block: 0.75rem !important;
+        padding-inline: 1rem !important; /* left/right */
+
+        margin-block: 0rem !important;
+    }
+    .container {
+        /* kill the big top/bottom margin from my="xl" */
+        margin-block: 0 !important; /* top + bottom margin */
+        /* optionally reduce internal padding if you want: */
+        padding-block: 1rem !important; /* top + bottom padding */
+        padding-inline: 3rem !important; /* left/right (optional) */
+    }
+}
+
