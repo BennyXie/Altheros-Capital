@@ -58,7 +58,7 @@ function App() {
                 <Route path="/prelogin" element={<PreLoginPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/providers" element={<ProviderAccessPage />} />
-                <Route path="/auth" element={<RoleSelectionPage />} />
+                {/* <Route path="/auth" element={<RoleSelectionPage />} /> Removed: deprecated, replaced by PreLoginPage */}
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
