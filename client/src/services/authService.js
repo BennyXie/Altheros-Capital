@@ -152,11 +152,11 @@ class AuthService {
    */
   static getRoleBasedRedirectPath(role) {
     const roleRedirects = {
-      'patient': '/complete-profile',
-      'provider': '/provider-complete-profile'
+      patient: "/user-dashboard",
+      provider: "/provider-dashboard",
     };
 
-    return roleRedirects[role] || '/dashboard';
+    return roleRedirects[role] || "/user-dashboard";
   }
 
   /**

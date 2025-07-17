@@ -12,6 +12,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "dependencies": {
+    "aws-amplify": "^6.15.3",
     "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",

@@ -22,19 +22,9 @@ const amplifyConfig = {
         oauth: {
           domain: process.env.REACT_APP_COGNITO_DOMAIN,
           scopes: ['email', 'openid', 'phone', 'profile'],
-          redirectSignIn: [
-            process.env.REACT_APP_COGNITO_REDIRECT_URI,
-            `${window.location.origin}/auth/callback`
-          ],
-          redirectSignOut: [
-            process.env.REACT_APP_COGNITO_LOGOUT_URI,
-            `${window.location.origin}/auth`
-          ],
-          responseType: 'token', // Use 'token' for implicit grant or 'code' for authorization code
-          // Custom attributes for role-based authentication
-          customAttributes: {
-            role: 'custom:role'
-          }
+          redirectSignIn: [process.env.REACT_APP_COGNITO_REDIRECT_URI || 'http://localhost:3000/auth/callback'],
+          redirectSignOut: [process.env.REACT_APP_COGNITO_LOGOUT_URI || 'http://localhost:3000/prelogin'],
+          responseType: 'code'
         }
       }
     }

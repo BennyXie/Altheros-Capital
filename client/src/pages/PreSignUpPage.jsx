@@ -1,5 +1,4 @@
-import styles from "./PreLoginPage.module.css";
-
+import styles from "./PreSignUpPage.module.css";
 import { motion } from "framer-motion";
 import {
     Container,
@@ -11,9 +10,8 @@ import {
     ActionIcon,
 } from "@mantine/core";
 import { IconArrowRight } from "@tabler/icons-react";
-import { Link } from 'react-router-dom';
 
-import { LOGIN_SELECTION_CONFIG } from "../config/preLoginConfig.js";
+import { SIGNUP_SELECTION_CONFIG } from "../config/preSignUpConfig.js";
 import AuthService from "../services/authService.js";
 
 const MotionCard = motion(Card);
@@ -33,8 +31,8 @@ const gridVariants = {
     },
 };
 
-export default function PreLoginPage() {
-    const { cards, iconSize } = LOGIN_SELECTION_CONFIG;
+export default function PreSignUpPage() {
+    const { cards, iconSize } = SIGNUP_SELECTION_CONFIG;
 
     return (
         <Container
@@ -92,7 +90,7 @@ export default function PreLoginPage() {
                             return (
                                 <MotionCard
                                     key={idx}
-                                    onClick={() => AuthService.loginWithRole(role)}
+                                    onClick={() => AuthService.signupWithRole(role)}
                                     withBorder
                                     radius="md"
                                     p="xl"
@@ -186,9 +184,6 @@ export default function PreLoginPage() {
                     )}
                 </SimpleGrid>
             </motion.div>
-            <Text ta="center" mt="xl">
-                New user? <Link to="/presignup">Sign up here</Link>
-            </Text>
         </Container>
     );
 }

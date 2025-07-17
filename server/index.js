@@ -109,10 +109,30 @@ const authenticateToken = (req, res, next) => {
 
 // --- Backend Routes ---
 
+// Import routes
+const aiRoutes = require('./routes/aiRoutes');
+const authRoutes = require('./routes/authRoutes');
+const calendlyRoute = require('./routes/calendlyRoute');
+const headshotRoutes = require('./routes/headshotRoutes');
+const languagesRoutes = require('./routes/languagesRoutes');
+const meRoute = require('./routes/me');
+const symptomsRoute = require('./routes/symptomsRoute');
+
+
 // Public route
 app.get("/helloWorld", (req, res) => { //
     res.json({ message: "Hello from Benny!"});
 });
+
+// Use routes
+app.use('/api/ai', aiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/calendly', calendlyRoute);
+app.use('/api/headshot', headshotRoutes);
+app.use('/api/languages', languagesRoutes);
+app.use('/api/me', meRoute);
+app.use('/api/symptoms', symptomsRoute);
+
 
 // Protected route example
 app.get("/api/protected-hello", authenticateToken, (req, res) => {
@@ -127,70 +147,7 @@ app.get("/api/protected-hello", authenticateToken, (req, res) => {
     });
 });
 
-// New route to add user to a Cognito group
-app.post("/api/auth/add-to-group", authenticateToken, async (req, res) => {
-    const { role } = req.body;
-    const username = req.user['cognito:username']; // Username from JWT payload
 
-    if (!role || (role !== 'patient' && role !== 'provider')) {
-        return res.status(400).json({ message: 'Invalid role provided.' });
-    }
-
-    if (!username) {
-        return res.status(400).json({ message: 'Username missing from token claims.' });
-    }
-
-    const params = {
-        GroupName: role === 'patient' ? 'Patients' : 'Providers', // Your Cognito Group Names
-        UserPoolId: COGNITO_USER_POOL_ID,
-        Username: username
-    };
-
-    try {
-        // First, remove user from any other roles they might already have
-        // This is important if a user can only have one role at a time
-        const existingGroups = await cognitoidentityserviceprovider.adminListGroupsForUser({
-            UserPoolId: COGNITO_USER_POOL_ID,
-            Username: username
-        }).promise();
-
-        for (const group of existingGroups.Groups) {
-            if (group.GroupName === 'Patients' || group.GroupName === 'Providers') {
-                await cognitoidentityserviceprovider.adminRemoveUserFromGroup({
-                    GroupName: group.GroupName,
-                    UserPoolId: COGNITO_USER_POOL_ID,
-                    Username: username
-                }).promise();
-                console.log(`Removed user ${username} from group ${group.GroupName}`);
-            }
-        }
-
-        // Then, add the user to the new specified group
-        await cognitoidentityserviceprovider.adminAddUserToGroup(params).promise();
-
-        console.log(`User ${username} added to group ${params.GroupName}`);
-
-        // Optionally, update the custom:role attribute in Cognito User Pool
-        // This makes it easier for frontend to directly read the role from user attributes
-        const updateUserAttributesParams = {
-            UserAttributes: [
-                {
-                    Name: 'custom:role', // Your custom attribute name
-                    Value: role
-                },
-            ],
-            UserPoolId: COGNITO_USER_POOL_ID,
-            Username: username
-        };
-        await cognitoidentityserviceprovider.adminUpdateUserAttributes(updateUserAttributesParams).promise();
-        console.log(`User ${username} custom:role attribute updated to ${role}`);
-
-        res.status(200).json({ message: `User ${username} successfully assigned to ${params.GroupName} group and role attribute updated.` });
-    } catch (error) {
-        console.error('Error adding user to group or updating attributes:', error);
-        res.status(500).json({ message: 'Failed to assign user to group.', error: error.message });
-    }
-});
 
 
 // Start server after fetching JWKS

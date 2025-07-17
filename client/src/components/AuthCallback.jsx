@@ -1,75 +1,57 @@
-/**
- * Authentication Callback Handler
- * 
- * Handles the callback from Cognito after successful authentication
- * and processes role-based redirects
- */
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Container, Loader, Stack, Text, Alert } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
-import AuthService from '../services/authService';
+import AuthService from '../services/authService.js';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleCallback = async () => {
-      try {
-        console.log('🔧 AuthCallback: Starting callback processing');
-        console.log('🔧 AuthCallback: isAuthenticated:', isAuthenticated);
-        console.log('🔧 AuthCallback: user:', !!user);
-        
-        // Wait a moment for auth state to settle
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      if (loading) return;
 
+      try {
         if (!isAuthenticated || !user) {
           throw new Error('Authentication failed');
         }
 
-        // Get role from URL state parameter or local storage
+        const roleFromAttributes = user.attributes?.['custom:role'];
+        if (roleFromAttributes) {
+          const redirectPath = AuthService.getRoleBasedRedirectPath(roleFromAttributes);
+          navigate(redirectPath, { replace: true });
+          return;
+        }
+
         const state = searchParams.get('state');
         let role = AuthService.extractRoleFromState(state) || AuthService.getPendingUserRole();
 
-        console.log('🔧 AuthCallback: Extracted role:', role);
-
         if (!role) {
-          // Default to patient if no role specified
           role = 'patient';
-          console.log('🔧 AuthCallback: Defaulting to patient role');
         }
 
-        // Set the role in the backend
         await AuthService.setUserRole(role);
-
-        // Clear any pending role data
         AuthService.clearPendingUserRole();
 
-        // Get appropriate redirect path based on role
         const redirectPath = AuthService.getRoleBasedRedirectPath(role);
-        console.log('🔧 AuthCallback: Redirecting to:', redirectPath);
-
-        // Navigate to the appropriate page
         navigate(redirectPath, { replace: true });
 
       } catch (error) {
-        console.error('🔧 AuthCallback: Authentication callback error:', error);
+        console.error('Authentication callback error:', error);
         setError(error.message);
         
-        // Redirect to role selection after a delay
         setTimeout(() => {
-          navigate('/auth', { replace: true });
+          navigate('/prelogin', { replace: true });
         }, 3000);
       }
     };
 
     handleCallback();
-  }, [isAuthenticated, user, navigate, searchParams]);
+  }, [isAuthenticated, user, loading, navigate, searchParams]);
 
   if (error) {
     return (
