@@ -32,33 +32,41 @@ const AppRoutes = () => {
       <Route
         path="/user-dashboard"
         element={
-          <ProtectedRoute>
-            <UserDashboard />
-          </ProtectedRoute>
+          <Layout>
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          </Layout>
         }
       />
       <Route
         path="/provider-dashboard"
         element={
-          <ProtectedRoute requiredRole="provider">
-            <ProviderDashboard />
-          </ProtectedRoute>
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderDashboard />
+            </ProtectedRoute>
+          </Layout>
         }
       />
       <Route
         path="/complete-profile"
         element={
-          <ProtectedRoute>
-            <UserCompleteProfilePage />
-          </ProtectedRoute>
+          <Layout>
+            <ProtectedRoute>
+              <UserCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
         }
       />
       <Route
         path="/provider-complete-profile"
         element={
-          <ProtectedRoute requiredRole="provider">
-            <ProviderCompleteProfilePage />
-          </ProtectedRoute>
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
         }
       />
       <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/prelogin'} />} />

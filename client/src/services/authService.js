@@ -5,7 +5,7 @@
  * to enforce route protection based on user roles (patient/provider)
  */
 
-import { signInWithRedirect } from 'aws-amplify/auth';
+import { signInWithRedirect, signOut } from 'aws-amplify/auth';
 
 class AuthService {
   
@@ -145,7 +145,20 @@ class AuthService {
   static extractRoleFromState(state) {
     try {
       if (!state) return null;
-      const decodedState = JSON.parse(decodeURIComponent(state));
+      let decodedState;
+      try {
+        // Attempt to decode twice, as it might be double-encoded by Cognito
+        const firstDecode = decodeURIComponent(state);
+        decodedState = JSON.parse(firstDecode);
+      } catch (e) {
+        // If first attempt fails, try decoding once and then parsing
+        try {
+          decodedState = JSON.parse(decodeURIComponent(state));
+        } catch (e2) {
+          // If that also fails, try parsing directly (might be already decoded)
+          decodedState = JSON.parse(state);
+        }
+      }
       return decodedState.role || null;
     } catch (error) {
       console.error('Error extracting role from state:', error);

@@ -26,20 +26,32 @@ async function cognito_signup(req, res) {
 
 async function addToGroup(req, res) {
   const { role } = req.body;
-  const username = req.user["cognito:username"];
+  // Ensure req.user and req.user["cognito:username"] are available
+  if (!req.user || !req.user.username) {
+    console.error("Error: User information not found in request. req.user:", req.user);
+    return res.status(400).json({ error: "User information not available" });
+  }
+
+  const username = req.user.username;
   const groupName = role === "patient" ? "patients" : "providers";
+  console.log(`Attempting to add user ${username} to group ${groupName}`);
+
   try {
     const userGroups = await listGroupsForUser(username);
+    console.log(`User ${username} is currently in groups:`, userGroups);
+
     if (userGroups.includes(groupName)) {
       console.log(`User ${username} is already in group ${groupName}. Skipping add operation.`);
       return res.status(200).json({ message: `User ${username} is already in group ${groupName}` });
     }
 
     await addUserToGroup(username, groupName);
+    console.log(`Successfully added user ${username} to group ${groupName}`);
     res.status(200).json({ message: `User added to group ${groupName}` });
   } catch (error) {
     console.error("Error adding user to group:", error);
-    res.status(500).json({ error: "Internal server error" });
+    // Provide more specific error message if possible, but avoid exposing sensitive details
+    res.status(500).json({ error: "Internal server error during group assignment" });
   }
 }
 

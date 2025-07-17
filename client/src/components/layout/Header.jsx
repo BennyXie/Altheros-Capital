@@ -42,7 +42,7 @@ const Header = () => {
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
     const { isAuthenticated, logout, getUserAttributes } = useAuth();
-    const [userDisplayName, setUserDisplayName] = useState('User');
+    const [userDisplayName, setUserDisplayName] = useState('');
 
     useEffect(() => {
         if (opened && isDesktop) {
@@ -60,6 +60,8 @@ const Header = () => {
                                     userAttributes?.email?.split('@')[0] || 
                                     'User';
                 setUserDisplayName(displayName);
+            } else {
+                setUserDisplayName(''); // Clear display name if not authenticated
             }
         };
 

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Hub } from 'aws-amplify/utils';
-import { fetchAuthSession, getCurrentUser, signOut } from 'aws-amplify/auth';
+import { fetchAuthSession, getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 
 
 const AuthContext = createContext();
@@ -12,15 +12,34 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUser = async () => {
       try {
+        console.log('AuthContext: Checking user session...');
         const { tokens } = await fetchAuthSession();
-        if (tokens) {
+        console.log('AuthContext: Fetched tokens:', tokens);
+        if (tokens && tokens.idToken) {
           const currentUser = await getCurrentUser();
-          setUser(currentUser);
+          const idTokenPayload = tokens.idToken.payload;
+
+          let userAttributes = {};
+          try {
+            userAttributes = await fetchUserAttributes();
+          } catch (e) {
+            console.warn('AuthContext: Could not fetch all user attributes, possibly due to missing scopes:', e);
+            // Fallback to ID token claims for basic attributes
+            userAttributes.given_name = idTokenPayload.given_name;
+            userAttributes.email = idTokenPayload.email;
+            // Add other necessary attributes from idTokenPayload if needed
+          }
+          setUser({ ...currentUser, attributes: userAttributes });
+          console.log('AuthContext: User set in state.');
+        } else {
+          console.log('AuthContext: No tokens found, user not authenticated.');
         }
       } catch (e) {
-        // No user is signed in
+        console.error('AuthContext: Error checking user:', e);
+        setUser(null);
       }
       setLoading(false);
+      console.log('AuthContext: Loading complete.');
     };
 
     const hubListener = (data) => {
@@ -46,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await signOut({ global: true, signOutUrl: 'http://localhost:3000/' });
     } catch (error) {
       console.error('Error signing out:', error);
     }
