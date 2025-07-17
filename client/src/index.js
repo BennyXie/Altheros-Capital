@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css'; // Ensure global CSS is imported first
+import '@mantine/core/styles.css'; // Mantine core styles
+import '@mantine/notifications/styles.css'; // Mantine notifications styles
+import './styles/colors.css'; // Custom global color system
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Amplify } from 'aws-amplify';
@@ -13,7 +16,7 @@ Amplify.configure(awsExports);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} forceColorScheme="light">
       <App />
     </MantineProvider>
   </React.StrictMode>
