@@ -106,8 +106,8 @@ const Header = () => {
 
     return (
         <header className={classes.header}>
-            <Container size="xl">
-                <Group justify="space-between" h={60}>
+            <Container size="xl" className={classes.headerContainer}>
+                <Group justify="space-between" h={60} className={classes.headerGroup}>
                     {/* Logo */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}

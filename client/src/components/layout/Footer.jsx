@@ -40,8 +40,8 @@ const Footer = () => {
 
   return (
     <footer id="contact" className={classes.footer}>
-      <Container size="xl" py={60}>
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+      <Container size="xl" py={60} className={classes.footerContainer}>
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" className={classes.footerGrid}>
           {/* Left Side - Quick Links and Company Info */}
           <Stack gap="xl">
             {/* Company Info */}
