@@ -1,7 +1,8 @@
 const {
   CognitoIdentityProviderClient,
   SignUpCommand,
-  AdminAddUserToGroupCommand
+  AdminAddUserToGroupCommand,
+  AdminListGroupsForUserCommand
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { getSecretHash } = require("../utils/hashUtils");
 
@@ -38,4 +39,14 @@ async function addUserToGroup(username, groupName) {
   return await cognito.send(command);
 }
 
-module.exports = { signUpUser, addUserToGroup};
+async function listGroupsForUser(username) {
+  const userPoolId = process.env.COGNITO_USER_POOL_ID;
+  const command = new AdminListGroupsForUserCommand({
+    UserPoolId: userPoolId,
+    Username: username,
+  });
+  const response = await cognito.send(command);
+  return response.Groups.map(group => group.GroupName);
+}
+
+module.exports = { signUpUser, addUserToGroup, listGroupsForUser};

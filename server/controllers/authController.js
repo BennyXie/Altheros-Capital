@@ -1,5 +1,5 @@
 const pool = require("../db/pool");
-const { signUpUser, addUserToGroup} = require("../services/cognitoService");
+const { signUpUser, addUserToGroup, listGroupsForUser} = require("../services/cognitoService");
 const db = require("../db/pool")
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -29,6 +29,12 @@ async function addToGroup(req, res) {
   const username = req.user["cognito:username"];
   const groupName = role === "patient" ? "patients" : "providers";
   try {
+    const userGroups = await listGroupsForUser(username);
+    if (userGroups.includes(groupName)) {
+      console.log(`User ${username} is already in group ${groupName}. Skipping add operation.`);
+      return res.status(200).json({ message: `User ${username} is already in group ${groupName}` });
+    }
+
     await addUserToGroup(username, groupName);
     res.status(200).json({ message: `User added to group ${groupName}` });
   } catch (error) {

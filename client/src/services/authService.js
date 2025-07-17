@@ -42,14 +42,22 @@ class AuthService {
       // Store role in local storage for callback handling
       localStorage.setItem('pendingUserRole', role);
       
-      // Use Cognito state parameter to pass role information
-      await signInWithRedirect({
-        provider: 'Cognito',
-        customState: JSON.stringify({ role }),
-        options: {
-          preferPrivateSession: false
-        }
-      });
+      const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
+      const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
+      const redirectUri = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+      const encodedRedirectUri = encodeURIComponent(redirectUri);
+      const encodedState = encodeURIComponent(JSON.stringify({ role }));
+
+      const cognitoSignupUrl = 
+          `https://${cognitoDomain}/signup?` +
+          `client_id=${clientId}&` +
+          `redirect_uri=${encodedRedirectUri}&` +
+          `response_type=code&` +
+          `scope=email+openid+phone+profile&` +
+          `state=${encodedState}`;
+
+      window.location.assign(cognitoSignupUrl);
+
     } catch (error) {
       console.error('Signup with role error:', error);
       throw error;
