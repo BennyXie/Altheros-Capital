@@ -5,7 +5,7 @@ const express = require("express"); //
 const cors = require("cors"); //
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
-const fetch = require('node-fetch'); // Required to fetch JWKS
+
 
 // AWS SDK for Cognito (install if not already present: npm install aws-sdk)
 const AWS = require('aws-sdk');

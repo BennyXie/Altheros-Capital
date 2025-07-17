@@ -1,5 +1,5 @@
 const express = require('express')
-const app = express()
+const router = express.Router()
 
 const pgp = require('pg-promise')(/* options */)
 const db = pgp({
@@ -18,7 +18,7 @@ const db = pgp({
     Joins with patients or providers table depending on role
 */
 
-app.get('/me', async (req, res) => {
+router.get('/me', async (req, res) => {
 
   /* Auth will go here, unclear what that is for now */
   let user; // user id
@@ -57,3 +57,5 @@ app.get('/me', async (req, res) => {
   }
   
 })
+
+module.exports = router;

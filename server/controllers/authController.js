@@ -37,4 +37,4 @@ async function addToGroup(req, res) {
   }
 }
 
-module.exports = { cognito_signup, signUpHelper, addToGroup};
+module.exports = { cognito_signup, addToGroup};

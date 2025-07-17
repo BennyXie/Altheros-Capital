@@ -1,5 +1,5 @@
 const express = require('express')
-const router = express()
+const router = express.Router()
 
 router.get('/symptoms', async (req, res) => {
     try {
@@ -9,4 +9,5 @@ router.get('/symptoms', async (req, res) => {
         console.log(err);                      
       }
 });
-  
+
+module.exports = router;
