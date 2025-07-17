@@ -10,6 +10,7 @@ import {
     ActionIcon,
 } from "@mantine/core";
 import { IconArrowRight } from "@tabler/icons-react";
+import { Link } from 'react-router-dom';
 
 import { SIGNUP_SELECTION_CONFIG } from "../config/preSignUpConfig.js";
 import AuthService from "../services/authService.js";
@@ -184,6 +185,9 @@ export default function PreSignUpPage() {
                     )}
                 </SimpleGrid>
             </motion.div>
+            <Text ta="center" mt="xl">
+                Already have an account? <Link to="/prelogin">Sign in here</Link>
+            </Text>
         </Container>
     );
 }

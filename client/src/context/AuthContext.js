@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { Amplify } from 'aws-amplify';
 import { Hub } from 'aws-amplify/utils';
-import { fetchAuthSession, getCurrentUser } from '@aws-amplify/auth';
+import { fetchAuthSession, getCurrentUser, signOut } from 'aws-amplify/auth';
 
 
 const AuthContext = createContext();
@@ -45,10 +44,24 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const getUserAttributes = () => {
+    return user ? user.attributes : null;
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
     loading,
+    logout: handleLogout,
+    getUserAttributes,
   };
 
   return (

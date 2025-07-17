@@ -23,8 +23,8 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/prelogin" element={<PreLoginPage />} />
-      <Route path="/presignup" element={<PreSignUpPage />} />
+      <Route path="/prelogin" element={<Layout><PreLoginPage /></Layout>} />
+      <Route path="/presignup" element={<Layout><PreSignUpPage /></Layout>} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<Layout><LandingPage /></Layout>} />
       <Route path="/about" element={<Layout><AboutPage /></Layout>} />
