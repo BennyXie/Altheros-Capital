@@ -30,7 +30,7 @@ const AppRoutes = () => {
       <Route path="/about" element={<Layout><AboutPage /></Layout>} />
       <Route path="/providers" element={<Layout><ProviderAccessPage /></Layout>} />
       <Route
-        path="/dashboard"
+        path="/user-dashboard"
         element={
           <ProtectedRoute>
             <UserDashboard />

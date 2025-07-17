@@ -187,7 +187,7 @@ class AuthService {
     } catch (error) {
       console.error('Error handling post-auth role:', error);
       // Default to patient role and dashboard
-      return '/dashboard';
+      return '/user-dashboard';
     }
   }
 }
