@@ -10,66 +10,94 @@ const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const { user, isAuthenticated, loading } = useAuth();
   const [error, setError] = useState(null);
-  const hasProcessedCallback = useRef(false);
+  const [roleAssignmentAttempted, setRoleAssignmentAttempted] = useState(false);
 
   // Effect for initial role assignment and token refresh signal
   useEffect(() => {
-    const handleInitialProcessing = async () => {
-      if (loading || hasProcessedCallback.current) {
+    const handleAuthProcessing = async () => {
+      if (loading) {
         return;
       }
 
+      // Case 1: User is not authenticated. This can happen after a fresh sign-up
+      // or if the session expired/is invalid.
       if (!isAuthenticated) {
-        console.error('AuthCallback: Not authenticated after loading. Redirecting to home.');
-        navigate('/', { replace: true });
-        return;
-      }
+        console.log('AuthCallback: Not authenticated. Checking for pending role to initiate login.');
+        const pendingRole = AuthService.getPendingUserRole();
 
-      // Prevent multiple executions for the initial role assignment
-      hasProcessedCallback.current = true;
-
-      try {
-        console.log('AuthCallback: Authenticated. User object:', user);
-        console.log('AuthCallback: User role from context:', user?.role);
-
-        // 1. If user is authenticated and already has a role, redirect to their dashboard
-        if (user && user.role) {
-          console.log('AuthCallback: User has existing role:', user.role, '. Redirecting to dashboard.');
-          const redirectPath = AuthService.getRoleBasedRedirectPath(user.role);
-          navigate(redirectPath, { replace: true });
+        if (pendingRole) {
+          console.log(`AuthCallback: Found pending role '${pendingRole}'. Initiating login flow.`);
+          try {
+            // Clear the pending role immediately to prevent infinite loops if login fails
+            AuthService.clearPendingUserRole();
+            // Initiate a login flow. Cognito will redirect back here after successful login.
+            await AuthService.loginWithRole(pendingRole);
+            // The component will re-render after the redirect, and isAuthenticated should be true then.
+            return;
+          } catch (err) {
+            console.error('AuthCallback: Error initiating login after sign-up:', err);
+            setError('Failed to log in after sign-up. Please try again.');
+            navigate('/', { replace: true });
+            return;
+          }
+        } else {
+          // If not authenticated and no pending role, redirect to home (e.g., direct access to /auth/callback)
+          console.error('AuthCallback: Not authenticated and no pending role. Redirecting to home.');
+          navigate('/', { replace: true });
           return;
         }
+      }
 
-        // 2. If authenticated but no role yet (e.g., new user or role not set in custom:role attribute)
+      // Case 2: User is authenticated. Now check for role assignment.
+      // If user is authenticated and already has a role, redirect to their dashboard
+      if (user && user.role) {
+        console.log('AuthCallback: User has existing role:', user.role, '. Redirecting to dashboard.');
+        const redirectPath = AuthService.getRoleBasedRedirectPath(user.role);
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+
+      // Case 3: User is authenticated but no role yet, and we haven't attempted role assignment in this session
+      if (!user?.role && !roleAssignmentAttempted) {
         console.log('AuthCallback: Authenticated but no role. Attempting to set role.');
-        const state = searchParams.get('state');
-        let role = AuthService.extractRoleFromState(state) || AuthService.getPendingUserRole();
+        setRoleAssignmentAttempted(true); // Mark that we are attempting role assignment
 
-        // Default to 'patient' if no role is found (e.g., direct login without pre-selection)
-        if (!role) {
-          role = 'patient';
-          console.log('AuthCallback: No role found, defaulting to patient.');
+        try {
+          const state = searchParams.get('state');
+          let role = AuthService.extractRoleFromState(state) || AuthService.getPendingUserRole();
+
+          // Default to 'patient' if no role is found (e.g., direct login without pre-selection)
+          if (!role) {
+            role = 'patient';
+            console.log('AuthCallback: No role found, defaulting to patient.');
+          }
+
+          // Set the user's role in Cognito (add to group)
+          console.log('AuthCallback: Setting user role to:', role);
+          await AuthService.setUserRole(role);
+          AuthService.clearPendingUserRole(); // Clear pending role from local storage
+
+          // After successfully setting the role, reauthenticate to get an updated ID token
+          await AuthService.reauthenticateUser();
+
+        } catch (err) {
+          console.error('Authentication callback error during role assignment:', err);
+          setError(err.message);
+          navigate('/', { replace: true });
         }
-
-        // Set the user's role in Cognito (add to group)
-        console.log('AuthCallback: Setting user role to:', role);
-        await AuthService.setUserRole(role);
-        AuthService.clearPendingUserRole(); // Clear pending role from local storage
-
-        // After successfully setting the role, reauthenticate to get an updated ID token
-        await AuthService.reauthenticateUser();
-
-      } catch (error) {
-        console.error('Authentication callback error:', error);
-        setError(error.message);
+      } else if (!user?.role && roleAssignmentAttempted) {
+        // This case means we attempted role assignment, reauthenticated, but still no role.
+        // This indicates an issue with role assignment or token refresh.
+        console.error('AuthCallback: Role assignment attempted but user still has no role after reauthentication.');
+        setError('Failed to assign user role. Please try again.');
         navigate('/', { replace: true });
       }
     };
 
-    handleInitialProcessing();
-  }, [isAuthenticated, user, loading, navigate, searchParams]);
+    handleAuthProcessing();
+  }, [isAuthenticated, user, loading, navigate, searchParams, roleAssignmentAttempted, setError]);
 
-   // Added setNeedsTokenRefresh to dependencies
+   
 
   return (
     <Container size="sm" py={100}>
