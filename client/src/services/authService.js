@@ -172,12 +172,23 @@ class AuthService {
    * @returns {string} - Redirect path
    */
   static getRoleBasedRedirectPath(role) {
+    console.log('AuthService: getRoleBasedRedirectPath called with role:', role);
+    // Normalize role to singular if it ends with 's' (e.g., 'providers' -> 'provider')
+    let normalizedRole = role;
+    if (typeof role === 'string') {
+      normalizedRole = role.trim().toLowerCase();
+      if (normalizedRole.endsWith('s')) {
+        normalizedRole = normalizedRole.slice(0, -1);
+      }
+    }
     const roleRedirects = {
       patient: "/user-dashboard",
       provider: "/provider-dashboard",
     };
 
-    return roleRedirects[role] || "/user-dashboard";
+    const path = roleRedirects[normalizedRole] || "/user-dashboard";
+    console.log('AuthService: Redirecting to path:', path);
+    return path;
   }
 
   /**

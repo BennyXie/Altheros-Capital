@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
         if (tokens && tokens.idToken) {
           const currentUser = await getCurrentUser();
           const idTokenPayload = tokens.idToken.payload;
+          const roles = idTokenPayload['cognito:groups'] || [];
 
           let userAttributes = {};
           try {
@@ -29,7 +30,11 @@ export const AuthProvider = ({ children }) => {
             userAttributes.email = idTokenPayload.email;
             // Add other necessary attributes from idTokenPayload if needed
           }
-          setUser({ ...currentUser, attributes: userAttributes });
+          setUser({ 
+            ...currentUser, 
+            attributes: userAttributes,
+            role: roles[0] // Attach the first role to the user object
+          });
           console.log('AuthContext: User set in state.');
         } else {
           console.log('AuthContext: No tokens found, user not authenticated.');

@@ -21,7 +21,7 @@ const amplifyConfig = {
       loginWith: {
         oauth: {
           domain: process.env.REACT_APP_COGNITO_DOMAIN,
-          scopes: ['email', 'openid', 'phone', 'profile'],
+          scopes: ['email', 'openid', 'phone', 'profile', 'aws.cognito.signin.user.admin'],
           redirectSignIn: ['http://localhost:3000/auth/callback'],
           redirectSignOut: ['http://localhost:3000/'],
           responseType: 'code'
