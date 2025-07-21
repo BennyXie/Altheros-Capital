@@ -154,12 +154,12 @@ module.exports = app;
 
 // Start server after fetching JWKS
 if (require.main === module) {
-  // setUp().then(() => {
+  setUp().then(() => {
       app.listen(PORT, () => { //
           console.log(`Server running on port ${PORT}`);
       });
-  // }).catch(err => {
-  //     console.error("Server startup failed:", err);
-  //     process.exit(1);
-  // });
+  }).catch(err => {
+      console.error("Server startup failed:", err);
+      process.exit(1);
+  });
 }

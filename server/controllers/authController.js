@@ -51,13 +51,17 @@ async function addToGroup(req, res) {
     }
 
     console.log(`authController: Adding user ${username} to group ${groupName}...`);
-    await cognitoService.addUserToGroup(username, groupName);
-    console.log(`authController: Successfully added user ${username} to group ${groupName}`);
-    res.status(200).json({ message: `User added to group ${groupName}` });
+    try {
+      await cognitoService.addUserToGroup(username, groupName);
+      console.log(`authController: Successfully added user ${username} to group ${groupName}`);
+      res.status(200).json({ message: `User added to group ${groupName}` });
+    } catch (addUserError) {
+      console.error("authController: Error adding user to group in Cognito:", addUserError);
+      return res.status(500).json({ error: "Failed to add user to group in Cognito", details: addUserError.message });
+    }
   } catch (error) {
-    console.error("authController: Error adding user to group:", error);
-    // Provide more specific error message if possible, but avoid exposing sensitive details
-    res.status(500).json({ error: "Internal server error during group assignment" });
+    console.error("authController: General error in addToGroup:", error);
+    res.status(500).json({ error: "Internal server error during group assignment", details: error.message });
   }
 }
 

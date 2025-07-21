@@ -138,6 +138,33 @@ class AuthService {
   }
 
   /**
+   * Reauthenticates the user to get an updated ID token.
+   * This is necessary after group assignments as ID tokens are immutable.
+   */
+  static async reauthenticateUser() {
+    try {
+      console.log('AuthService: Reauthenticating user to refresh ID token...');
+      // Sign out the current session
+      await signOut({ global: true });
+      console.log('AuthService: Signed out current session.');
+
+      // Trigger a new sign-in flow
+      // This will redirect to Cognito and then back to AuthCallback with a fresh session
+      await signInWithRedirect({
+        provider: 'Cognito',
+        options: {
+          preferPrivateSession: false // Use public session for consistent behavior
+        }
+      });
+      console.log('AuthService: Initiated new sign-in redirect.');
+    } catch (error) {
+      console.error('AuthService: Error during reauthentication:', error);
+      // If reauthentication fails, redirect to home or login page
+      window.location.href = '/';
+    }
+  }
+
+  /**
    * Extract role from Cognito callback state
    * @param {string} state - Cognito state parameter
    * @returns {string|null} - Extracted role or null
@@ -145,23 +172,51 @@ class AuthService {
   static extractRoleFromState(state) {
     try {
       if (!state) return null;
+      console.log('AuthService: Raw state for role extraction:', state);
       let decodedState;
-      try {
-        // Attempt to decode twice, as it might be double-encoded by Cognito
-        const firstDecode = decodeURIComponent(state);
-        decodedState = JSON.parse(firstDecode);
-      } catch (e) {
-        // If first attempt fails, try decoding once and then parsing
+
+      // Check if the state contains the expected delimiter for custom encoding
+      const delimiterIndex = state.indexOf('-');
+      if (delimiterIndex !== -1) {
+        const hexString = state.substring(delimiterIndex + 1);
         try {
-          decodedState = JSON.parse(decodeURIComponent(state));
-        } catch (e2) {
-          // If that also fails, try parsing directly (might be already decoded)
-          decodedState = JSON.parse(state);
+          // Convert hex to string
+          let jsonString = '';
+          for (let i = 0; i < hexString.length; i += 2) {
+            jsonString += String.fromCharCode(parseInt(hexString.substr(i, 2), 16));
+          }
+          decodedState = JSON.parse(jsonString);
+        } catch (hexError) {
+          console.warn('AuthService: Hex decode/parse failed:', hexError);
+          // Fallback to original logic if hex decoding fails
+          try {
+            const firstDecode = decodeURIComponent(state);
+            decodedState = JSON.parse(firstDecode);
+          } catch (e) {
+            try {
+              decodedState = JSON.parse(decodeURIComponent(state));
+            } catch (e2) {
+              decodedState = JSON.parse(state);
+            }
+          }
+        }
+      } else {
+        // Original logic for non-custom encoded state
+        try {
+          const firstDecode = decodeURIComponent(state);
+          decodedState = JSON.parse(firstDecode);
+        } catch (e) {
+          try {
+            decodedState = JSON.parse(decodeURIComponent(state));
+          } catch (e2) {
+            decodedState = JSON.parse(state);
+          }
         }
       }
+      console.log('AuthService: Decoded state:', decodedState);
       return decodedState.role || null;
     } catch (error) {
-      console.error('Error extracting role from state:', error);
+      console.error('AuthService: Error extracting role from state:', error);
       return null;
     }
   }
