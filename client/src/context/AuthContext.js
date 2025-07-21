@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      await signOut({ global: true, signOutUrl: 'http://localhost:3000/' });
+      await signOut({ global: true });
     } catch (error) {
       console.error('Error signing out:', error);
     }

@@ -69,7 +69,7 @@ const AppRoutes = () => {
           </Layout>
         }
       />
-      <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/prelogin'} />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/user-dashboard' : '/'} />} />
     </Routes>
   );
 };

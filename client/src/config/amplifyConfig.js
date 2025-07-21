@@ -23,7 +23,7 @@ const amplifyConfig = {
           domain: process.env.REACT_APP_COGNITO_DOMAIN,
           scopes: ['email', 'openid', 'phone', 'profile'],
           redirectSignIn: ['http://localhost:3000/auth/callback'],
-          redirectSignOut: ['http://localhost:3000/prelogin'],
+          redirectSignOut: ['http://localhost:3000/'],
           responseType: 'code'
         }
       }

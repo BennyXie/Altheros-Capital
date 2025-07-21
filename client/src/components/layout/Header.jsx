@@ -88,7 +88,7 @@ const Header = () => {
 
     const handleLogout = () => {
         logout();
-        close();
+        window.location.href = '/';
     };
 
     return (
