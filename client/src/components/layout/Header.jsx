@@ -86,9 +86,13 @@ const Header = () => {
         close(); // Close dropdown after clicking
     };
 
-    const handleLogout = () => {
-        logout();
-        window.location.href = '/';
+    const handleLogout = async () => {
+        try {
+            await logout();
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     };
 
     return (
