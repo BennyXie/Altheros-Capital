@@ -4,14 +4,57 @@
  * Main dashboard for healthcare providers
  */
 
-import React from 'react';
-import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader } from '@mantine/core';
 import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import ProviderCompleteProfilePage from './ProviderCompleteProfilePage';
+import apiClient from '../utils/apiClient';
+import { notifications } from '@mantine/notifications';
 
 const ProviderDashboard = () => {
   const { user } = useAuth();
+  const [isProfileComplete, setIsProfileComplete] = useState(true); // Assume complete until checked
+  const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      if (!user) {
+        setIsLoadingProfileStatus(false);
+        return;
+      }
+
+      try {
+        const response = await apiClient.get('/api/profile/status');
+        setIsProfileComplete(response.data.isProfileComplete);
+      } catch (error) {
+        console.error("Error checking profile status:", error);
+        notifications.show({
+          title: 'Profile Status Error',
+          message: 'Failed to load profile status.',
+          color: 'red',
+        });
+        setIsProfileComplete(false); // Assume incomplete on error
+      } finally {
+        setIsLoadingProfileStatus(false);
+      }
+    };
+
+    checkProfile();
+  }, [user]);
+
+  if (isLoadingProfileStatus) {
+    return (
+      <Container size="xl" py={40} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <Loader size="xl" />
+      </Container>
+    );
+  }
+
+  if (!isProfileComplete) {
+    return <ProviderCompleteProfilePage />;
+  }
 
   const statsCards = [
     {

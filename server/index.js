@@ -122,6 +122,7 @@ const headshotRoutes = require('./routes/headshotRoutes');
 const languagesRoutes = require('./routes/languagesRoutes');
 const meRoute = require('./routes/me');
 const symptomsRoute = require('./routes/symptomsRoute');
+const profileRoutes = require('./routes/profileRoutes');
 
 
 // Public route
@@ -137,6 +138,7 @@ app.use('/api/headshot', headshotRoutes);
 app.use('/api/languages', languagesRoutes);
 app.use('/api/me', meRoute);
 app.use('/api/symptoms', symptomsRoute);
+app.use('/api/profile', profileRoutes);
 app.use("/chat", chatRoutes); // Added for chat feature
 app.use("/api/providers", headshotRoutes); // This seems like a duplicate or a different path for headshotRoutes, keeping it for now.
 
