@@ -38,4 +38,5 @@ async function addUserToGroup(username, groupName) {
   return await cognito.send(command);
 }
 
+
 module.exports = { signUpUser, addUserToGroup};

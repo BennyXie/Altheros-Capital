@@ -65,22 +65,21 @@ function initializeSocket(server) {
      * socket.emit("join_chat, { chatId, timestamp }")
      */
     socket.on("join_chat", ({ chatId, timestamp }) => {
-        socket.join(chatId);
-        console.log(`${name} joined room ${chatId}`);
-        chatController.handleJoin(socket, chatId, name, timestamp);
+      chatController.handleJoin(socket, chatId, name, timestamp);
     });
 
     /**
      * Event: When user sends message, send to controller
      */
     socket.on("send_message", (data) => {
-      chatController.handleMessage(socket,data,io);
+      chatController.handleMessage(socket, data, io);
     });
 
     /**
      * Event: When user disconnects, remove from memory maps
      */
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (reason) => {
+      console.log(reason);
       connectedUsers.delete(email);
       userDisplayNames.delete(email);
       chatController.handleDisconnect(socket, io);
