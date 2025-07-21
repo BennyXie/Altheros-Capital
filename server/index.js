@@ -1,24 +1,28 @@
 // imports
 // define where to load environment variables
-require('dotenv').config({ path: __dirname + '/.env' }); //
-const express = require("express"); //
-const cors = require("cors"); //
+require('dotenv').config({ path: __dirname + '/.env' });
+const express = require("express");
+const http = require("http"); // Added for socket.io
+const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
-
+const db = require("./db/pool"); // Added from coworker's branch
+const { initializeSocket } = require("./services/socketService"); // Added for socket.io
 
 // AWS SDK for Cognito (install if not already present: npm install aws-sdk)
 const AWS = require('aws-sdk');
 
 // using express
-const app = express(); //
+const app = express();
+// enable socket.io
+const server = http.createServer(app); // Added for socket.io
 
 // define port, stored in server/.env
-const PORT = process.env.PORT || 5000; //
+const PORT = process.env.PORT || 5000;
 
 // Initializing the app
-app.use(cors()); //
-app.use(express.json()); //
+app.use(cors());
+app.use(express.json());
 
 // Configure AWS SDK
 AWS.config.update({
@@ -113,6 +117,7 @@ const setUp = async () => {
 const aiRoutes = require('./routes/aiRoutes');
 const authRoutes = require('./routes/authRoutes');
 const calendlyRoute = require('./routes/calendlyRoute');
+const chatRoutes = require('./routes/chatRoutes'); // Added for chat feature
 const headshotRoutes = require('./routes/headshotRoutes');
 const languagesRoutes = require('./routes/languagesRoutes');
 const meRoute = require('./routes/me');
@@ -120,7 +125,7 @@ const symptomsRoute = require('./routes/symptomsRoute');
 
 
 // Public route
-app.get("/helloWorld", (req, res) => { //
+app.get("/helloWorld", (req, res) => {
     res.json({ message: "Hello from Benny!"});
 });
 
@@ -132,7 +137,13 @@ app.use('/api/headshot', headshotRoutes);
 app.use('/api/languages', languagesRoutes);
 app.use('/api/me', meRoute);
 app.use('/api/symptoms', symptomsRoute);
+app.use("/chat", chatRoutes); // Added for chat feature
+app.use("/api/providers", headshotRoutes); // This seems like a duplicate or a different path for headshotRoutes, keeping it for now.
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 // // Protected route example
 // app.get("/api/protected-hello", authenticateToken, (req, res) => {
@@ -148,14 +159,15 @@ app.use('/api/symptoms', symptomsRoute);
 // });
 
 
-
-
 module.exports = app;
+
+// WebSocket installation
+initializeSocket(server); // Initialize socket.io after app is created
 
 // Start server after fetching JWKS
 if (require.main === module) {
   setUp().then(() => {
-      app.listen(PORT, () => { //
+      server.listen(PORT, () => { // Use server.listen for socket.io
           console.log(`Server running on port ${PORT}`);
       });
   }).catch(err => {
