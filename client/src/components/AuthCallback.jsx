@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Container, Loader, Stack, Text, Alert } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
