@@ -33,7 +33,7 @@ const AppRoutes = () => {
         path="/user-dashboard"
         element={
           <Layout>
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="patient">
               <UserDashboard />
             </ProtectedRoute>
           </Layout>
