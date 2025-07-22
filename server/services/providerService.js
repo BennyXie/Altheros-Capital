@@ -1,5 +1,5 @@
 const pool = require("../db/pool");
-const { db } = require("../db");
+
 
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   const result = await pool.query(

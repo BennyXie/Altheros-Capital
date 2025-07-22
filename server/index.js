@@ -6,8 +6,13 @@ const http = require("http"); // Added for socket.io
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
+const authRoutes = require("./routes/authRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+const calendlyRoutes = require("./routes/calendlyRoute");
+const chatRoutes = require("./routes/chatRoutes");
+const headshotRoutes = require("./routes/headshotRoutes");
 const appointmentRoutes = require("./routes/appointments");
-const providersRoutes = require("./routes/provider")
+const providersRoutes = require("./routes/providerRoutes");
 const db = require("./db/pool"); // Added from coworker's branch
 const { initializeSocket } = require("./services/socketService"); // Added for socket.io
 
