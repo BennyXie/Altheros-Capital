@@ -392,9 +392,20 @@ const ProviderCompleteProfilePage = () => {
 
                 {/* Submit */}
                 <Group justify="space-between" mt="xl">
-                  <Text size="sm" c="dimmed">
-                    All required fields must be completed
-                  </Text>
+                  <Button 
+                    variant="outline"
+                    color="gray"
+                    onClick={() => {
+                      notifications.show({
+                        title: 'Profile Incomplete',
+                        message: 'You can complete your profile later from your dashboard.',
+                        color: 'blue',
+                      });
+                      navigate('/provider-dashboard');
+                    }}
+                  >
+                    Skip for now
+                  </Button>
                   <Button
                     type="submit"
                     loading={isLoading}

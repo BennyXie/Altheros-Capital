@@ -48,6 +48,7 @@ const AuthCallback = () => {
           const redirectPath = AuthService.getRoleBasedRedirectPath(user.role);
           navigate(redirectPath, { replace: true });
         } else {
+          // If profile is incomplete (regardless of database entry), redirect to complete profile form
           const redirectPath = user.role === 'provider' ? '/provider-complete-profile' : '/user-complete-profile';
           navigate(redirectPath, { replace: true });
         }

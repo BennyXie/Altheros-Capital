@@ -5,17 +5,18 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader } from '@mantine/core';
+import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader, Badge } from '@mantine/core';
 import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import ProviderCompleteProfilePage from './ProviderCompleteProfilePage';
 import apiClient from '../utils/apiClient';
 import { notifications } from '@mantine/notifications';
+import { Link } from 'react-router-dom';
 
 const ProviderDashboard = () => {
   const { user } = useAuth();
-  const [isProfileComplete, setIsProfileComplete] = useState(true); // Assume complete until checked
+  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: true, hasDatabaseEntry: true }); // Assume complete until checked
   const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const ProviderDashboard = () => {
 
       try {
         const response = await apiClient.get('/api/profile/status');
-        setIsProfileComplete(response.data.isProfileComplete);
+        setProfileStatus(response);
       } catch (error) {
         console.error("Error checking profile status:", error);
         notifications.show({
@@ -35,7 +36,7 @@ const ProviderDashboard = () => {
           message: 'Failed to load profile status.',
           color: 'red',
         });
-        setIsProfileComplete(false); // Assume incomplete on error
+        setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume incomplete on error
       } finally {
         setIsLoadingProfileStatus(false);
       }
@@ -52,7 +53,8 @@ const ProviderDashboard = () => {
     );
   }
 
-  if (!isProfileComplete) {
+  // Only redirect to complete profile if profile is incomplete AND there is a database entry
+  if (!profileStatus.isProfileComplete && profileStatus.hasDatabaseEntry) {
     return <ProviderCompleteProfilePage />;
   }
 
@@ -70,18 +72,20 @@ const ProviderDashboard = () => {
       color: 'green'
     },
     {
-      title: 'This Week',
-      value: '42',
-      icon: <IconStethoscope size={24} />,
-      color: 'orange'
-    },
-    {
       title: 'Rating',
       value: '4.8',
       icon: <IconChartLine size={24} />,
       color: 'violet'
     }
   ];
+
+  const completeProfileCard = {
+    title: 'Complete Your Profile',
+    description: 'Ensure your profile is complete to unlock all features and be visible to patients.',
+    icon: <IconStethoscope size={24} />,
+    color: 'orange',
+    link: '/provider-complete-profile'
+  };
 
   return (
     <Container size="xl" py={40}>
@@ -103,28 +107,66 @@ const ProviderDashboard = () => {
 
           {/* Stats Grid */}
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
-            {statsCards.map((stat, index) => (
+            {!profileStatus.isProfileComplete ? (
               <motion.div
-                key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                  <Group justify="apart" mb="xs">
-                    <Text size="sm" c="dimmed" fw={500}>
-                      {stat.title}
-                    </Text>
-                    <div style={{ color: `var(--mantine-color-${stat.color}-6)` }}>
-                      {stat.icon}
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <Card.Section withBorder inheritPadding py="xs">
+                    <Group justify="space-between">
+                      <Text fw={500} size="lg">{completeProfileCard.title}</Text>
+                      <Badge color={completeProfileCard.color} variant="light">Action Needed</Badge>
+                    </Group>
+                  </Card.Section>
+
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
+                    <div>
+                      <Text size="sm" c="dimmed">
+                        {completeProfileCard.description}
+                      </Text>
                     </div>
-                  </Group>
-                  <Text size="xl" fw={700}>
-                    {stat.value}
-                  </Text>
+                    
+                    <Stack gap="xs">
+                      <Button 
+                        component={Link}
+                        to={completeProfileCard.link}
+                        variant="filled"
+                        color={completeProfileCard.color}
+                        leftSection={completeProfileCard.icon}
+                        size="sm"
+                      >
+                        Complete Profile
+                      </Button>
+                    </Stack>
+                  </Stack>
                 </Card>
               </motion.div>
-            ))}
+            ) : (
+              statsCards.map((stat, index) => (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card shadow="sm" padding="lg" radius="md" withBorder>
+                    <Group justify="apart" mb="xs">
+                      <Text size="sm" c="dimmed" fw={500}>
+                        {stat.title}
+                      </Text>
+                      <div style={{ color: `var(--mantine-color-${stat.color}-6)` }}>
+                        {stat.icon}
+                      </div>
+                    </Group>
+                    <Text size="xl" fw={700}>
+                      {stat.value}
+                    </Text>
+                  </Card>
+                </motion.div>
+              ))
+            )}
           </SimpleGrid>
 
           {/* Quick Actions */}

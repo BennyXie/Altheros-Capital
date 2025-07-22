@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext';
  */
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [isProfileComplete, setIsProfileComplete] = useState(true); // Assume complete until checked
+  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: true, hasDatabaseEntry: true }); // Assume complete until checked
   const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const DashboardPage = () => {
 
       try {
         const response = await apiClient.get('/api/profile/status');
-        setIsProfileComplete(response.data.isProfileComplete);
+        setProfileStatus(response);
       } catch (error) {
         console.error("Error checking patient profile status:", error);
         notifications.show({
@@ -35,7 +35,7 @@ const DashboardPage = () => {
           message: 'Failed to load patient profile status.',
           color: 'red',
         });
-        setIsProfileComplete(false); // Assume incomplete on error
+        setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume incomplete on error
       } finally {
         setIsLoadingProfileStatus(false);
       }
@@ -52,7 +52,8 @@ const DashboardPage = () => {
     );
   }
 
-  if (!isProfileComplete) {
+  // Only redirect to complete profile if profile is incomplete AND there is a database entry
+  if (!profileStatus.isProfileComplete && profileStatus.hasDatabaseEntry) {
     return <UserCompleteProfilePage />;
   }
 

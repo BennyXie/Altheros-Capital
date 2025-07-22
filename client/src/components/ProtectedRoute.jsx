@@ -7,18 +7,19 @@ import apiService from '../services/apiService';
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
-  const [isProfileComplete, setIsProfileComplete] = useState(null);
+  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: null, hasDatabaseEntry: null });
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
 
   useEffect(() => {
     const checkProfile = async () => {
       if (user) {
         try {
-          const { isProfileComplete } = await apiService.checkProfileStatus();
-          setIsProfileComplete(isProfileComplete);
+          const { isProfileComplete, hasDatabaseEntry } = await apiService.checkProfileStatus();
+          setProfileStatus({ isProfileComplete, hasDatabaseEntry });
+          console.log('ProtectedRoute: Profile Status after API call:', { isProfileComplete, hasDatabaseEntry });
         } catch (error) {
           console.error("Error checking profile status:", error);
-          setIsProfileComplete(false); // Assume profile is incomplete on error
+          setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume profile is incomplete on error
         } finally {
           setIsCheckingProfile(false);
         }
@@ -74,7 +75,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (isProfileComplete === false) {
+  // If profile is incomplete AND there is a database entry, redirect to complete profile
+  if (profileStatus.isProfileComplete === false && profileStatus.hasDatabaseEntry === true) {
     const redirectPath = userRole === 'provider' ? '/provider-complete-profile' : '/user-complete-profile';
     if (location.pathname !== redirectPath) {
       return <Navigate to={redirectPath} replace />;

@@ -215,16 +215,19 @@ async function checkProfileStatus(req, res) {
 
     const { sub: cognito_sub, 'cognito:groups': groups } = req.user;
     let isProfileComplete = false;
+    let hasDatabaseEntry = false;
 
     if (groups.includes('patients')) {
       const result = await db.query('SELECT id FROM patients WHERE cognito_sub = $1', [cognito_sub]);
-      isProfileComplete = result.rows.length > 0;
+      hasDatabaseEntry = result.rows.length > 0;
+      isProfileComplete = hasDatabaseEntry; // For patients, existence in DB means profile is complete
     } else if (groups.includes('providers')) {
       const result = await db.query('SELECT id FROM providers WHERE cognito_sub = $1', [cognito_sub]);
-      isProfileComplete = result.rows.length > 0;
+      hasDatabaseEntry = result.rows.length > 0;
+      isProfileComplete = hasDatabaseEntry; // For providers, existence in DB means profile is complete
     }
 
-    res.status(200).json({ isProfileComplete });
+    res.status(200).json({ isProfileComplete, hasDatabaseEntry });
   } catch (error) {
     console.error("profileController: Error checking profile status:", error);
     res.status(500).json({ error: "Internal server error checking profile status", details: error.message });

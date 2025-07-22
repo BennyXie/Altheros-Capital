@@ -16,6 +16,7 @@ import { Link, useLocation } from "react-router-dom";
 import { IconMenu2, IconUser, IconLogout, IconDashboard } from "@tabler/icons-react";
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
 import { useAuth } from "../../context/AuthContext";
+import AuthService from "../../services/authService";
 import classes from "./Header.module.css";
 
 /**
@@ -41,7 +42,7 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { user, isAuthenticated, logout, getUserAttributes } = useAuth();
+    const { user, isAuthenticated, logout } = useAuth();
     const [userDisplayName, setUserDisplayName] = useState('');
 
     useEffect(() => {
@@ -169,7 +170,7 @@ const Header = () => {
                                 <Menu.Dropdown>
                                     <Menu.Item
                                         component={Link}
-                                        to="/dashboard"
+                                        to={user?.role ? AuthService.getRoleBasedRedirectPath(user.role) : '/'}
                                         leftSection={<IconDashboard size={16} />}
                                     >
                                         Dashboard
