@@ -1,5 +1,5 @@
 const chatService = require("../services/chatService");
-const authUtils = require("../utils/authUtils.js");
+const dbUtils = require("../utils/dbUtils.js");
 
 /**
  * Called when frontend emits join_chat event
@@ -98,15 +98,15 @@ async function getChatMessages(req, res) {
 
 async function deleteChat(req, res) {
   const { chatId } = req.params;
-  const userDbId = authUtils.getUserDbId(req.user);
-  await chatService.removeChatMemberShip(chatId, userDbId);
+  const userDbId = dbUtils.getUserDbId(req.user);
+  await chatService.removeChatMemberShip(chatId, [userDbId]);
   res.status(204).send();
 }
 
-async function getChatIds(req, res){
-  const userDbId = authUtils.getUserDbId(req.user);
+async function getChatIds(req, res) {
+  const userDbId = dbUtils.getUserDbId(req.user);
   const chatIds = await chatService.getChatIds(userDbId);
-  res.json(chatIds)
+  res.json(chatIds);
 }
 
 module.exports = {
@@ -116,5 +116,5 @@ module.exports = {
   createOrGetChat,
   deleteChat,
   getChatMessages,
-  getChatIds
+  getChatIds,
 };

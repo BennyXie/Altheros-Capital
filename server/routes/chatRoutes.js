@@ -10,22 +10,10 @@ router.get(
   asyncHandler(chatController.getChatMessages)
 );
 
-router.post(
-  "/",
-  verifyToken,
-  asyncHandler(chatController.createOrGetChat)
-);
+router.post("/", verifyToken, asyncHandler(chatController.createOrGetChat));
 
-router.delete(
-  "/:chatId",
-  verifyToken,
-  asyncHandler(chatController.deleteChat)
-);
+router.delete("/:chatId", verifyToken, asyncHandler(chatController.deleteChat));
 
-router.get(
-  "/",
-  verifyToken,
-  asyncHandler(chatController.getChatIds)
-);
+router.get("/", verifyToken, asyncHandler(chatController.getChatIds));
 
 module.exports = router;
