@@ -36,7 +36,7 @@ async function listProviders(req, res) {
 
     res.json({
       providers: result.providers,
-      ...result.pagination_detals
+      ...result.pagination_details
       // ... will include the following
       //   page_num,
       //   limit,
