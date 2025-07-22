@@ -188,8 +188,6 @@ const ProviderCompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      
-
       await profileIntegrationService.completeUserProfile(
         user, // Cognito user data
         formData,

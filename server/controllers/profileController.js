@@ -153,8 +153,8 @@ async function completeProviderProfile(req, res) {
     } = req.body;
 
     // Basic validation for required fields for provider profile
-    if (!location || !gender || !experience_years || !education || !about_me || !calendly_url || !headshot_url) {
-      console.error("profileController: Missing required provider fields:", { location, gender, experience_years, education, about_me, calendly_url, headshot_url });
+    if (!location || !gender || !experience_years || !education || !about_me) {
+      console.error("profileController: Missing required provider fields:", { location, gender, experience_years, education, about_me });
       return res.status(400).json({ error: "Missing required provider profile fields." });
     }
 
@@ -209,11 +209,11 @@ async function completeProviderProfile(req, res) {
 async function checkProfileStatus(req, res) {
   console.log('profileController: checkProfileStatus called');
   try {
-    if (!req.user || !req.user.sub || !req.user.groups) {
+    if (!req.user || !req.user.sub || !req.user['cognito:groups']) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { sub: cognito_sub, groups } = req.user;
+    const { sub: cognito_sub, 'cognito:groups': groups } = req.user;
     let isProfileComplete = false;
 
     if (groups.includes('patients')) {

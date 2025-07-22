@@ -91,6 +91,10 @@ class ApiService {
     });
   }
 
+  async checkProfileStatus() {
+    return this.makeRequest('/api/profile/status');
+  }
+
   /**
    * Get user profile data
    * @returns {Promise} - Promise that resolves with user profile
@@ -116,6 +120,17 @@ class ApiService {
     return this.makeRequest('/api/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(updates),
+    });
+  }
+
+  async getSchedule(providerId) {
+    return this.makeRequest(`/api/schedule/${providerId}`);
+  }
+
+  async updateSchedule(providerId, scheduleData) {
+    return this.makeRequest(`/api/schedule/${providerId}`, {
+      method: 'PUT',
+      body: JSON.stringify(scheduleData),
     });
   }
 }

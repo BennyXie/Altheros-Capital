@@ -10,33 +10,23 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   
 
-  // Define checkUser outside useEffect so it can be exposed
   const checkUser = async () => {
     try {
       console.log('AuthContext: Checking user session...');
       const { tokens } = await fetchAuthSession();
       console.log('AuthContext: Fetched tokens:', tokens);
       if (tokens && tokens.idToken) {
-        const currentUser = await getCurrentUser();
         const idTokenPayload = tokens.idToken.payload;
         console.log('AuthContext: ID Token Payload:', idTokenPayload);
         const roles = idTokenPayload['cognito:groups'] || [];
         console.log('AuthContext: Roles from ID Token:', roles);
 
-        let userAttributes = {};
-        try {
-          userAttributes = await fetchUserAttributes();
-          console.log('AuthContext: Fetched User Attributes:', userAttributes);
-        } catch (e) {
-          console.warn('AuthContext: Could not fetch all user attributes, falling back to ID token claims:', e);
-          // Fallback to ID token claims for basic attributes if fetchUserAttributes fails
-          userAttributes.given_name = idTokenPayload.given_name;
-          userAttributes.email = idTokenPayload.email;
-          // Add other necessary attributes from idTokenPayload if needed
-        }
-        setUser({ 
-          ...currentUser, 
-          attributes: userAttributes,
+        setUser({
+          ...idTokenPayload,
+          username: idTokenPayload['cognito:username'],
+          given_name: idTokenPayload.given_name,
+          family_name: idTokenPayload.family_name,
+          email: idTokenPayload.email,
           role: roles[0] // Attach the first role to the user object
         });
         console.log('AuthContext: User set in state.');

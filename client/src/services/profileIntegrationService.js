@@ -57,7 +57,7 @@ class ProfileIntegrationService {
         const completePayload = {
           role,
           user,
-          insurance_networks: profileData.insuranceNetworks || [],
+          insurance_networks: profileData.insurance_networks || [],
           location: profileData.location,
           specialty: profileData.specialty || [],
           gender: profileData.gender,
@@ -106,8 +106,8 @@ class ProfileIntegrationService {
    */
   async isProfileComplete() {
     try {
-      const profile = await this.getCurrentUserProfile();
-      return profile.profile && profile.profile.is_active;
+      const { isProfileComplete } = await apiService.checkProfileStatus();
+      return isProfileComplete;
     } catch (error) {
       console.error('Error checking profile status:', error);
       return false;

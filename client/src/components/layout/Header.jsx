@@ -41,7 +41,7 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { isAuthenticated, logout, getUserAttributes } = useAuth();
+    const { user, isAuthenticated, logout, getUserAttributes } = useAuth();
     const [userDisplayName, setUserDisplayName] = useState('');
 
     useEffect(() => {
@@ -50,23 +50,14 @@ const Header = () => {
         }
     }, [opened, isDesktop, close]);
 
-    // Get user attributes for display - try both methods
     useEffect(() => {
-        const fetchUserName = async () => {
-            if (isAuthenticated) {
-                const userAttributes = getUserAttributes();
-                const displayName = userAttributes?.given_name || 
-                                    userAttributes?.name || 
-                                    userAttributes?.email?.split('@')[0] || 
-                                    'User';
-                setUserDisplayName(displayName);
-            } else {
-                setUserDisplayName(''); // Clear display name if not authenticated
-            }
-        };
-
-        fetchUserName();
-    }, [isAuthenticated, getUserAttributes]);
+        if (isAuthenticated && user) {
+            const displayName = user.given_name || user.name || user.email?.split('@')[0] || 'User';
+            setUserDisplayName(displayName);
+        } else {
+            setUserDisplayName(''); // Clear display name if not authenticated
+        }
+    }, [isAuthenticated, user]);
 
     const handleNavigation = (href) => {
         // Handle contact link - scroll to footer on any page
