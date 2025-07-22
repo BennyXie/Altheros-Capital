@@ -1,26 +1,4 @@
-const express = require('express')
-const app = express()
-
-const pgp = require('pg-promise')(/* options */)
-const db = pgp({
-  host: 'midwest-health-db.cle2oqga6j1x.us-east-2.rds.amazonaws.com',
-  port: 5432,
-  database: 'postgres',
-  user: 'mwh_admin',
-  password: 'your_password_here',
-  ssl: { rejectUnauthorized: false },
-});
-
-/* 
-  GET /me
-    Requires auth token
-    Returns user profile from DB: { id, name, email, role, profile }
-    Joins with patients or providers table depending on role
-*/
-
-app
-  .route('/me')
-  .get(async (req, res) => {
+async function getMe(req, res) {
     /* Auth will go here */
     let user; // user id
     let role; // was gonna do 0 = provider, 1 = role
@@ -56,8 +34,9 @@ app
       console.error('DB error:', err);
       res.status(404).json({ error: 'User not found' });
     }
-  })
-  .patch(async (req, res) => {
+  }
+
+ async function patchMe(req, res) {
     //  PATCH /ME
 
     const userId = req.user.id;
@@ -103,8 +82,9 @@ app
       console.error('Update error:', err);
       res.status(500).json({ error: 'Failed to update profile' });
     }
-  })
-  .delete(async (req, res) => {
+  }
+
+  async function deleteMe(req, res) {
     // DELETE /ME
 
     const userId = req.user.id;
@@ -128,4 +108,10 @@ app
       console.error('Delete error:', err);
       res.status(500).json({ error: 'Failed to delete account' });
     }
-  })
+  }
+
+  module.exports = {
+    getMe,
+    patchMe,
+    deleteMe
+  }
