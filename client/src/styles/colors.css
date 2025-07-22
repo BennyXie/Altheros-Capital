@@ -7,154 +7,168 @@
  */
 
 :root {
-  /* logo */
-  --logo-light-green: #add7ab;
-  --logo-medium-green: #5bb06b;
-  --logo-dark-green: #308858;
+    /* logo */
+    --logo-light-green: #add7ab;
+    --logo-medium-green: #5bb06b;
+    --logo-dark-green: #308858;
 
-  --darkest-green: #1b4e32;
+    --darkest-green: #1b4e32;
 
-  --cta-green-hover: #3f9b69;
+    --cta-green-hover: #3f9b69;
 
-  /* --cta-green: #308858; */
-  --cta-green: var(--logo-dark-green);
-  --cta-white-hover: #d6e7de;
+    /* --cta-green: #308858; */
+    --cta-green: var(--logo-dark-green);
+    --cta-white-hover: #d6e7de;
 
-  --medium-light-green: #83bd8f;
+    --medium-light-green: #83bd8f;
 
-  --gray-green: ;
+    --gray-green: ;
 
-  /* 🌿 Primary Minty Pastel Green */
-  --mint-primary: #7fe4a8; /* True minty green */
-  --mint-light: #9aeab8; /* Lighter mint */
-  --mint-lighter: #b5f0c8; /* Very light mint */
-  --mint-dark: #65d994; /* Darker mint */
-  --mint-darker: #4acf80; /* Deep mint */
+    /* 🌿 Primary Minty Pastel Green */
+    --mint-primary: #7fe4a8; /* True minty green */
+    --mint-light: #9aeab8; /* Lighter mint */
+    --mint-lighter: #b5f0c8; /* Very light mint */
+    --mint-dark: #65d994; /* Darker mint */
+    --mint-darker: #4acf80; /* Deep mint */
 
-  /* 🎨 Muted Pastel Accents */
-  --sage-light: #c4e2b8; /* Light sage green */
-  --sage-medium: #a9d69a; /* Medium sage green */
-  --sage-dark: #8eca7c; /* Darker sage green */
+    /* 🎨 Muted Pastel Accents */
+    --sage-light: #c4e2b8; /* Light sage green */
+    --sage-medium: #a9d69a; /* Medium sage green */
+    --sage-dark: #8eca7c; /* Darker sage green */
 
-  /* 🔘 Neutral Grays */
-  --gray-50: #f8f9fa; /* Lightest gray */
-  --gray-100: #f1f3f4; /* Very light gray */
-  --gray-200: #e8eaed; /* Light gray */
-  --gray-300: #dadce0; /* Medium light gray */
-  --gray-400: #bdc1c6; /* Medium gray */
-  --gray-500: #9aa0a6; /* True gray */
-  --gray-600: #80868b; /* Dark gray */
-  --gray-700: #5f6368; /* Darker gray */
-  --gray-800: #3c4043; /* Very dark gray */
-  --gray-900: #202124; /* Darkest gray */
+    --light-teal: #79a9a5;
+    --lime-green: #b1df9d;
 
-  /* 🎯 Core Color Variables */
-  --color-primary: var(--cta-green-hover);
-  --color-primary-light: var(--mint-light);
-  --color-primary-lighter: var(--mint-lighter);
-  --color-primary-dark: var(--mint-dark);
-  --color-primary-darker: var(--mint-darker);
-  --color-secondary: var(--sage-medium);
+    --light-teal-hover: #88beb9;
+    --lime-green-hover: #bff0aa;
 
-  /* 📝 Text Colors */
-  --color-black: #1f1f1f;
-  --color-black-green: #34473c;
-  --color-white: #ffffff;
-  --color-off-white: #f7f8f9;
-  --color-text-primary: var(
-    --color-black-green
-  ); /* Dark text for light backgrounds */
-  --color-text-secondary: var(--gray-700); /* Secondary text */
-  --color-text-muted: var(--gray-500); /* Muted text */
-  --color-text-light: var(--gray-400); /* Light text */
-  --color-text-white: var(--color-white); /* White text for dark backgrounds */
+    /* 🔘 Neutral Grays */
+    --gray-50: #f8f9fa; /* Lightest gray */
+    --gray-100: #f1f3f4; /* Very light gray */
+    --gray-200: #e8eaed; /* Light gray */
+    --gray-300: #dadce0; /* Medium light gray */
+    --gray-400: #bdc1c6; /* Medium gray */
+    --gray-500: #9aa0a6; /* True gray */
+    --gray-600: #80868b; /* Dark gray */
+    --gray-700: #5f6368; /* Darker gray */
+    --gray-800: #3c4043; /* Very dark gray */
+    --gray-900: #202124; /* Darkest gray */
 
-  /* 🏗️ Background Colors */
-  --color-bg-white: var(--color-off-white);
-  --color-bg-light: var(--gray-50);
-  --color-bg-medium: var(--gray-100);
-  --color-bg-dark: var(--gray-800);
+    /* 🎯 Core Color Variables */
+    --color-primary: var(--cta-green-hover);
+    --color-primary-light: var(--mint-light);
+    --color-primary-lighter: var(--mint-lighter);
+    --color-primary-dark: var(--mint-dark);
+    --color-primary-darker: var(--mint-darker);
+    --color-secondary: var(--sage-medium);
 
-  /* 🎨 Section Backgrounds (Light to Dark Progression) */
-  --color-bg-header: var(--color-white); /* White header */
-  --color-bg-hero: var(--mint-lighter); /* Very light mint hero */
-  --color-bg-features: var(--color-bg-white); /* White features */
-  --color-bg-about: var(--sage-light); /* Light sage about */
-  --color-bg-testimonials: var(--gray-100); /* Light gray testimonials */
-  --color-bg-cta: var(--color-bg-white); /* White CTA section background */
-  --color-bg-cta-card: #f0f9f4; /* Light pastel green CTA card */
-  --color-bg-footer: var(--darkest-green); /* Dark footer */
+    /* 📝 Text Colors */
+    --color-black: #1f1f1f;
+    --color-black-green: #34473c;
+    --color-white: #ffffff;
+    --color-off-white: #f7f8f9;
+    --color-text-primary: var(
+        --color-black-green
+    ); /* Dark text for light backgrounds */
+    --color-text-secondary: var(--gray-700); /* Secondary text */
+    --color-text-muted: var(--gray-500); /* Muted text */
+    --color-text-light: var(--gray-400); /* Light text */
+    --color-text-white: var(
+        --color-white
+    ); /* White text for dark backgrounds */
 
-  --color-gold: #e19d1d82;
-  --color-gold-bright: rgba(225, 157, 29, 0.7);
+    /* 🏗️ Background Colors */
+    --color-bg-white: var(--color-off-white);
+    --color-bg-light: var(--gray-50);
+    --color-bg-medium: var(--gray-100);
+    --color-bg-dark: var(--gray-800);
 
-  /* buttons */
-  --color-bg-cta-green: var(--cta-green);
-  --color-bg-cta-green-hover: var(--cta-green-hover);
-  --color-bg-cta-white: var(--color-white);
-  --color-bg-cta-white-hover: var(--cta-white-hover);
+    /* 🎨 Section Backgrounds (Light to Dark Progression) */
+    --color-bg-header: var(--color-white); /* White header */
+    --color-bg-hero: var(--mint-lighter); /* Very light mint hero */
+    --color-bg-features: var(--color-bg-white); /* White features */
+    --color-bg-about: var(--sage-light); /* Light sage about */
+    --color-bg-testimonials: var(--gray-100); /* Light gray testimonials */
+    --color-bg-cta: var(--color-bg-white); /* White CTA section background */
+    --color-bg-cta-card: #f0f9f4; /* Light pastel green CTA card */
+    --color-bg-footer: var(--darkest-green); /* Dark footer */
 
-  /* 🔲 Borders */
-  --color-border: var(--gray-300);
-  --color-border-light: var(--gray-200);
-  --color-border-hover: var(--mint-primary);
+    --color-gold: #e19d1d82;
+    --color-gold-bright: rgba(225, 157, 29, 0.7);
 
-  /* 🌈 Gradients */
-  --gradient-hero-overlay: linear-gradient(
-    to right,
-    rgb(71, 136, 97) 5%,
-    rgba(119, 201, 133, 0.9) 30%,
-    rgba(187, 223, 155, 0.8) 50%,
+    /* buttons */
+    --color-bg-cta-green: var(--cta-green);
+    --color-bg-cta-green-hover: var(--cta-green-hover);
+    --color-bg-cta-white: var(--color-white);
+    --color-bg-cta-white-hover: var(--cta-white-hover);
 
-    transparent 100%
-  );
-  --gradient-main: linear-gradient(
-    to right,
-    rgb(71, 136, 97) 5%,
-    rgba(119, 201, 133, 0.9) 30%,
-    rgba(187, 223, 155, 0.8) 50%
-  );
-  --gradient-primary: linear-gradient(
-    135deg,
-    var(--mint-primary) 0%,
-    var(--mint-dark) 100%
-  );
+    --color-provider-cta: var(--light-teal);
+    --color-patient-cta: var(--lime-green);
 
-  /* 🌫️ Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-button: 0 4px 14px rgba(127, 228, 168, 0.25);
-  --shadow-button-hover: 0 8px 20px rgba(127, 228, 168, 0.35);
+    --color-provider-cta-hover: var(--light-teal-hover);
+    --color-patient-cta-hover: var(--lime-green-hover);
 
-  /* 🎯 Interactive States */
-  --color-hover: var(--cta-green-hover);
-  --color-active: var(--color-primary-darker);
-  --color-focus: var(--color-primary);
+    /* 🔲 Borders */
+    --color-border: var(--gray-300);
+    --color-border-light: var(--gray-200);
+    --color-border-hover: var(--mint-primary);
+
+    /* 🌈 Gradients */
+    --gradient-hero-overlay: linear-gradient(
+        to right,
+        rgb(71, 136, 97) 5%,
+        rgba(119, 201, 133, 0.9) 30%,
+        rgba(187, 223, 155, 0.8) 50%,
+
+        transparent 100%
+    );
+    --gradient-main: linear-gradient(
+        to right,
+        rgb(71, 136, 97) 5%,
+        rgba(119, 201, 133, 0.9) 30%,
+        rgba(187, 223, 155, 0.8) 50%
+    );
+    --gradient-primary: linear-gradient(
+        135deg,
+        var(--mint-primary) 0%,
+        var(--mint-dark) 100%
+    );
+
+    /* 🌫️ Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-button: 0 4px 14px rgba(127, 228, 168, 0.25);
+    --shadow-button-hover: 0 8px 20px rgba(127, 228, 168, 0.35);
+
+    /* 🎯 Interactive States */
+    --color-hover: var(--cta-green-hover);
+    --color-active: var(--color-primary-darker);
+    --color-focus: var(--color-primary);
 }
 
 /* 📱 Global Styles */
 body {
-  background-color: var(--color-bg-white);
-  color: var(--color-text-primary);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    sans-serif !important;
-  line-height: 1.6;
+    background-color: var(--color-bg-white);
+    color: var(--color-text-primary);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Roboto", sans-serif !important;
+    line-height: 1.6;
 }
 
 /* 🎯 Utility Classes */
 .bg-light {
-  background-color: var(--color-bg-light);
-  color: var(--color-text-primary);
+    background-color: var(--color-bg-light);
+    color: var(--color-text-primary);
 }
 
 .bg-primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-primary);
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
 }
 
 .bg-dark {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-white);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-white);
 }

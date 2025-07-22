@@ -1,20 +1,37 @@
-import { Container, Title, TextInput, PasswordInput, Button, Stack, Paper, Text, Group } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Container, Title, Button, Stack, Paper, Text, Group } from '@mantine/core';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { IconLogin, IconUserPlus } from '@tabler/icons-react';
+import { useAuth } from '../context/AuthContext';
 import classes from './LoginPage.module.css';
 
 /**
  * Login Page Component
  * 
- * Simple login page with email and password fields
+ * OAuth-integrated login page using Cognito Hosted UI
  */
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, login, signup } = useAuth();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // For now, just navigate to dashboard without authentication
-    navigate('/dashboard');
+  // Get return URL from location state or default to dashboard
+  const from = location.state?.from?.pathname || '/dashboard';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
+
+  const handleLogin = () => {
+    login(); // This will redirect to Cognito Hosted UI via Amplify
+  };
+
+  const handleSignup = () => {
+    signup(); // This will redirect to Cognito Hosted UI via Amplify
   };
 
   return (
@@ -26,44 +43,44 @@ const LoginPage = () => {
           transition={{ duration: 0.5 }}
         >
           <Paper className={classes.loginPaper}>
-            <form onSubmit={handleLogin}>
-              <Stack className={classes.form}>
-                <div>
-                  <Title order={2} className={classes.title}>Welcome back</Title>
-                  <Text className={classes.subtitle}>
-                    Don't have an account?{' '}
-                    <Link to="/signup" className={classes.signupLinkText}>
-                      Create account
-                    </Link>
-                  </Text>
-                </div>
+            <Stack className={classes.form}>
+              <div>
+                <Title order={2} className={classes.title}>Welcome to Altheros Capital</Title>
+                <Text className={classes.subtitle} ta="center">
+                  Secure authentication powered by AWS Cognito
+                </Text>
+              </div>
 
-                <Stack gap="md">
-                  <TextInput
-                    label="Email"
-                    placeholder="your@email.com"
-                    required
-                  />
-                  <PasswordInput
-                    label="Password"
-                    placeholder="Your password"
-                    required
-                  />
-                </Stack>
-
-                <Button type="submit" className={classes.submitButton} fullWidth>
-                  Sign in
+              <Stack gap="md">
+                <Button 
+                  size="lg"
+                  fullWidth
+                  className={classes.submitButton}
+                  leftSection={<IconLogin size={20} />}
+                  onClick={handleLogin}
+                >
+                  Sign In
                 </Button>
 
-                <Group justify="center">
-                  <Link to="/" style={{ textDecoration: 'none' }}>
-                    <Text size="sm" c="dimmed">
-                      ← Back to home
-                    </Text>
-                  </Link>
-                </Group>
+                <Button 
+                  size="lg"
+                  fullWidth
+                  variant="outline"
+                  leftSection={<IconUserPlus size={20} />}
+                  onClick={handleSignup}
+                >
+                  Create Account
+                </Button>
               </Stack>
-            </form>
+
+              <Group justify="center">
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                  <Text size="sm" c="dimmed">
+                    ← Back to home
+                  </Text>
+                </Link>
+              </Group>
+            </Stack>
           </Paper>
         </motion.div>
       </Container>

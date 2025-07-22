@@ -1,7 +1,8 @@
-export { default as AboutPage } from './AboutPage';
-export { default as LoginPage } from './LoginPage';
-export { default as SignupPage } from './SignupPage';
-export { default as DashboardPage } from './DashboardPage';
-export { default as CompleteProfilePage } from './CompleteProfilePage';
-export { default as ProviderAccessPage } from './ProviderAccessPage';
-export { default as AppointmentsPage } from './AppointmentsPage';
+export { default as AboutPage } from "./AboutPage";
+export { default as LoginPage } from "./LoginPage";
+export { default as SignupPage } from "./SignupPage";
+export { default as DashboardPage } from "./DashboardPage";
+export { default as CompleteProfilePage } from "./CompleteProfilePage";
+export { default as ProviderAccessPage } from "./ProviderAccessPage";
+export { default as AppointmentsPage } from "./AppointmentsPage";
+export { default as PreLoginPage } from './PreLoginPage';

@@ -1,13 +1,5 @@
 const chatService = require("../services/chatService");
-
-// function getEmailById(map, id) {
-//   for (let [email, userId] of map.entries()) {
-//     if (userId === id) {
-//       return email;
-//     }
-//   }
-//   return null;
-// }
+const authUtils = require("../utils/authUtils.js");
 
 /**
  * Called when frontend emits join_chat event
@@ -39,12 +31,19 @@ function handleJoin(socket, chatId, username, timestamp) {
  * });
  */
 function handleMessage(socket, data, io) {
-  // Added recipientEmail
-  const { chatId, text, timestamp } = data;
-  // Get user email from socket instead
+  const { chatId, text, timestamp, senderId, senderType, textType } = data;
   const sender = socket.user.name;
 
-  if (!text || !chatId ) return;
+  if (!text || !chatId || !sender) return;
+
+  chatService.saveMessageToDb(socket, {
+    chat_id: chatId,
+    sender_id: senderId,
+    sender_type: senderType,
+    text: text,
+    text_type: textType,
+    sent_at: timestamp,
+  });
 
   const message = chatService.formatMessage(sender, text, timestamp);
 
@@ -57,24 +56,65 @@ function handleMessage(socket, data, io) {
  */
 function handleDisconnect(socket, io) {
   const name = socket.user?.name;
-  const timestamp = new Date().toISOString();
 
-  for (const room of socket.rooms) {
-    if (room === socket.id) continue; // Skip internal room
+  // for (const room of socket.rooms) {
+  //   if (room === socket.id) continue; // Skip internal room
 
-    const message = chatService.formatMessage(
+  //   const message = chatService.formatMessage(
+  //     name,
+  //     `${name} has left the chat`,
+  //     timestamp
+  //   );
+
+  const message = chatService.formatMessage(
     name,
     `${name} has left the chat`,
-    timestamp
-    );
+    new Date().toISOString()
+  );
 
-    socket.to(room).emit("receive_message", message);
-    console.log(`${name} left room ${room}`);
+  for (const room of socket.rooms) {
+    io.to(room).emit("receive_message", message);
   }
+
+  console.log(`${name} disconnected`);
+}
+
+async function createOrGetChat(req, res) {
+  const { participants } = req.body;
+  const chat = await chatService.createOrGetChat(participants);
+  res.json(chat);
+}
+
+async function getChatMessages(req, res) {
+  const { chatId } = req.params;
+  const payload = req.user;
+  if (chatService.verifyChatMembership(payload)) {
+    messages = await chatService.getMessagesByChatId(chatId);
+    res.json(messages);
+  } else {
+    throw new Error(`User is not part of chat ${chatId}`);
+  }
+}
+
+async function deleteChat(req, res) {
+  const { chatId } = req.params;
+  const userDbId = authUtils.getUserDbId(req.user);
+  await chatService.removeChatMemberShip(chatId, userDbId);
+  res.status(204).send();
+}
+
+async function getChatIds(req, res){
+  const userDbId = authUtils.getUserDbId(req.user);
+  const chatIds = await chatService.getChatIds(userDbId);
+  res.json(chatIds)
 }
 
 module.exports = {
   handleJoin,
   handleMessage,
   handleDisconnect,
+  createOrGetChat,
+  deleteChat,
+  getChatMessages,
+  getChatIds
 };

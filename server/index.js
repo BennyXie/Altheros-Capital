@@ -1,22 +1,23 @@
 // imports
 // define where to load environment variables
-require('dotenv').config({ path: './server/.env' });
+require("dotenv").config({ path: "./.env" });
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const db = require("./db/pool")
+const db = require("./db/pool");
 const authRoutes = require("./routes/authRoutes");
 const appointmentRoutes = require("./routes/appointments");
 const providersRoutes = require("./routes/provider")
-const aiRoutes   = require("./routes/aiRoutes")
+const aiRoutes = require("./routes/aiRoutes");
 const calendlyRoutes = require("./routes/calendlyRoute");
-const { initializeSocket } = require('./services/socketService');
+const { initializeSocket } = require("./services/socketService");
+const chatRoutes = require("./routes/chatRoutes");
 const headshotRoutes = require("./routes/headshotRoutes");
 
 // using express
 const app = express();
 
-// enable socket.io 
+// enable socket.io
 const server = http.createServer(app);
 
 // define port, stored in server/.env
@@ -39,12 +40,17 @@ app.use("/ai", aiRoutes);
 // All calendlyRoutes start with /calendly
 app.use("/calendly", calendlyRoutes);
 
+app.use("/chat", chatRoutes);
+
 app.use("/api/providers", headshotRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+});
 
 // WebSocket installation
 initializeSocket(server);
 
-
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-})
+  console.log(`Server running on port ${PORT}`);
+});

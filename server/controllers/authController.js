@@ -1,10 +1,9 @@
 const pool = require("../db/pool");
-const { signUpUser } = require("../services/cognitoService");
-const db = require("../db/pool")
-const bcrypt = require('bcrypt');
+const { signUpUser, addUserToGroup } = require("../services/cognitoService");
+const db = require("../db/pool");
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 //For password verify, we need to run const isMatch = await bcrypt.compare(plainPassword, hashedPassword).
-
 
 async function cognito_signup(req, res) {
   try {
@@ -65,7 +64,7 @@ async function signUpHelper(req, res) {
           insurance, current_medication, health_provider_id, is_active,
           cognito_sub, password, created_at, updated_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        RETURNING patient_id;
+        RETURNING id;
       `;
 
       const values = [
@@ -111,7 +110,7 @@ async function signUpHelper(req, res) {
       // Insert patient preferences if provided
       const insertPrefQuery = `
         INSERT INTO patient_preferences (
-          patient_id,
+          id,
           preferred_provider_gender,
           sms_opt_in,
           language_preference,
@@ -171,32 +170,32 @@ async function signUpHelper(req, res) {
       )
     `;
 
-    const values = [
-      cognito_sub,
-      email,
-      hashedPassword,
-      first_name,
-      last_name,
-      insurance_networks,
-      location,
-      specialty,
-      gender,
-      experience_years,
-      education,
-      focus_groups,
-      about_me,
-      languages,
-      hobbies,
-      quote,
-      calendly_url,
-      headshot_url,
-      now, // created_at
-      now, // updated_at
-    ];
+      const values = [
+        cognito_sub,
+        email,
+        hashedPassword,
+        first_name,
+        last_name,
+        insurance_networks,
+        location,
+        specialty,
+        gender,
+        experience_years,
+        education,
+        focus_groups,
+        about_me,
+        languages,
+        hobbies,
+        quote,
+        calendly_url,
+        headshot_url,
+        now, // created_at
+        now, // updated_at
+      ];
 
-    await db.query(query, values);
+      await db.query(query, values);
 
-    return res.redirect("/helloworld");
+      return res.redirect("/helloworld");
     }
 
     return res.status(400).json({ error: "Invalid role provided" });
@@ -206,5 +205,12 @@ async function signUpHelper(req, res) {
   }
 }
 
+async function addToGroup(req, res) {
+  const { state } = req.body;
+  const username = req.user["username"];
+  const groupName = state === "signup:patients" ? "patients" : "providers";
+  await addUserToGroup(username, groupName);
+  res.status(200).json({ message: `User added to group ${groupName}` });
+}
 
-module.exports = { cognito_signup, signUpHelper };
+module.exports = { cognito_signup, signUpHelper, addToGroup };

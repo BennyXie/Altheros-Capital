@@ -1,24 +1,34 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Container, Title, Text, Paper, TextInput, PasswordInput, Button, Stack, Divider } from '@mantine/core';
-import { IconBrandGoogle } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Container, Title, Text, Paper, Button, Stack, Group } from '@mantine/core';
+import { IconUserPlus, IconLogin } from '@tabler/icons-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { slideInLeft } from '../animations/variants';
 import classes from './SignupPage.module.css';
 
 /**
  * Signup Page Component
  * 
- * Simple signup page for the "Get Started" button.
- * Uses theme.js for styling consistency.
+ * OAuth-integrated signup page using Cognito Hosted UI
  */
 const SignupPage = () => {
-  const handleSignup = (event) => {
-    event.preventDefault();
-    console.log('Signup attempted');
+  const navigate = useNavigate();
+  const { isAuthenticated, signup, login } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSignup = () => {
+    signup(); // This will redirect to Cognito Hosted UI via Amplify
   };
 
-  const handleGoogleSignup = () => {
-    console.log('Google signup attempted');
+  const handleLogin = () => {
+    login(); // This will redirect to Cognito Hosted UI via Amplify
   };
 
   return (
@@ -33,7 +43,7 @@ const SignupPage = () => {
             Get Started
           </Title>
           <Text className={classes.subtitle}>
-            Create your account to begin
+            Create your account to begin your healthcare journey
           </Text>
         </motion.div>
 
@@ -44,60 +54,37 @@ const SignupPage = () => {
           transition={{ delay: 0.2 }}
         >
           <Paper className={classes.signupPaper}>
-            <form onSubmit={handleSignup}>
-              <Stack className={classes.form}>
-                {/* Google Sign Up Button */}
+            <Stack className={classes.form}>
+              <Stack gap="md">
                 <Button
-                  variant="outline"
-                  leftSection={<IconBrandGoogle size={18} />}
-                  onClick={handleGoogleSignup}
-                  size="md"
-                  className={classes.googleButton}
-                >
-                  Sign up with Google
-                </Button>
-
-                <Divider label="Or sign up with email" labelPosition="center" className={classes.divider} />
-
-                <TextInput
-                  label="Full Name"
-                  placeholder="Your full name"
-                  size="md"
-                  required
-                />
-                
-                <TextInput
-                  label="Email address"
-                  placeholder="your@email.com"
-                  type="email"
-                  size="md"
-                  required
-                />
-
-                <PasswordInput
-                  label="Password"
-                  placeholder="Create a password"
-                  size="md"
-                  required
-                />
-
-                <Button
-                  type="submit"
                   size="lg"
                   fullWidth
                   className={classes.submitButton}
+                  leftSection={<IconUserPlus size={20} />}
+                  onClick={handleSignup}
                 >
                   Create Account
                 </Button>
 
-                <Text className={classes.loginLink}>
-                  Already have an account?{' '}
-                  <Text component={Link} to="/login" className={classes.loginLinkText}>
-                    Sign in
-                  </Text>
-                </Text>
+                <Button
+                  size="lg"
+                  fullWidth
+                  variant="outline"
+                  leftSection={<IconLogin size={20} />}
+                  onClick={handleLogin}
+                >
+                  Already have an account? Sign In
+                </Button>
               </Stack>
-            </form>
+
+              <Group justify="center">
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                  <Text size="sm" c="dimmed">
+                    ← Back to home
+                  </Text>
+                </Link>
+              </Group>
+            </Stack>
           </Paper>
         </motion.div>
       </Container>
