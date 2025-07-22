@@ -53,7 +53,7 @@ const AppRoutes = () => {
         path="/complete-profile"
         element={
           <Layout>
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="patient">
               <UserCompleteProfilePage />
             </ProtectedRoute>
           </Layout>

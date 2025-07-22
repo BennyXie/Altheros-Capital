@@ -22,7 +22,7 @@ import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck, IconStethoscope } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
-import apiClient from '../utils/apiClient';
+import profileIntegrationService from '../services/profileIntegrationService';
 
 /**
  * Provider Complete Profile Page Component
@@ -188,12 +188,13 @@ const ProviderCompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      const payload = {
-        role: 'provider',
-        ...formData
-      };
+      
 
-      await apiClient.post('/api/auth/signup', payload);
+      await profileIntegrationService.completeUserProfile(
+        user, // Cognito user data
+        formData,
+        'provider' // Role
+      );
       
       notifications.show({
         title: 'Profile Created Successfully',

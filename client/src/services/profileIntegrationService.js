@@ -38,7 +38,6 @@ class ProfileIntegrationService {
           insurance: profileData.insurance || null,
           current_medication: profileData.currentMedication || null,
           health_provider_id: profileData.healthProviderId || null,
-          password: profileData.password, // This might be handled differently in production
           symptoms: profileData.symptoms || [],
           languages: profileData.languages || [],
           preferences: profileData.preferences || {
@@ -62,16 +61,15 @@ class ProfileIntegrationService {
           location: profileData.location,
           specialty: profileData.specialty || [],
           gender: profileData.gender,
-          experience_years: profileData.experienceYears,
+          experience_years: profileData.experience_years,
           education: profileData.education,
-          focus_groups: profileData.focusGroups || [],
-          about_me: profileData.aboutMe,
+          focus_groups: profileData.focus_groups || [],
+          about_me: profileData.about_me,
           languages: profileData.languages || [],
           hobbies: profileData.hobbies,
           quote: profileData.quote,
-          calendly_url: profileData.calendlyUrl,
-          headshot_url: profileData.headshotUrl,
-          password: profileData.password,
+          calendly_url: profileData.calendly_url,
+          headshot_url: profileData.headshot_url,
         };
 
         return await apiService.completeUserProfile(completePayload);

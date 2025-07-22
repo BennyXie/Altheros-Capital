@@ -4,12 +4,12 @@ async function completePatientProfile(req, res) {
   console.log('profileController: completePatientProfile called');
   try {
     // Ensure req.user is populated by verifyToken middleware
-    if (!req.user || !req.user.sub || !req.user.email || !req.user.given_name || !req.user.family_name) {
+    if (!req.user || !req.user.sub) {
       console.error("profileController: Error: Incomplete user information from token. req.user:", req.user);
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { sub: cognito_sub, email, given_name: first_name, family_name: last_name } = req.user;
+    const { sub: cognito_sub } = req.user;
 
     const {
       dob,
@@ -22,6 +22,7 @@ async function completePatientProfile(req, res) {
       symptoms = [],
       languages = [],
       preferences = {},
+      user: { email, first_name, last_name } // Extract from req.body.user
     } = req.body;
 
     // Basic validation for required fields for patient profile
@@ -127,12 +128,12 @@ async function completeProviderProfile(req, res) {
   console.log('profileController: completeProviderProfile called');
   try {
     // Ensure req.user is populated by verifyToken middleware
-    if (!req.user || !req.user.sub || !req.user.email || !req.user.given_name || !req.user.family_name) {
+    if (!req.user || !req.user.sub) {
       console.error("profileController: Error: Incomplete user information from token. req.user:", req.user);
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { sub: cognito_sub, email, given_name: first_name, family_name: last_name } = req.user;
+    const { sub: cognito_sub } = req.user;
 
     const {
       insurance_networks = [],
@@ -148,6 +149,7 @@ async function completeProviderProfile(req, res) {
       quote,
       calendly_url,
       headshot_url,
+      user: { email, first_name, last_name } // Extract from req.body.user
     } = req.body;
 
     // Basic validation for required fields for provider profile
