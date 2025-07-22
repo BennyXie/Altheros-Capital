@@ -41,17 +41,17 @@ async function listProviders() {
   const values = [];
 
   if (language) {
-    filters.push(`language=${values.length + 1}`)
+    filters.push(`language=$${values.length + 1}`)
     values.push(language)
   }
 
   if (specialty) {
-    filters.push(`specialty=${values.length + 1}`)
+    filters.push(`specialty=$${values.length + 1}`)
     values.push(specialty)
   }
 
   if (gender) {
-    filters.push(`gender=${values.length + 1}`)
+    filters.push(`gender=$${values.length + 1}`)
     values.push(gender)
   }
 
@@ -85,7 +85,7 @@ async function listProviders() {
     providers: data.rows,
     page_num,
     limit,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total_records / limit),
     totalRecords: total_records,
     hasNextPage: has_next_page,
     hasPrevPage: has_prev_page,
@@ -95,7 +95,7 @@ async function listProviders() {
 
 }
 
-async function getProvider() {
+async function getProvider(providerId) {
   return db.oneOrNone(
       `SELECT provider_id, first_name, last_name, email, phone_number, address, gender, bio 
        FROM providers 
