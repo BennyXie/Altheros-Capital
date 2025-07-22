@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+
+const providerController = require('../controllers/providerController');
+const verifyToken = require("../middleware/verifyToken");
+router.get('/', verifyToken, providerController.listProviders);
+router.get('/:id', verifyToken, providerController.getProvider);
+
+
+module.exports = router;

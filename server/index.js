@@ -6,6 +6,8 @@ const http = require("http");
 const cors = require("cors");
 const db = require("./db/pool");
 const authRoutes = require("./routes/authRoutes");
+const appointmentRoutes = require("./routes/appointments");
+const providersRoutes = require("./routes/provider")
 const aiRoutes = require("./routes/aiRoutes");
 const calendlyRoutes = require("./routes/calendlyRoute");
 const { initializeSocket } = require("./services/socketService");
@@ -27,6 +29,10 @@ app.use(express.json());
 
 // All authRoutes start with /api/auth
 app.use("/api/auth", authRoutes);
+
+app.use("/providers", providersRoutes);
+
+app.use("/appointments", appointmentRoutes);
 
 // AI routes
 app.use("/ai", aiRoutes);
