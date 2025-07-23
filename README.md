@@ -23,9 +23,10 @@ docker-compose up
 
 ## Once Running
 
-- Frontend available at: http://localhost:3000
+- Frontend available at: http://localhost:4000
 - Backend available at: http://localhost:8080
-- Cal.com available at: http://localhost:3001
+- Cal.com available at: http://localhost:3000
+- Cal.com database available at: http://localhost:5555
 
 ---
 
