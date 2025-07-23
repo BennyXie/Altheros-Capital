@@ -1,31 +1,6 @@
 const pool = require("../db/pool");
 const cognitoService = require('../services/cognitoService');
 const db = require("../db/pool")
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-//For password verify, we need to run const isMatch = await bcrypt.compare(plainPassword, hashedPassword).
-
-
-async function cognito_signup(req, res) {
-  console.log('authController: cognito_signup called');
-  try {
-    const { username, password, givenName, familyName } = req.body;
-    console.log(`authController: Attempting to sign up user: ${username}`);
-    const response = await cognitoService.signUpUser({
-      username: username,
-      password: password,
-      givenName: givenName,
-      familyName: familyName,
-    });
-    console.log('authController: signUpUser response:', response);
-    res.json({ message: "Signup request sent", response });
-  } catch (err) {
-    console.error("authController: Cognito error during signup:", err);
-    res.status(500).json({ error: err.message });
-  }
-}
-
-
 
 async function addToGroup(req, res) {
   console.log('authController: addToGroup called');
@@ -65,18 +40,4 @@ async function addToGroup(req, res) {
   }
 }
 
-async function cognito_login(req, res) {
-  console.log('authController: cognito_login called');
-  try {
-    const { username, password } = req.body;
-    console.log(`authController: Attempting to sign in user: ${username}`);
-    const response = await cognitoService.signInUser({ username, password });
-    console.log('authController: signInUser response:', response);
-    res.json({ message: "Login successful", token: response.AuthenticationResult.IdToken });
-  } catch (err) {
-    console.error("authController: Cognito error during login:", err);
-    res.status(500).json({ error: err.message });
-  }
-}
-
-module.exports = { cognito_signup, addToGroup, cognito_login};
+module.exports = { addToGroup };
