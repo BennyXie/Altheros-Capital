@@ -49,18 +49,18 @@ async function listProviders() {
   const values = [];
 
   if (language) {
-    filters.push(`language=${values.length + 1}`);
-    values.push(language);
+    filters.push(`language = $${values.length + 1}`)
+    values.push(language)
   }
 
   if (specialty) {
-    filters.push(`specialty=${values.length + 1}`);
-    values.push(specialty);
+    filters.push(`specialty = $${values.length + 1}`)
+    values.push(specialty)
   }
 
   if (gender) {
-    filters.push(`gender=${values.length + 1}`);
-    values.push(gender);
+    filters.push(`gender = $${values.length + 1}`)
+    values.push(gender)
   }
 
   const where_clause =
@@ -94,7 +94,7 @@ async function listProviders() {
     providers: data.rows,
     page_num,
     limit,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total_records / limit),
     totalRecords: total_records,
     hasNextPage: has_next_page,
     hasPrevPage: has_prev_page,
@@ -108,10 +108,10 @@ async function listProviders() {
 }
 
 async function getProvider(providerId) {
-  const result = db.query(
-    `SELECT * 
-       FROM providers 
-       WHERE provider_id = $1 AND is_active = true`,
+  const result = await db.query(
+    `SELECT provider_id, first_name, last_name, email, phone_number, address, gender, bio 
+     FROM providers 
+     WHERE provider_id = $1 AND is_active = true`,
     [providerId]
   );
   return result.rows[0];
