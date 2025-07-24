@@ -7,12 +7,13 @@ const cors = require("cors");
 const db = require("./db/pool");
 const authRoutes = require("./routes/authRoutes");
 const appointmentRoutes = require("./routes/appointments");
-const providersRoutes = require("./routes/provider")
+const providersRoutes = require("./routes/providerRoutes")
 const aiRoutes = require("./routes/aiRoutes");
 const calendlyRoutes = require("./routes/calendlyRoute");
 const { initializeSocket } = require("./services/socketService");
 const chatRoutes = require("./routes/chatRoutes");
 const headshotRoutes = require("./routes/headshotRoutes");
+const resumeRoute = require("./routes/resumeRoute");
 
 // using express
 const app = express();
@@ -32,7 +33,8 @@ app.use("/api/auth", authRoutes);
 
 app.use("/providers", providersRoutes);
 
-app.use("/appointments", appointmentRoutes);
+//Temperarily commented out appointment routes because it is not ready yet
+//app.use("/appointments", appointmentRoutes);
 
 // AI routes
 app.use("/ai", aiRoutes);
@@ -43,6 +45,8 @@ app.use("/calendly", calendlyRoutes);
 app.use("/chat", chatRoutes);
 
 app.use("/api/providers", headshotRoutes);
+
+app.use("/api/resume", resumeRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
