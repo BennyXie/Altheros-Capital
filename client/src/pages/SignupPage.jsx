@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Container, Title, Text, Paper, Button, Stack, Group } from '@mantine/core';
-import { IconUserPlus, IconLogin } from '@tabler/icons-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Container, Title, Text, Paper, Button, Stack, Group, Badge } from '@mantine/core';
+import { IconUserPlus, IconLogin, IconUser, IconStethoscope } from '@tabler/icons-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { slideInLeft } from '../animations/variants';
 import classes from './SignupPage.module.css';
@@ -14,22 +14,45 @@ import classes from './SignupPage.module.css';
  */
 const SignupPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, signup, login } = useAuth();
 
+  // Get role from URL parameters
+  const role = searchParams.get('role') || 'patient';
+  
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      const defaultPath = role === 'provider' ? '/provider-complete-profile' : '/dashboard';
+      navigate(defaultPath, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, role]);
 
   const handleSignup = () => {
-    signup(); // This will redirect to Cognito Hosted UI via Amplify
+    signup(role); // Pass role to signup function
   };
 
   const handleLogin = () => {
-    login(); // This will redirect to Cognito Hosted UI via Amplify
+    login(role); // Pass role to login function
   };
+
+  // Role-specific configurations
+  const roleConfig = {
+    patient: {
+      icon: <IconUser size={24} />,
+      title: 'Create Patient Account',
+      subtitle: 'Join our healthcare platform and find the right care for you',
+      badgeColor: 'blue'
+    },
+    provider: {
+      icon: <IconStethoscope size={24} />,
+      title: 'Create Provider Account',
+      subtitle: 'Join our network of healthcare professionals',
+      badgeColor: 'green'
+    }
+  };
+
+  const currentConfig = roleConfig[role] || roleConfig.patient;
 
   return (
     <div className={classes.signupPage}>
@@ -39,11 +62,22 @@ const SignupPage = () => {
           initial="initial"
           animate="animate"
         >
+          <Group justify="center" mb="md">
+            <Badge 
+              size="lg" 
+              variant="light" 
+              color={currentConfig.badgeColor}
+              leftSection={currentConfig.icon}
+            >
+              {role.charAt(0).toUpperCase() + role.slice(1)}
+            </Badge>
+          </Group>
+          
           <Title order={1} className={classes.title}>
-            Get Started
+            {currentConfig.title}
           </Title>
           <Text className={classes.subtitle}>
-            Create your account to begin your healthcare journey
+            {currentConfig.subtitle}
           </Text>
         </motion.div>
 
@@ -78,9 +112,9 @@ const SignupPage = () => {
               </Stack>
 
               <Group justify="center">
-                <Link to="/" style={{ textDecoration: 'none' }}>
+                <Link to="/auth" style={{ textDecoration: 'none' }}>
                   <Text size="sm" c="dimmed">
-                    ← Back to home
+                    ← Choose different role
                   </Text>
                 </Link>
               </Group>

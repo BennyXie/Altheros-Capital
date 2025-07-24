@@ -265,7 +265,7 @@ export const NAVIGATION_CONFIG = {
     },
     {
       label: "Get Started ",
-      href: "/signup",
+      href: "/auth",
       variant: "filled",
       color: "green",
     },

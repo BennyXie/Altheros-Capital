@@ -1,17 +1,24 @@
 const verifyJwt = require('../utils/verifyJwt');
 
 module.exports = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  console.log('Authorization Header:', authHeader);
 
-  if (!token) {
-    return res.status(401).json({ error: 'Token missing from Authorization header' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.error('Token missing or malformed in Authorization header');
+    return res.status(401).json({ error: 'Token missing or malformed in Authorization header' });
   }
+
+  const token = authHeader.split(' ')[1];
+  console.log('Extracted Token:', token ? '[present]' : '[missing]');
 
   try {
     const decoded = await verifyJwt(token);
+    console.log('Decoded token in verifyToken middleware:', decoded);
+    console.log('username from decoded token:', decoded.username);
 
     // Attach decoded token to the request for use in controllers
-    req.user = decoded;
+    req.user = { ...decoded, username: decoded.username || decoded['cognito:username'] };
 
     next();
   } catch (err) {

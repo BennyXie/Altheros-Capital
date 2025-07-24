@@ -1,60 +1,101 @@
 // imports
 // define where to load environment variables
-require("dotenv").config({ path: "./.env" });
+require('dotenv').config({ path: __dirname + '/.env' });
 const express = require("express");
-const http = require("http");
+const http = require("http"); // Added for socket.io
 const cors = require("cors");
-const db = require("./db/pool");
+const jwt = require('jsonwebtoken');
+const jwkToPem = require('jwk-to-pem');
 const authRoutes = require("./routes/authRoutes");
 const appointmentRoutes = require("./routes/appointments");
-const providersRoutes = require("./routes/providerRoutes")
+const providersRoutes = require("./routes/providerRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const calendlyRoutes = require("./routes/calendlyRoute");
-const { initializeSocket } = require("./services/socketService");
 const chatRoutes = require("./routes/chatRoutes");
 const headshotRoutes = require("./routes/headshotRoutes");
+const db = require("./db/pool"); // Added from coworker's branch
+const { initializeSocket } = require("./services/socketService"); // Added for socket.io
+const AWS = require('aws-sdk');
 const resumeRoute = require("./routes/resumeRoute");
+const profileRoutes = require("./routes/profileRoutes");
+
+console.log("Before app.use(profileRoutes) - Type of profileRoutes:", typeof profileRoutes);
+console.log("Before app.use(profileRoutes) - profileRoutes:", profileRoutes);
 
 // using express
 const app = express();
-
 // enable socket.io
-const server = http.createServer(app);
+const server = http.createServer(app); // Added for socket.io
 
 // define port, stored in server/.env
 const PORT = process.env.PORT || 8080;
 
-// initializing the app
+// Initializing the app
+
 app.use(cors());
 app.use(express.json());
 
-// All authRoutes start with /api/auth
+// Auth routes
 app.use("/api/auth", authRoutes);
-
-app.use("/providers", providersRoutes);
-
-//Temperarily commented out appointment routes because it is not ready yet
-//app.use("/appointments", appointmentRoutes);
+// app.use("/api/appointments", appointmentRoutes);
+app.use("/api/providers", providersRoutes);
 
 // AI routes
 app.use("/ai", aiRoutes);
-
-// All calendlyRoutes start with /calendly
+// Calendly routes
 app.use("/calendly", calendlyRoutes);
-
+// Chat routes
 app.use("/chat", chatRoutes);
-
-app.use("/api/providers", headshotRoutes);
-
+// Headshot routes
+app.use("/api/headshot", headshotRoutes);
+// Profile routes
+app.use("/api/profile", profileRoutes);
+// Schedule routes
+app.use("/api/schedule", require("./routes/scheduleRoutes"));
+// Languages routes
+app.use("/api/languages", require("./routes/languagesRoutes"));
+// Symptoms routes
+app.use("/api/symptoms", require("./routes/symptomsRoute"));
+// Me route
+app.use("/api/me", require("./routes/me.js"));
 app.use("/api/resume", resumeRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
+
+// // Protected route example
+// app.get("/api/protected-hello", authenticateToken, (req, res) => {
+//     const userSub = req.user.sub; // User's unique ID
+//     const username = req.user['cognito:username']; // User's username
+//     const userRole = req.user['custom:role']; // Access custom role from the token claims
+
+//     res.json({
+//         message: `Hello ${username}! You accessed a protected route.`,
+//         yourSub: userSub,
+//         yourRole: userRole || 'No role assigned yet'
+//     });
+// });
+
+
+module.exports = app;
 
 // WebSocket installation
-initializeSocket(server);
+initializeSocket(server); // Initialize socket.io after app is created
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start server after fetching JWKS
+if (typeof setUp === "function" && require.main === module) {
+  setUp().then(() => {
+      server.listen(PORT, () => { // Use server.listen for socket.io
+          console.log(`Server running on port ${PORT}`);
+      });
+  }).catch(err => {
+      console.error("Server startup failed:", err);
+      process.exit(1);
+  });
+} else if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}

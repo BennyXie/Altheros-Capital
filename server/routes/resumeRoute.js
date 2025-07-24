@@ -5,7 +5,13 @@ const {resumeHandler} = require("../controllers/resumeController");
 
 router.post(
     "/parse",
-    resumeHandler
+    async (req, res, next) => {
+        try {
+            await resumeHandler(req, res);
+        } catch (error) {
+            next(error);
+        }
+    }
 );
 
 module.exports = router;

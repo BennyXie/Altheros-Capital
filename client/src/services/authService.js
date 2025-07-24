@@ -1,0 +1,282 @@
+/**
+ * Enhanced Authentication Service
+ * 
+ * Handles role-based authentication with Cognito state parameter manipulation
+ * to enforce route protection based on user roles (patient/provider)
+ */
+
+import { signInWithRedirect, signOut } from 'aws-amplify/auth';
+
+class AuthService {
+  
+  /**
+   * Login with role-based redirect
+   * @param {string} role - User role ('patient' or 'provider')
+   */
+  static async loginWithRole(role) {
+    try {
+      // Store role in local storage for callback handling
+      localStorage.setItem('pendingUserRole', role);
+      
+      // Use Cognito state parameter to pass role information
+      await signInWithRedirect({
+        provider: 'Cognito',
+        customState: JSON.stringify({ role }),
+        options: {
+          // This will be used to determine redirect after authentication
+          preferPrivateSession: false
+        }
+      });
+    } catch (error) {
+      console.error('Login with role error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Signup with role-based redirect
+   * @param {string} role - User role ('patient' or 'provider')
+   */
+  static async signupWithRole(role) {
+    try {
+      // Store role in local storage for callback handling
+      localStorage.setItem('pendingUserRole', role);
+      
+      const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
+      const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
+      const redirectUri = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+      const encodedRedirectUri = encodeURIComponent(redirectUri);
+      const encodedState = encodeURIComponent(JSON.stringify({ role }));
+
+      const cognitoSignupUrl = 
+          `https://${cognitoDomain}/signup?` +
+          `client_id=${clientId}&` +
+          `redirect_uri=${encodedRedirectUri}&` +
+          `response_type=code&` +
+          `scope=email+openid+phone+profile&` +
+          `state=${encodedState}`;
+
+      window.location.assign(cognitoSignupUrl);
+
+    } catch (error) {
+      console.error('Signup with role error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the role from local storage after authentication
+   * @returns {string|null} - User role or null if not found
+   */
+  static getPendingUserRole() {
+    return localStorage.getItem('pendingUserRole');
+  }
+
+  /**
+   * Clear the pending user role
+   */
+  static clearPendingUserRole() {
+    localStorage.removeItem('pendingUserRole');
+  }
+
+  /**
+   * Set user role in Cognito user attributes
+   * @param {string} role - User role to set
+   */
+  static async setUserRole(role) {
+    try {
+      console.log('🔧 Setting user role:', role);
+      
+      const token = await this.getAccessToken();
+      console.log('🔧 Access token obtained:', !!token);
+      
+      if (!token) {
+        throw new Error('No access token available');
+      }
+
+      // This would be called after successful authentication
+      // to set the role as a custom attribute in Cognito
+      const response = await fetch('/api/auth/add-to-group', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role })
+      });
+
+      console.log('🔧 Role assignment response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('🔧 Role assignment failed:', errorData);
+        throw new Error(`Failed to set user role: ${response.status} ${errorData}`);
+      }
+
+      const result = await response.json();
+      console.log('🔧 Role assignment successful:', result);
+      return result;
+    } catch (error) {
+      console.error('🔧 Error setting user role:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get access token from current session
+   * @returns {string|null} - Access token or null
+   */
+  static async getAccessToken() {
+    try {
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      const session = await fetchAuthSession();
+      return session.tokens?.accessToken?.toString();
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Reauthenticates the user to get an updated ID token.
+   * This is necessary after group assignments as ID tokens are immutable.
+   */
+  static async reauthenticateUser() {
+    try {
+      console.log('AuthService: Reauthenticating user to refresh ID token...');
+      // Sign out the current session
+      await signOut({ global: true });
+      console.log('AuthService: Signed out current session.');
+
+      // Trigger a new sign-in flow
+      // This will redirect to Cognito and then back to AuthCallback with a fresh session
+      await signInWithRedirect({
+        provider: 'Cognito',
+        options: {
+          preferPrivateSession: false // Use public session for consistent behavior
+        }
+      });
+      console.log('AuthService: Initiated new sign-in redirect.');
+    } catch (error) {
+      console.error('AuthService: Error during reauthentication:', error);
+      // If reauthentication fails, redirect to home or login page
+      window.location.href = '/';
+    }
+  }
+
+  /**
+   * Extract role from Cognito callback state
+   * @param {string} state - Cognito state parameter
+   * @returns {string|null} - Extracted role or null
+   */
+  static extractRoleFromState(state) {
+    try {
+      if (!state) return null;
+      console.log('AuthService: Raw state for role extraction:', state);
+      let decodedState;
+
+      // Check if the state contains the expected delimiter for custom encoding
+      const delimiterIndex = state.indexOf('-');
+      if (delimiterIndex !== -1) {
+        const hexString = state.substring(delimiterIndex + 1);
+        try {
+          // Convert hex to string
+          let jsonString = '';
+          for (let i = 0; i < hexString.length; i += 2) {
+            jsonString += String.fromCharCode(parseInt(hexString.substr(i, 2), 16));
+          }
+          decodedState = JSON.parse(jsonString);
+        } catch (hexError) {
+          console.warn('AuthService: Hex decode/parse failed:', hexError);
+          // Fallback to original logic if hex decoding fails
+          try {
+            const firstDecode = decodeURIComponent(state);
+            decodedState = JSON.parse(firstDecode);
+          } catch (e) {
+            try {
+              decodedState = JSON.parse(decodeURIComponent(state));
+            } catch (e2) {
+              decodedState = JSON.parse(state);
+            }
+          }
+        }
+      } else {
+        // Original logic for non-custom encoded state
+        try {
+          const firstDecode = decodeURIComponent(state);
+          decodedState = JSON.parse(firstDecode);
+        } catch (e) {
+          try {
+            decodedState = JSON.parse(decodeURIComponent(state));
+          } catch (e2) {
+            decodedState = JSON.parse(state);
+          }
+        }
+      }
+      console.log('AuthService: Decoded state:', decodedState);
+      return decodedState.role || null;
+    } catch (error) {
+      console.error('AuthService: Error extracting role from state:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Determine redirect path based on user role
+   * @param {string} role - User role
+   * @returns {string} - Redirect path
+   */
+  static getRoleBasedRedirectPath(role) {
+    console.log('AuthService: getRoleBasedRedirectPath called with role:', role);
+    // Normalize role to singular if it ends with 's' (e.g., 'providers' -> 'provider')
+    let normalizedRole = role;
+    if (typeof role === 'string') {
+      normalizedRole = role.trim().toLowerCase();
+      if (normalizedRole.endsWith('s')) {
+        normalizedRole = normalizedRole.slice(0, -1);
+      }
+    }
+    const roleRedirects = {
+      patient: "/user-dashboard",
+      provider: "/provider-dashboard",
+    };
+
+    const path = roleRedirects[normalizedRole] || "/user-dashboard";
+    console.log('AuthService: Redirecting to path:', path);
+    return path;
+  }
+
+  /**
+   * Handle post-authentication role assignment
+   * @param {Object} user - Authenticated user object
+   * @returns {Promise<string>} - Redirect path based on role
+   */
+  static async handlePostAuthRole(user) {
+    try {
+      // First, try to get role from URL state or local storage
+      const urlParams = new URLSearchParams(window.location.search);
+      const state = urlParams.get('state');
+      let role = this.extractRoleFromState(state) || this.getPendingUserRole();
+
+      if (!role) {
+        // Fallback: try to get role from user attributes if already set
+        role = user.attributes?.['custom:role'] || 'patient';
+      }
+
+      // Set the role in the backend
+      await this.setUserRole(role);
+
+      // Clear pending role from local storage
+      this.clearPendingUserRole();
+
+      // Return appropriate redirect path
+      return this.getRoleBasedRedirectPath(role);
+    } catch (error) {
+      console.error('Error handling post-auth role:', error);
+      // Default to patient role and dashboard
+      return '/user-dashboard';
+    }
+  }
+}
+
+export default AuthService;

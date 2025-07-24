@@ -1,4 +1,4 @@
-const languages = require('../controlles/languagesController');
+const languages = require('../controllers/languagesController');
 
 async function listLanguages() {
   return await languages.getLanguages();

@@ -1,216 +1,43 @@
 const pool = require("../db/pool");
-const { signUpUser, addUserToGroup } = require("../services/cognitoService");
-const db = require("../db/pool");
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
-//For password verify, we need to run const isMatch = await bcrypt.compare(plainPassword, hashedPassword).
-
-async function cognito_signup(req, res) {
-  try {
-    const { username, password, givenName, familyName } = req.body;
-    const response = await signUpUser({
-      username: username,
-      password: password,
-      givenName: givenName,
-      familyName: familyName,
-    });
-    res.json({ message: "Signup request sent", response });
-  } catch (err) {
-    console.error("Cognito error:", err);
-    res.status(500).json({ error: err.message });
-  }
-}
-
-async function signUpHelper(req, res) {
-  //Notice: The password is hashed before being stored in the database to ensure security.
-  try {
-    const role = req.body.role;
-    const now = new Date().toISOString();
-
-    if (role === "patient") {
-      const {
-        //email
-        //first_name
-        //last_name
-        dob,
-        gender,
-        address,
-        phone_number,
-        insurance = null,
-        current_medication = null,
-        health_provider_id,
-        //cognito_sub
-        password,
-        symptoms = [],
-        languages = [],
-        preferences = {},
-        user = {},
-      } = req.body;
-      const { cognito_sub, email, first_name, last_name } = user;
-      const {
-        preferredProviderGender = null,
-        smsOptIn = false,
-        languagePreference = null,
-        insuranceRequired = false,
-        optInContact = false,
-      } = preferences;
-
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      //Insert patient into the database
-      const query = `
-        INSERT INTO patients (
-          email, first_name, last_name, dob, gender, address, phone_number,
-          insurance, current_medication, health_provider_id, is_active,
-          cognito_sub, password, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        RETURNING id;
-      `;
-
-      const values = [
-        email,
-        first_name,
-        last_name,
-        dob,
-        gender,
-        address,
-        phone_number,
-        insurance,
-        current_medication,
-        health_provider_id,
-        true,
-        cognito_sub,
-        hashedPassword,
-        now, // created_at
-        now, // updated_at
-      ];
-
-      const result = await db.query(query, values);
-      const patientId = result.rows[0].patient_id; // Get the newly created patient ID
-
-      // Insert symptoms if provided
-      for (const symptom of symptoms) {
-        const insertSymptomQuery = `
-          INSERT INTO symptoms (patient_id, symptom_text, recorded_at)
-          VALUES ($1, $2, $3)
-        `;
-        const symptomValues = [patientId, symptom, now];
-        await db.query(insertSymptomQuery, symptomValues);
-      }
-
-      // Insert languages if provided
-      const patientLan = languages.join(" ");
-      const insertLanguageQuery = `
-        INSERT INTO patient_language (patient_id, language)
-        VALUES ($1, $2)
-      `;
-      const languageValues = [patientId, patientLan];
-      await db.query(insertLanguageQuery, languageValues);
-
-      // Insert patient preferences if provided
-      const insertPrefQuery = `
-        INSERT INTO patient_preferences (
-          id,
-          preferred_provider_gender,
-          sms_opt_in,
-          language_preference,
-          insurance_required,
-          opt_in_contact,
-          created_at,
-          updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
-      `;
-
-      const insertPrefValues = [
-        patientId,
-        preferredProviderGender,
-        smsOptIn,
-        languagePreference,
-        insuranceRequired,
-        optInContact,
-        now,
-      ];
-
-      await db.query(insertPrefQuery, insertPrefValues);
-
-      return res.redirect("/helloworld");
-    } else if (role === "provider") {
-      const {
-        insurance_networks = [],
-        location,
-        specialty = [],
-        gender,
-        experience_years,
-        education,
-        focus_groups = [],
-        about_me,
-        languages = [],
-        hobbies,
-        quote,
-        calendly_url,
-        headshot_url,
-        password,
-        user = {},
-      } = req.body;
-
-      const { cognito_sub, email, first_name, last_name } = user;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      const query = `
-      INSERT INTO providers (
-        cognito_sub, email, password, first_name, last_name,
-        insurance_networks, location, specialty, gender, experience_years,
-        education, focus_groups, about_me, languages, hobbies, quote,
-        calendly_url, headshot_url, created_at, updated_at
-      ) VALUES (
-        $1, $2, $3, $4, $5,
-        $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16,
-        $17, $18, $19, $20
-      )
-    `;
-
-      const values = [
-        cognito_sub,
-        email,
-        hashedPassword,
-        first_name,
-        last_name,
-        insurance_networks,
-        location,
-        specialty,
-        gender,
-        experience_years,
-        education,
-        focus_groups,
-        about_me,
-        languages,
-        hobbies,
-        quote,
-        calendly_url,
-        headshot_url,
-        now, // created_at
-        now, // updated_at
-      ];
-
-      await db.query(query, values);
-
-      return res.redirect("/helloworld");
-    }
-
-    return res.status(400).json({ error: "Invalid role provided" });
-  } catch (error) {
-    console.error("Error during signup:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-}
+const cognitoService = require('../services/cognitoService');
+const db = require("../db/pool")
 
 async function addToGroup(req, res) {
-  const { state } = req.body;
-  const username = req.user["username"];
-  const groupName = state === "signup:patients" ? "patients" : "providers";
-  await addUserToGroup(username, groupName);
-  res.status(200).json({ message: `User added to group ${groupName}` });
+  console.log('authController: addToGroup called');
+  const { role } = req.body;
+  // Ensure req.user and req.user.username are available
+  if (!req.user || !req.user.username) {
+    console.error("authController: Error: User information not found in request. req.user:", req.user);
+    return res.status(400).json({ error: "User information not available" });
+  }
+
+  const username = req.user.username;
+  const groupName = role === "patient" ? "patients" : "providers";
+  console.log(`authController: Attempting to add user ${username} to group ${groupName}`);
+
+  try {
+    console.log(`authController: Listing groups for user ${username}...`);
+    const userGroups = await cognitoService.listGroupsForUser(username);
+    console.log(`authController: User ${username} is currently in groups:`, userGroups);
+
+    if (userGroups.includes(groupName)) {
+      console.log(`authController: User ${username} is already in group ${groupName}. Skipping add operation.`);
+      return res.status(200).json({ message: `User ${username} is already in group ${groupName}` });
+    }
+
+    console.log(`authController: Adding user ${username} to group ${groupName}...`);
+    try {
+      await cognitoService.addUserToGroup(username, groupName);
+      console.log(`authController: Successfully added user ${username} to group ${groupName}`);
+      res.status(200).json({ message: `User added to group ${groupName}` });
+    } catch (addUserError) {
+      console.error("authController: Error adding user to group in Cognito:", addUserError);
+      return res.status(500).json({ error: "Failed to add user to group in Cognito", details: addUserError.message });
+    }
+  } catch (error) {
+    console.error("authController: General error in addToGroup:", error);
+    res.status(500).json({ error: "Internal server error during group assignment", details: error.message });
+  }
 }
 
-module.exports = { cognito_signup, signUpHelper, addToGroup };
+module.exports = { addToGroup };

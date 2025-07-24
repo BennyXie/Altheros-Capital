@@ -384,7 +384,7 @@ const AboutPage = () => {
                 </Button>
                 <Button
                   component={Link}
-                  to="/login"
+                  to="/auth"
                   size="xl"
                   variant="outline"
                   style={{ borderColor: "white", color: "white" }}

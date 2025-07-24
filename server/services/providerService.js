@@ -1,5 +1,4 @@
 const pool = require("../db/pool");
-const { db } = require("../db/pool");
 
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   const result = await pool.query(
@@ -77,7 +76,7 @@ async function listProviders() {
   }
 
   const count_query = `SELECT COUNT(*) FROM providers ${where_clause}`;
-  const count_result = await db.query(count_query, values); // produces [{ count: '10' }]
+  const count_result = await pool.query(count_query, values); // produces [{ count: '10' }]
   const total_records = parseInt(count_result.rows[0].count);
 
   const sql_query = `SELECT ${field_list} FROM providers ${where_clause} ${order_by_clause} LIMIT $${
@@ -85,7 +84,7 @@ async function listProviders() {
   } OFFSET $${values.length + 2}`;
   values.push(offset);
   values.push(limit);
-  const data = await db.query(sql_query, values);
+  const data = await pool.query(sql_query, values);
 
   const has_next_page = page_num * limit < total_records;
   const has_prev_page = page_num > 1;
@@ -108,7 +107,7 @@ async function listProviders() {
 }
 
 async function getProvider(providerId) {
-  const result = await db.query(
+  const result = await pool.query(
     `SELECT provider_id, first_name, last_name, email, phone_number, address, gender, bio 
      FROM providers 
      WHERE provider_id = $1 AND is_active = true`,

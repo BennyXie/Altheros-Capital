@@ -1,4 +1,4 @@
-const symptoms = require('../controllers/symptomsRepository');
+const symptoms = require('../controllers/symptomsController');
 
 async function listSymptoms() {
   return await symptoms.getSymptoms();

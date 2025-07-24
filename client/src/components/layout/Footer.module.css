@@ -4,6 +4,14 @@
   margin-top: auto;
 }
 
+.footerContainer {
+    /* Add styles for the footer container if needed */
+}
+
+.footerGrid {
+    /* Add styles for the footer grid if needed */
+}
+
 .contactTitle {
   color: var(--color-text-white);
   font-size: clamp(1.5rem, 3vw, 2rem);

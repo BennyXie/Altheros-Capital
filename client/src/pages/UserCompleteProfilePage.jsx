@@ -452,12 +452,18 @@ const CompleteProfilePage = () => {
                 {/* Form Actions */}
                 <Group justify="space-between" mt="xl">
                   <Button 
-                    component={Link}
-                    to="/dashboard"
                     variant="outline"
                     color="gray"
+                    onClick={() => {
+                      notifications.show({
+                        title: 'Profile Incomplete',
+                        message: 'You can complete your profile later from your dashboard.',
+                        color: 'blue',
+                      });
+                      navigate('/user-dashboard');
+                    }}
                   >
-                    Save as Draft
+                    Skip for now
                   </Button>
                   
                   <Button 

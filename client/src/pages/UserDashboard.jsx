@@ -1,7 +1,12 @@
-import { Container, Title, Text, Grid, Card, Stack, Button, Group, Avatar, Badge, Progress } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Container, Title, Text, Grid, Card, Stack, Button, Group, Avatar, Badge, Progress, Loader } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboardList } from '@tabler/icons-react';
+import UserCompleteProfilePage from './UserCompleteProfilePage';
+import apiClient from '../utils/apiClient';
+import { notifications } from '@mantine/notifications';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * User Dashboard Page Component
@@ -9,6 +14,49 @@ import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboar
  * Main dashboard page for logged-in users
  */
 const DashboardPage = () => {
+  const { user } = useAuth();
+  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: true, hasDatabaseEntry: true }); // Assume complete until checked
+  const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      if (!user) {
+        setIsLoadingProfileStatus(false);
+        return;
+      }
+
+      try {
+        const response = await apiClient.get('/api/profile/status');
+        setProfileStatus(response);
+      } catch (error) {
+        console.error("Error checking patient profile status:", error);
+        notifications.show({
+          title: 'Profile Status Error',
+          message: 'Failed to load patient profile status.',
+          color: 'red',
+        });
+        setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume incomplete on error
+      } finally {
+        setIsLoadingProfileStatus(false);
+      }
+    };
+
+    checkProfile();
+  }, [user]);
+
+  if (isLoadingProfileStatus) {
+    return (
+      <Container size="xl" py={40} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <Loader size="xl" />
+      </Container>
+    );
+  }
+
+  // Only redirect to complete profile if profile is incomplete AND there is a database entry
+  if (!profileStatus.isProfileComplete && profileStatus.hasDatabaseEntry) {
+    return <UserCompleteProfilePage />;
+  }
+
   return (
     <Container size="xl" py={40}>
       <motion.div
@@ -244,7 +292,7 @@ const DashboardPage = () => {
                         disabled
                         size="sm"
                       >
-                        Manage Settings
+                        View Settings
                       </Button>
                       <Text size="xs" c="dimmed">Complete profile to unlock</Text>
                     </Stack>
@@ -290,3 +338,4 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+

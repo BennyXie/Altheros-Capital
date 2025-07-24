@@ -1,8 +1,10 @@
+export { default as ProviderDashboard } from './ProviderDashboard';
 export { default as AboutPage } from "./AboutPage";
 export { default as LoginPage } from "./LoginPage";
 export { default as SignupPage } from "./SignupPage";
-export { default as DashboardPage } from "./DashboardPage";
-export { default as CompleteProfilePage } from "./CompleteProfilePage";
+export { default as UserDashboard } from "./UserDashboard";
+export { default as UserCompleteProfilePage } from "./UserCompleteProfilePage";
 export { default as ProviderAccessPage } from "./ProviderAccessPage";
 export { default as AppointmentsPage } from "./AppointmentsPage";
 export { default as PreLoginPage } from './PreLoginPage';
+export { default as PreSignUpPage } from './PreSignUpPage';

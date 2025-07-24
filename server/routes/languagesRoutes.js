@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express();
+const router = express.Router();
 const languagesService = require('../services/languagesService');
 
 router.get('/languages', async (req, res) => {
@@ -10,3 +10,5 @@ router.get('/languages', async (req, res) => {
         console.log(err);                            
     }
 });
+
+module.exports = router;
