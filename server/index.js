@@ -17,6 +17,10 @@ const db = require("./db/pool"); // Added from coworker's branch
 const { initializeSocket } = require("./services/socketService"); // Added for socket.io
 const AWS = require('aws-sdk');
 const resumeRoute = require("./routes/resumeRoute");
+const profileRoutes = require("./routes/profileRoutes");
+
+console.log("Before app.use(profileRoutes) - Type of profileRoutes:", typeof profileRoutes);
+console.log("Before app.use(profileRoutes) - profileRoutes:", profileRoutes);
 
 // using express
 const app = express();
@@ -24,7 +28,7 @@ const app = express();
 const server = http.createServer(app); // Added for socket.io
 
 // define port, stored in server/.env
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // Initializing the app
 
@@ -33,7 +37,7 @@ app.use(express.json());
 
 // Auth routes
 app.use("/api/auth", authRoutes);
-app.use("/api/appointments", appointmentRoutes);
+// app.use("/api/appointments", appointmentRoutes);
 app.use("/api/providers", providersRoutes);
 
 // AI routes
@@ -45,7 +49,7 @@ app.use("/chat", chatRoutes);
 // Headshot routes
 app.use("/api/headshot", headshotRoutes);
 // Profile routes
-app.use("/api/profile", require("./routes/profileRoutes"));
+app.use("/api/profile", profileRoutes);
 // Schedule routes
 app.use("/api/schedule", require("./routes/scheduleRoutes"));
 // Languages routes
