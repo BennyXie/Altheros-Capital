@@ -17,11 +17,11 @@ const upload = multer({
   },
 });
 
-router.post("/headshot", verifyToken, upload.single("headshot"), (req, res, next) => {
-  console.log("Incoming Content-Type:", req.headers['content-type']);
-  console.log("headshotRoutes - req.file:", req.file);
-  console.log("headshotRoutes - req.body:", req.body);
-  next();
-}, uploadHeadshot);
+router.post(
+  "/headshot",
+  verifyToken,
+  upload.single("headshot"),
+  uploadHeadshot
+);
 
 module.exports = router;

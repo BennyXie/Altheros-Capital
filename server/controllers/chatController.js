@@ -1,5 +1,6 @@
 const chatService = require("../services/chatService");
 const dbUtils = require("../utils/dbUtils.js");
+require("dotenv").config({ path: "./.env" });
 
 /**
  * Called when frontend emits join_chat event
@@ -67,32 +68,18 @@ async function handleJoin(socket, data, timestamp) {
  * timestamp: "2025-07-03T23:59:59Z" // timestamp as ISO string
  * });
  */
-async function handleMessage(socket, data, io) {
-  const { text, timestamp } = data;
-  const senderId = socket.user.sub;
-  const senderType = socket.user.role;
+function handleMessage(socket, data, io) {
+  const { chatId, textType, text, timestamp } = data;
+  const sender = socket.user.name;
 
-  if (!text || !senderId || !senderType) return;
-
-  // Get the chatId from the rooms the socket is in
-  // Assuming the socket joins only one chat room at a time
-  const chatId = Array.from(socket.rooms).find(room => room !== socket.id);
-
-  if (!chatId) {
-    console.error("chatController: handleMessage - No chat room found for socket.");
-    return;
-  }
-
-  chatService.saveMessageToDb({
-    chat_id: chatId,
-    sender_id: senderId,
-    sender_type: senderType,
-    text: text,
-    text_type: 'text', // Assuming text type for now
-    sent_at: timestamp,
-  });
-
-  const message = await chatService.formatMessage(senderId, senderType, text, timestamp);
+  const message =
+    textType != "string"
+      ? chatService.formatMessage(
+          sender,
+          dbUtils.getFromS3(text, process.env.S3_CHAT_BUCKET_NAME),
+          timestamp
+        )
+      : chatService.formatMessage(sender, text, timestamp);
 
   // Send message to recipient
   io.to(chatId).emit("receive_message", message);
@@ -173,26 +160,8 @@ async function getChatMessages(req, res) {
 
 async function getChatMessagesByChatId(req, res) {
   const { chatId } = req.params;
-  console.log("getChatMessagesByChatId: req.user:", req.user);
-  const userDbId = await dbUtils.getUserDbId(req.user);
-  
-  if (!userDbId) {
-    return res.status(400).json({ error: "User ID not found or invalid." });
-  }
-
-  try {
-    // Verify user is a participant in this chat - pass req.user directly
-    const isMember = await chatService.verifyChatMembership(req.user, chatId);
-    if (!isMember) {
-      return res.status(403).json({ error: "You are not a member of this chat." });
-    }
-
-    const messages = await chatService.getMessagesByChatId(chatId);
-    res.json(messages);
-  } catch (error) {
-    console.error("Error in getChatMessagesByChatId:", error);
-    res.status(500).json({ error: "Failed to retrieve chat messages." });
-  }
+  const messages = await chatService.getMessagesByChatId(chatId);
+  res.json(messages);
 }
 
 async function deleteChat(req, res) {
@@ -203,34 +172,35 @@ async function deleteChat(req, res) {
 }
 
 async function getChatIds(req, res) {
-  const userDbId = await dbUtils.getUserDbId(req.user);
-  try {
-    const chatIds = await chatService.getChatIds(userDbId);
-    res.json(chatIds);
-  } catch (error) {
-    console.error("Error in getChatIds (chatController):", error);
-    res.status(500).json({ error: "Failed to retrieve chat rooms." });
-  }
+  const userDbId = dbUtils.getUserDbId(req.user);
+  const chatIds = await chatService.getChatIds(userDbId);
+  res.json(chatIds);
 }
 
-async function getChatDetails(req, res) {
-  try {
-    const { chatId } = req.params;
-    console.log("getChatDetails: req.user:", req.user);
-    console.log("getChatDetails: cognito:groups:", req.user['cognito:groups']);
-    
-    // Verify chat membership
-    const isMember = await chatService.verifyChatMembership(req.user, chatId);
-    if (!isMember) {
-      return res.status(403).json({ error: "Access denied. You are not a member of this chat." });
-    }
-    
-    const chatDetails = await chatService.getChatDetails(chatId, req.user);
-    res.json(chatDetails);
-  } catch (error) {
-    console.error("Error in getChatDetails (chatController):", error);
-    res.status(500).json({ error: "Failed to retrieve chat details." });
+async function createMessage(req, res) {
+  const { message } = req.body;
+  const file = req.file;
+  if (!file && !message) {
+    return res.status(400).json({ error: "No file nor message provided" });
+  } else if (file) {
+    await chatService.uploadFileToS3(req, res);
+    req.textType = file.mimetype;
+    req.text = `${req.user.sub}/${req.params.chatId}/${file.originalname}.${
+      file.mimetype.split("/")[1]
+    }`;
+  } else {
+    req.textType = "string";
+    req.text = message;
   }
+
+  const messageObj = await chatService.saveMessageToDb(req, {
+    chatId: req.params.chatId,
+    textType: req.textType,
+    text: req.text,
+    sentAt: req.body.sentAt,
+  });
+
+  res.status(204).json(messageObj);
 }
 
 module.exports = {
@@ -242,5 +212,5 @@ module.exports = {
   getChatMessages,
   getChatMessagesByChatId,
   getChatIds,
-  getChatDetails,
+  createMessage,
 };
