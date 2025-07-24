@@ -7,17 +7,16 @@ const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
 const authRoutes = require("./routes/authRoutes");
+const appointmentRoutes = require("./routes/appointments");
+const providersRoutes = require("./routes/providerRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const calendlyRoutes = require("./routes/calendlyRoute");
 const chatRoutes = require("./routes/chatRoutes");
 const headshotRoutes = require("./routes/headshotRoutes");
-const appointmentRoutes = require("./routes/appointments");
-const providersRoutes = require("./routes/providerRoutes");
 const db = require("./db/pool"); // Added from coworker's branch
 const { initializeSocket } = require("./services/socketService"); // Added for socket.io
-
-// AWS SDK for Cognito (install if not already present: npm install aws-sdk)
 const AWS = require('aws-sdk');
+const resumeRoute = require("./routes/resumeRoute");
 
 // using express
 const app = express();
@@ -34,14 +33,15 @@ app.use(express.json());
 
 // Auth routes
 app.use("/api/auth", authRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/providers", providersRoutes);
+
 // AI routes
 app.use("/ai", aiRoutes);
 // Calendly routes
 app.use("/calendly", calendlyRoutes);
 // Chat routes
 app.use("/chat", chatRoutes);
-// Provider routes
-app.use("/api/providers", require("./routes/providerRoutes"));
 // Headshot routes
 app.use("/api/headshot", headshotRoutes);
 // Profile routes
@@ -54,6 +54,7 @@ app.use("/api/languages", require("./routes/languagesRoutes"));
 app.use("/api/symptoms", require("./routes/symptomsRoute"));
 // Me route
 app.use("/api/me", require("./routes/me.js"));
+app.use("/api/resume", resumeRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
