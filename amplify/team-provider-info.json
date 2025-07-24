@@ -14,10 +14,10 @@
     "categories": {
       "auth": {
         "altheroscapital2a8a72ad": {
+          "nativeClientId": "3vrchvamjnh4edi6cqprmj10hi",
           "userPoolId": "us-east-2_gBXAVMXUK",
           "userPoolName": "Midwest Health User Pool",
-          "webClientId": "3vrchvamjnh4edi6cqprmj10hi",
-          "nativeClientId": "3vrchvamjnh4edi6cqprmj10hi"
+          "webClientId": "3vrchvamjnh4edi6cqprmj10hi"
         }
       }
     }
