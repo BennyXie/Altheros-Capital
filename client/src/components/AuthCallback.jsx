@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Container, Loader, Stack, Text, Alert } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
@@ -10,78 +10,106 @@ const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const { user, isAuthenticated, loading, checkUserSession } = useAuth();
   const [error, setError] = useState(null);
-  const [hasAttemptedRoleAssignment, setHasAttemptedRoleAssignment] = useState(false);
+  const [status, setStatus] = useState('Initializing authentication...');
+
+  const pollForRole = useCallback(async () => {
+    setStatus('Finalizing account setup...');
+    try {
+      const updatedUser = await checkUserSession({ forceRefresh: true });
+      const userGroups = updatedUser?.['cognito:groups'] || [];
+
+      if (userGroups.length > 0) {
+        const role = userGroups[0];
+        const redirectPath = AuthService.getRoleBasedRedirectPath(role);
+        console.log(`AuthCallback: Role '${role}' confirmed. Redirecting to ${redirectPath}`);
+        navigate(redirectPath, { replace: true });
+        return true; // Role found, polling stops
+      }
+      return false; // Role not yet found
+    } catch (e) {
+      console.error('Polling error:', e);
+      setError('An error occurred while verifying your account details. Please try logging in.');
+      return true; // Stop polling on error
+    }
+  }, [checkUserSession, navigate]);
 
   useEffect(() => {
-    const processAuth = async () => {
-      if (loading || hasAttemptedRoleAssignment) {
-        return; // Wait for loading to finish, and only run once
+    const handleAuthentication = async () => {
+      if (loading) {
+        return; // Wait for the initial auth check to complete
       }
 
-      if (!isAuthenticated || !user) {
-        // If not authenticated, something is wrong. Let AuthContext handle it or redirect.
-        console.log('AuthCallback: Waiting for user authentication...');
+      // Step 1: Handle the case where the user is NOT authenticated yet.
+      // This is common right after a new user signs up via Cognito's hosted UI.
+      if (!isAuthenticated) {
+        const pendingRole = AuthService.getPendingUserRole();
+        if (pendingRole) {
+          setStatus('New account detected. Establishing session...');
+          // This will redirect the user to Cognito and back here, but this time they will be authenticated.
+          await AuthService.loginWithRole(pendingRole);
+        } else {
+          // If there's no pending role, they might have landed here by mistake.
+          navigate('/login', { replace: true });
+        }
         return;
       }
 
-      // User is authenticated, now check for role.
-      const userGroups = user['cognito:groups'] || [];
-
+      // Step 2: User is authenticated. Check if they already have a role.
+      const userGroups = user?.['cognito:groups'] || [];
       if (userGroups.length > 0) {
-        // User already has a role, redirect to the correct dashboard.
         const role = userGroups[0];
         const redirectPath = AuthService.getRoleBasedRedirectPath(role);
-        console.log(`AuthCallback: User has role '${role}'. Redirecting to ${redirectPath}`);
         navigate(redirectPath, { replace: true });
         return;
       }
 
-      // User is authenticated but has no role. This is a new signup.
-      console.log('AuthCallback: New user detected. Assigning role...');
-      setHasAttemptedRoleAssignment(true); // Prevent re-running this logic
-
+      // Step 3: User is authenticated but has no role. Assign it and start polling.
+      setStatus('Assigning account role...');
       try {
         const state = searchParams.get('state');
         let role = AuthService.extractRoleFromState(state) || AuthService.getPendingUserRole();
+        if (!role) role = 'patient'; // Default fallback
 
-        if (!role) {
-          console.warn('AuthCallback: No role found in state or storage. Defaulting to patient.');
-          role = 'patient';
-        }
-
-        // 1. Add user to the group
         await AuthService.setUserRole(role);
         AuthService.clearPendingUserRole();
 
-        // 2. Force a re-authentication to get the new token with the group claim
-        console.log('AuthCallback: Role assigned. Re-authenticating to refresh token...');
-        await AuthService.reauthenticateUser();
+        // Start polling for the updated role in the token
+        const intervalId = setInterval(async () => {
+          const roleFound = await pollForRole();
+          if (roleFound) {
+            clearInterval(intervalId);
+          }
+        }, 3000); // Poll every 3 seconds
+
+        // Failsafe timeout
+        setTimeout(() => {
+          clearInterval(intervalId);
+          if (!error) { // Only set error if one hasn't been set by polling
+             setError('Account setup is taking longer than expected. Please try logging in again.');
+          }
+        }, 45000); // 45-second timeout
 
       } catch (err) {
-        console.error('AuthCallback: Error during role assignment process:', err);
-        setError('An error occurred while setting up your account. Please try logging in again.');
-        // Optionally, sign the user out here before redirecting
-        // await AuthService.signOut(); 
-        // navigate('/login');
+        setError(err.message);
       }
     };
 
-    processAuth();
+    handleAuthentication();
 
-  }, [user, isAuthenticated, loading, navigate, searchParams, hasAttemptedRoleAssignment]);
+  }, [user, isAuthenticated, loading, navigate, searchParams, pollForRole, error]);
 
   return (
     <Container size="sm" py={100}>
       {error ? (
-        <Alert icon={<IconX size={16} />} title="Setup Error" color="red">
+        <Alert icon={<IconX size={16} />} title="Authentication Error" color="red">
           <Text>{error}</Text>
         </Alert>
       ) : (
         <Stack align="center" gap="lg">
           <Loader size="lg" />
-          <Text size="lg" fw={500}>Finalizing your setup...</Text>
+          <Text size="lg" fw={500}>{status}</Text>
           <Text size="sm" c="dimmed" ta="center">
-            Please wait, we're preparing your dashboard.
+            Please wait, this will happen automatically.
           </Text>
         </Stack>
       )}
