@@ -24,15 +24,7 @@ async function listProviders(req, res) {
       limit: limit
     } = req.query;
 
-    const result = await providerService.listProviders({
-      language,
-      specialty,
-      gender,
-      sortBy,
-      sortOrder,
-      page,
-      limit
-    });
+    const result = await providerService.listProviders(req.query);
 
     res.json({
       providers: result.providers,
@@ -74,8 +66,35 @@ async function getProvider(req, res) {
 
 }
 
+async function getProviderHeadshot(req, res) {
+  const providerId = req.params.id;
+  
+  try {
+    const presignedUrl = await providerService.getProviderHeadshotUrl(providerId);
+    
+    res.json({ 
+      presignedUrl,
+      expiresIn: 600, // 10 minutes in seconds
+      message: "Pre-signed URL generated successfully"
+    });
+
+  } catch (err) {
+    console.error('Headshot URL generation failed:', err);
+    
+    if (err.message === "Provider not found") {
+      return res.status(404).json({ error: "Provider not found" });
+    }
+    
+    if (err.message === "Provider does not have a headshot uploaded") {
+      return res.status(404).json({ error: "Provider does not have a headshot uploaded" });
+    }
+    
+    res.status(500).json({ error: 'Failed to generate headshot URL', details: err.message });
+  }
+}
 
 module.exports = {
   listProviders,
-  getProvider
+  getProvider,
+  getProviderHeadshot,
 };
