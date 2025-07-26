@@ -7,7 +7,6 @@
 
 import { 
   signInWithRedirect, 
-  signOut,
   fetchAuthSession
 } from 'aws-amplify/auth';
 
