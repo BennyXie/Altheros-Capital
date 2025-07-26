@@ -96,7 +96,7 @@ const AuthCallback = () => {
 
     handleAuthentication();
 
-  }, [user, isAuthenticated, loading, navigate, searchParams, pollForRole, error]);
+  }, [user, isAuthenticated, loading, navigate, searchParams, pollForRole, error, checkUserSession]);
 
   return (
     <Container size="sm" py={100}>

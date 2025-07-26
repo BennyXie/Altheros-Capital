@@ -42,21 +42,16 @@ class AuthService {
       // Store role in local storage for callback handling
       localStorage.setItem('pendingUserRole', role);
       
-      const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
-      const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
-      const redirectUri = process.env.REACT_APP_COGNITO_REDIRECT_URI;
-      const encodedRedirectUri = encodeURIComponent(redirectUri);
-      const encodedState = encodeURIComponent(JSON.stringify({ role }));
-
-      const cognitoSignupUrl = 
-          `https://${cognitoDomain}/signup?` +
-          `client_id=${clientId}&` +
-          `redirect_uri=${encodedRedirectUri}&` +
-          `response_type=code&` +
-          `scope=email+openid+phone+profile&` +
-          `state=${encodedState}`;
-
-      window.location.assign(cognitoSignupUrl);
+      await signInWithRedirect({
+        provider: 'Cognito',
+        customState: JSON.stringify({ role }),
+        options: {
+          redirectSignIn: process.env.REACT_APP_COGNITO_REDIRECT_URI,
+          redirectSignOut: process.env.REACT_APP_COGNITO_LOGOUT_URI,
+          responseType: 'code',
+          scopes: ['email', 'openid', 'phone', 'profile'],
+        }
+      });
 
     } catch (error) {
       console.error('Signup with role error:', error);
@@ -134,24 +129,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Reauthenticates the user to get an updated ID token.
-   * This is necessary after group assignments as ID tokens are immutable.
-   */
-  static async reauthenticateUser() {
-    try {
-      console.log('AuthService: Reauthenticating user to refresh ID token...');
-      await signOut({ global: true });
-      console.log('AuthService: Signed out current session.');
-      
-      // A new sign-in flow is required to get a token with the new group.
-      await signInWithRedirect({ provider: 'Cognito' });
-      console.log('AuthService: Initiated new sign-in redirect.');
-    } catch (error) {
-      console.error('AuthService: Error during reauthentication:', error);
-      window.location.href = '/';
-    }
-  }
+  
 
   /**
    * Extract role from Cognito callback state
