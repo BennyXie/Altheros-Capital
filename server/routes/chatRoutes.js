@@ -10,7 +10,11 @@ const upload = multer({
   limits: { fileSize: 1e8 }, // 100MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["application/pdf", "application/msword"];
-    if (allowedTypes.includes(file.mimetype) || file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
+    if (
+      allowedTypes.includes(file.mimetype) ||
+      file.mimetype.startsWith("image/") ||
+      file.mimetype.startsWith("video/")
+    ) {
       cb(null, true);
     } else {
       cb(new Error("Only image, PDF, Word, and video files are allowed"));
@@ -26,13 +30,13 @@ router.post(
   asyncHandler(chatController.createMessage)
 );
 
-// router.delete(
-//   "/:chatId/message",
-//   verifyToken,
-//   chatService.verifyChatMembership,
-//   upload.single("file"),
-//   asyncHandler(chatController.deleteMessage)
-// );
+router.delete(
+  "/:chatId/message/:messageId",
+  verifyToken,
+  chatService.verifyChatMembership,
+  chatService.verifyMessageOwnership,
+  asyncHandler(chatController.deleteMessage)
+);
 
 router.get(
   "/messages/:providerId",

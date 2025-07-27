@@ -28,4 +28,4 @@ function compareUUIDs(order = "ASC") {
   };
 }
 
-module.exports = { compareUUIDs };
+module.exports = { compareUUIDs, uuidToBytes };

@@ -8,26 +8,6 @@ verifyJwt(token)
   .then((decoded) => {
     console.log("Token verified successfully!");
     console.log("Decoded payload:", decoded);
-    fetch("http://localhost:8080/chat", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        participants: ["2b4465d8-10b9-46db-b0b3-53cdefadec04"],
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json(); // parse JSON body
-      })
-      .then((data) => {
-        console.log("Data from backend:", data);
-        // You can now use data.message, data.items, etc.
-      });
   })
   .catch((err) => {
     console.error("Token verification failed:", err.message);

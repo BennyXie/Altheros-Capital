@@ -62,29 +62,19 @@ async function getMessagesByChatId(chat_id) {
 }
 
 async function createOrGetChat(participantIds, order = "ASC") {
-  const sortedParticipants = participantIds.sort(
-    parseUtils.compareUUIDs(order)
-  );
-  const numParticipants = sortedParticipants.length;
 
-  console.log(
-    "createOrGetChat: Looking for chat with participants:",
-    sortedParticipants
-  );
+  const numParticipants = participantIds.length;
+
+  order = order === "ASC" || order === "DESC" ? order : "ASC";
 
   const matchingChat = await db.query(
     `
     SELECT chat_id, array_agg(participant_id ORDER BY participant_id ASC) AS participant_ids
     FROM chat_participant
     GROUP BY chat_id
-    HAVING COUNT(*) = $1 AND array_agg(participant_id ORDER BY participant_id ASC) = $2::uuid[];
+    HAVING COUNT(*) = $1 AND array_agg(participant_id) @> $2::uuid[] AND array_agg(participant_id) <@ $2::uuid[];
   `,
-    [numParticipants, sortedParticipants]
-  );
-
-  console.log(
-    "createOrGetChat: matchingChat.rows.length:",
-    matchingChat.rows.length
+    [numParticipants, participantIds]
   );
 
   if (matchingChat.rows.length > 0) {
@@ -97,36 +87,15 @@ async function createOrGetChat(participantIds, order = "ASC") {
 
     const chatId = chatInsert.rows[0].id;
 
-    const participantInsertValues = [];
-    const valuePlaceholders = [];
-    let paramIndex = 1; // Start from $1 for all parameters
-
-    for (const participantId of sortedParticipants) {
-      valuePlaceholders.push(
-        `($${paramIndex}::uuid, $${paramIndex + 1}::uuid)`
-      );
-      participantInsertValues.push(chatId); // chat_id for this row
-      participantInsertValues.push(participantId); // participant_id for this row
-      paramIndex += 2;
-    }
-
-    console.log("createOrGetChat: sortedParticipants:", sortedParticipants);
-    console.log(
-      "createOrGetChat: participantInsertValues before query:",
-      participantInsertValues
-    );
-    console.log(
-      "createOrGetChat: valuePlaceholders before query:",
-      valuePlaceholders.join(", ")
-    );
+  const values = participantIds.map((_, i) => `($1, $${i + 2})`).join(", ");
 
     await db.query(
       `
     INSERT INTO chat_participant (chat_id, participant_id)
     VALUES ${valuePlaceholders.join(", ")}
   `,
-      participantInsertValues // Pass all values in a single array
-    );
+    [chatId, ...participantIds]
+  );
 
     console.log("createOrGetChat: Returning chatId:", chatId);
     return chatId;
@@ -328,6 +297,22 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
   return result.rows[0];
 }
 
+async function deleteMessageById({ deletedAt, messageId }) {
+  await db.query(
+    "UPDATE messages SET is_deleted = true AND deletedAt = $1 WHERE id = $2",
+    [deletedAt, messageId]
+  );
+}
+
+async function verifyMessageOwnership(req, res, next) {
+  const userId = await dbUtils.getUserDbId(res.user);
+  const query = `SELECT EXISTS (SELECT 1 FROM messages WHERE id = $1 AND sender_id = $2)`;
+  const result = await db.query(query, [req.params.messageId, userId]);
+  result.rows[0].exists
+    ? next()
+    : res.status(404).json({ error: "Message not found or user not sender" });
+}
+
 module.exports = {
   uploadFileToS3,
   formatMessage,
@@ -337,8 +322,6 @@ module.exports = {
   createOrGetChat,
   removeChatMemberShip,
   getChatIds,
-  getChatIdByParticipants,
-  getSenderDetails, // Export the new function
-  getChatParticipants, // Export the getChatParticipants function
-  getChatDetails, // Export the new getChatDetails function
+  deleteMessageById,
+  verifyMessageOwnership,
 };

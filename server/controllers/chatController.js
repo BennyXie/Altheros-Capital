@@ -130,7 +130,8 @@ async function handleDisconnect(socket, io) {
 
 async function createOrGetChat(req, res) {
   const { participants } = req.body;
-  const chat = await chatService.createOrGetChat(participants);
+  // participants.push(dbUtils.getUserDbId(req.user));
+  const chat = await chatService.createOrGetChat([...new Set(participants)]);
   res.json(chat);
 }
 
@@ -200,7 +201,17 @@ async function createMessage(req, res) {
     sentAt: req.body.sentAt,
   });
 
-  res.status(204).json(messageObj);
+  res.status(200).json(messageObj);
+}
+
+async function deleteMessage(req, res) {
+  const { messageId } = req.params;
+  const { deletedAt } = req.body;
+  await chatService.deleteMessageById({
+    deletedAt: deletedAt,
+    messageId: messageId,
+  });
+  res.status(204).send();
 }
 
 module.exports = {
@@ -213,4 +224,5 @@ module.exports = {
   getChatMessagesByChatId,
   getChatIds,
   createMessage,
+  deleteMessage,
 };
