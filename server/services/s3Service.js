@@ -4,7 +4,7 @@ const {
   GetObjectAclCommand,
 } = require("@aws-sdk/client-s3");
 
-const { getSignedUrl } = require("@aws-s3/");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 require("dotenv").config();
 
 const s3 = new S3Client({

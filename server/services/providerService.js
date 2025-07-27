@@ -1,5 +1,4 @@
-const pool = require("../db/pool");
-const { db } = require("../db");
+const { db } = require("../db/pool");
 require("dotenv").config({ path: "./.env" });
 
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
