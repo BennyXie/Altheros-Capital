@@ -1,4 +1,15 @@
 const pool = require("../db/pool");
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+require("dotenv").config();
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   const result = await pool.query(
@@ -18,7 +29,7 @@ const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   );
 };
 
-async function listProviders() {
+async function listProviders(queryParams) {
   // GET /providers?page=1&limit=10&gender=male&sort_by=last_name&order=desc
   const fields = [
     "provider_id",
@@ -31,17 +42,17 @@ async function listProviders() {
     "bio",
   ];
   const sortable_fields = ["first_name", "last_name", "provider_id"];
-  const { language, specialty, gender } = req.query;
+  const { language, specialty, gender } = queryParams;
   const field_list = fields.join(", ");
-  const sort_by = req.query.sort_by;
-  const order = (req.query.order || "asc").toUpperCase();
+  const sort_by = queryParams.sort_by;
+  const order = (queryParams.order || "asc").toUpperCase();
 
   // pagination, defaults to first page with 10 showing on each page
   // offset is determined by the page and limit
   // i.e. if on page 1 -> skips 0
   // i.e. if on page 3 -> skips 20 items
-  const page_num = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page_num = parseInt(queryParams.page) || 1;
+  const limit = parseInt(queryParams.limit) || 10;
   const offset = (page_num - 1) * limit;
 
   const filters = ["is_active = true"];
@@ -116,8 +127,43 @@ async function getProvider(providerId) {
   return result.rows[0];
 }
 
+async function getProviderHeadshotUrl(providerId) {
+  // First, get the provider's headshot URL from the database
+  const result = await pool.query(
+    `SELECT headshot_url FROM providers WHERE provider_id = $1 AND is_active = true`,
+    [providerId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Provider not found");
+  }
+
+  const headshotUrl = result.rows[0].headshot_url;
+  
+  if (!headshotUrl) {
+    throw new Error("Provider does not have a headshot uploaded");
+  }
+
+  // Extract the S3 key from the URL
+  // URL format: https://bucket-name.s3.region.amazonaws.com/headshots/providerId.extension
+  const urlParts = headshotUrl.split('/');
+  const key = urlParts.slice(3).join('/'); // Skip https://, bucket-name.s3.region.amazonaws.com/
+
+  // Create a GetObject command
+  const command = new GetObjectCommand({
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: key,
+  });
+
+  // Generate pre-signed URL that expires in 10 minutes (600 seconds)
+  const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 });
+
+  return presignedUrl;
+}
+
 module.exports = {
   updateProviderHeadshot,
   listProviders,
   getProvider,
+  getProviderHeadshotUrl,
 };
