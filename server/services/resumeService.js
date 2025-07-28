@@ -1,6 +1,7 @@
     require("dotenv").config({ path: "./.env" });
     const OpenAI = require("openai");
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const db = require("../db/pool");
 
     async function cvHandler(fileUrl) {
     const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
@@ -85,4 +86,20 @@
     return buffer.toString("utf-8");
     }
 
-    module.exports = {cvHandler};
+    async function addToApplicants(email, publicId){
+        const query = `
+            INSERT INTO applicants (email, resume_public_id)
+            VALUES ($1, $2)
+        `;
+        await db.query(query, [email, publicId]);
+    }
+
+    async function deleteApplicant(email){
+        const query = `
+            DELETE FROM applicants
+            WHERE email = $1
+        `;
+        await db.query(query, [email]);
+    }
+
+    module.exports = {cvHandler, addToApplicants, deleteApplicant};
