@@ -10,10 +10,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   
 
-  const checkUser = async () => {
+  const checkUser = async (options = {}) => {
     try {
-      console.log('AuthContext: Checking user session...');
-      const { tokens } = await fetchAuthSession();
+      console.log(`AuthContext: Checking user session... (Force refresh: ${!!options.forceRefresh})`);
+      const { tokens } = await fetchAuthSession({ forceRefresh: options.forceRefresh || false });
       console.log('AuthContext: Fetched tokens:', tokens);
       if (tokens && tokens.idToken) {
         const idTokenPayload = tokens.idToken.payload;
