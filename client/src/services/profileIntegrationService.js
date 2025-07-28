@@ -82,6 +82,15 @@ class ProfileIntegrationService {
     }
   }
 
+  async updateUserProfile(profileData) {
+    try {
+      return await apiService.updateUserProfile(profileData);
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
+  }
+
   /**
    * Get current user profile from backend
    * Note: With OAuth, user data should be passed as parameters or retrieved from AuthContext

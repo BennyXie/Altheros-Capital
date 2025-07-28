@@ -16,13 +16,21 @@ class ApiService {
    */
   async getAuthHeaders() {
     try {
-      const { tokens } = await fetchAuthSession();
+      let { tokens } = await fetchAuthSession();
+      let idToken = tokens?.idToken?.toString();
+
+      // If idToken is missing, force a refresh of the session
+      if (!idToken) {
+        console.log('ApiService: idToken missing, forcing session refresh.');
+        ({ tokens } = await fetchAuthSession({ forceRefresh: true }));
+        idToken = tokens?.idToken?.toString();
+      }
+
       console.log('ApiService: Fetched tokens:', tokens);
-      const accessToken = tokens?.accessToken?.toString();
-      console.log('ApiService: Extracted accessToken:', accessToken);
+      console.log('ApiService: Extracted idToken:', idToken);
       return {
         'Content-Type': 'application/json',
-        ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })
+        ...(idToken && { 'Authorization': `Bearer ${idToken}` })
       };
     } catch (error) {
       console.error('Error fetching auth session:', error);
@@ -91,6 +99,13 @@ class ApiService {
     });
   }
 
+  async updateUserProfile(profileData) {
+    return this.makeRequest('/api/profile/patient', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
   async checkProfileStatus() {
     return this.makeRequest('/api/profile/status');
   }
@@ -111,17 +126,7 @@ class ApiService {
     return this.makeRequest('/api/auth/protected');
   }
 
-  /**
-   * Update user profile
-   * @param {Object} updates - Profile updates
-   * @returns {Promise} - Promise that resolves with updated profile
-   */
-  async updateUserProfile(updates) {
-    return this.makeRequest('/api/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
-  }
+  
 
   async getSchedule(providerId) {
     return this.makeRequest(`/api/schedule/${providerId}`);

@@ -60,6 +60,16 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/update-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="patient">
+              <UserCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
         path="/provider-complete-profile"
         element={
           <Layout>

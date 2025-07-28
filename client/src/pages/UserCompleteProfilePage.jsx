@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Container, 
   Title, 
@@ -15,24 +15,24 @@ import {
   MultiSelect,
   Divider,
   Progress,
-  Card
+  Card,
+  Loader
 } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import profileIntegrationService from '../services/profileIntegrationService';
+import apiClient from '../utils/apiClient';
 
-/**
- * Complete Profile Page Component
- * 
- * Form to collect comprehensive user information and integrate with backend
- */
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [formData, setFormData] = useState({
     dob: '',
     gender: '',
@@ -50,6 +50,29 @@ const CompleteProfilePage = () => {
     symptoms: [],
     languages: []
   });
+
+  useEffect(() => {
+    if (location.pathname === '/update-profile') {
+      setIsUpdateMode(true);
+      fetchProfileData();
+    }
+  }, [location.pathname]);
+
+  const fetchProfileData = async () => {
+    setIsFetching(true);
+    try {
+      const data = await apiClient.get('/api/profile/patient');
+      setFormData(data);
+    } catch (error) {
+      notifications.show({
+        title: 'Fetch Error',
+        message: 'Failed to fetch profile data.',
+        color: 'red'
+      });
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -94,6 +117,7 @@ const CompleteProfilePage = () => {
   ];
 
   const handleInputChange = (field, value) => {
+    console.log(`handleInputChange: field=${field}, value=${value}`);
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => ({
@@ -140,10 +164,7 @@ const CompleteProfilePage = () => {
   };
 
   const formatDateInput = (value) => {
-    // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
-    // Apply YYYY-MM-DD formatting
     if (digits.length <= 4) {
       return digits;
     } else if (digits.length <= 6) {
@@ -159,30 +180,75 @@ const CompleteProfilePage = () => {
   };
 
   const isValidDate = (dateString) => {
-    // Check format YYYY-MM-DD
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(dateString)) return false;
-    
     const [year, month, day] = dateString.split('-').map(num => parseInt(num));
-    
-    // Basic range checks
     if (year < 1900 || year > new Date().getFullYear()) return false;
     if (month < 1 || month > 12) return false;
     if (day < 1 || day > 31) return false;
-    
-    // More detailed date validation
     const date = new Date(year, month - 1, day);
-    return date.getFullYear() === year && 
-           date.getMonth() === month - 1 && 
-           date.getDate() === day;
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   };
 
   const isFormValid = () => {
+    // Add defensive checks to prevent calling .trim() on undefined values
+    const addressValid = typeof formData.address === 'string' && formData.address.trim() !== '';
+    const phoneNumberValid = typeof formData.phoneNumber === 'string' && formData.phoneNumber.trim() !== '';
+
     return isValidDate(formData.dob) &&
            formData.gender && 
-           formData.address.trim() && 
-           formData.phoneNumber.trim();
+           addressValid && 
+           phoneNumberValid;
   };
+
+  useEffect(() => {
+    if (location.pathname === '/update-profile') {
+      setIsUpdateMode(true);
+      const fetchProfileData = async () => {
+        setIsFetching(true);
+        try {
+          const data = await apiClient.get('/api/profile/patient');
+          console.log('Fetched profile data:', data); // Log fetched data
+
+          setFormData(prevData => {
+            const fetchedPreferences = data.preferences || {}; // Ensure it's an object
+            const newPreferences = {
+              ...prevData.preferences, // Start with the initial structure
+              preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
+              smsOptIn: fetchedPreferences.sms_opt_in || false,
+              languagePreference: fetchedPreferences.language_preference || '',
+              insuranceRequired: fetchedPreferences.insurance_required || false,
+              optInContact: fetchedPreferences.opt_in_contact || false,
+            };
+
+            return {
+              ...prevData, // Keep other fields from previous state
+              ...data, // Overlay fetched data for top-level fields
+              preferences: newPreferences, // Use the carefully constructed preferences object
+              symptoms: data.symptoms || [],
+              languages: data.languages || [],
+              dob: data.dob || '',
+              address: data.address || '',
+              phoneNumber: data.phone_number || '',
+              currentMedication: data.current_medication || '',
+              insurance: data.insurance || '',
+            };
+          });
+        } catch (error) {
+          notifications.show({
+            title: 'Fetch Error',
+            message: 'Failed to fetch profile data.',
+            color: 'red'
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      };
+      fetchProfileData();
+    }
+  }, [location.pathname]);
+
+  console.log('Current formData state:', formData); // Log formData state in render
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,40 +275,41 @@ const CompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      // Integrate with backend - complete user profile
-      await profileIntegrationService.completeUserProfile(
-        user, // Cognito user data
-        {
-          ...formData,
-          // Add any additional mapping needed for your backend
-          password: 'temp_password', // You might handle this differently
-        },
-        'patient' // Default role, could be made configurable
-      );
-      
-      notifications.show({
-        title: 'Profile Completed!',
-        message: 'Your profile has been successfully saved to our system',
-        color: 'green',
-        icon: <IconCheck size={16} />
-      });
+      if (isUpdateMode) {
+        await profileIntegrationService.updateUserProfile(formData);
+        notifications.show({
+          title: 'Profile Updated!',
+          message: 'Your profile has been successfully updated.',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+      } else {
+        await profileIntegrationService.completeUserProfile(user, formData, 'patient');
+        notifications.show({
+          title: 'Profile Completed!',
+          message: 'Your profile has been successfully saved.',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+      }
 
-      // Navigate back to dashboard after successful submission
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      setTimeout(() => navigate('/dashboard'), 1500);
 
     } catch (error) {
-      console.error('Profile completion error:', error);
+      console.error('Profile submission error:', error);
       notifications.show({
-        title: 'Profile Save Failed',
-        message: error.message || 'Failed to save your profile. Please try again.',
+        title: isUpdateMode ? 'Update Failed' : 'Save Failed',
+        message: error.message || 'An error occurred. Please try again.',
         color: 'red'
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return <Container size="md" py={40}><Loader /></Container>;
+  }
 
   return (
     <Container size="md" py={40}>
@@ -252,7 +319,6 @@ const CompleteProfilePage = () => {
         transition={{ duration: 0.5 }}
       >
         <Stack gap="lg">
-          {/* Header */}
           <Group justify="space-between" align="center">
             <div>
               <Group align="center" gap="sm">
@@ -266,14 +332,13 @@ const CompleteProfilePage = () => {
                   Back to Dashboard
                 </Button>
               </Group>
-              <Title order={1} mt="sm">Complete Your Profile</Title>
+              <Title order={1} mt="sm">{isUpdateMode ? 'Update Your Profile' : 'Complete Your Profile'}</Title>
               <Text c="dimmed" size="lg" mt={5}>
-                Help us provide you with personalized healthcare services
+                {isUpdateMode ? 'Keep your information up to date.' : 'Help us provide you with personalized healthcare services'}
               </Text>
             </div>
           </Group>
 
-          {/* Progress Card */}
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Group justify="space-between" align="center" mb="xs">
               <Text fw={500}>Profile Completion</Text>
@@ -282,11 +347,9 @@ const CompleteProfilePage = () => {
             <Progress value={calculateProgress()} color="blue" size="lg" />
           </Card>
 
-          {/* Form */}
           <Paper shadow="md" p={30} radius="md" withBorder>
             <form onSubmit={handleSubmit}>
               <Stack gap="lg">
-                {/* Basic Information Section */}
                 <div>
                   <Title order={3} mb="sm">Basic Information</Title>
                   <Text size="sm" c="dimmed" mb="lg">Required fields are marked with *</Text>
@@ -335,7 +398,7 @@ const CompleteProfilePage = () => {
                       <TextInput
                         label="Phone Number *"
                         placeholder="(555) 123-4567"
-                        value={formData.phoneNumber}
+                        value={String(formData.phoneNumber)}
                         onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                         required
                       />
@@ -345,7 +408,6 @@ const CompleteProfilePage = () => {
 
                 <Divider />
 
-                {/* Healthcare Preferences Section */}
                 <div>
                   <Title order={3} mb="sm">Healthcare Preferences</Title>
                   <Text size="sm" c="dimmed" mb="lg">Help us match you with the right providers</Text>
@@ -400,7 +462,6 @@ const CompleteProfilePage = () => {
 
                 <Divider />
 
-                {/* Medical Information Section */}
                 <div>
                   <Title order={3} mb="sm">Medical Information</Title>
                   <Text size="sm" c="dimmed" mb="lg">Optional - Help us understand your health needs better</Text>
@@ -449,7 +510,6 @@ const CompleteProfilePage = () => {
                   </Grid>
                 </div>
 
-                {/* Form Actions */}
                 <Group justify="space-between" mt="xl">
                   <Button 
                     variant="outline"
@@ -472,7 +532,7 @@ const CompleteProfilePage = () => {
                     loading={isLoading}
                     leftSection={<IconCheck size={16} />}
                   >
-                    Complete Profile
+                    {isUpdateMode ? 'Update Profile' : 'Complete Profile'}
                   </Button>
                 </Group>
               </Stack>

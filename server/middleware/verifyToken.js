@@ -1,9 +1,12 @@
 const jwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
+const { CognitoIdentityProviderClient, GetUserCommand } = require("@aws-sdk/client-cognito-identity-provider");
 
 const client = jwksClient({
   jwksUri: `https://cognito-idp.${process.env.AWS_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}/.well-known/jwks.json`
 });
+
+const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
 
 function getKey(header, callback){
   client.getSigningKey(header.kid, function(err, key) {
@@ -16,14 +19,14 @@ function getKey(header, callback){
   });
 }
 
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authorization header is missing or invalid.' });
   }
   const token = authHeader.split(' ')[1];
 
-  jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+  jwt.verify(token, getKey, { algorithms: ['RS256'] }, async (err, decoded) => {
     if (err) {
       console.error('JWT verification error:', err);
       return res.status(401).json({ error: 'Invalid token.' });
@@ -32,8 +35,28 @@ const verifyToken = (req, res, next) => {
     // Attach the entire decoded token to the request for downstream use
     req.user = decoded;
     
-    // Specifically extract the username for convenience, which is in the 'sub' claim for Cognito
+    // Specifically extract the username and email for convenience
     req.user.username = decoded.sub;
+
+    // Fallback: If email is not in the decoded token (e.g., it's an Access Token),
+    // fetch user attributes from Cognito using the Access Token.
+    if (!decoded.email) {
+      try {
+        const getUserCommand = new GetUserCommand({ AccessToken: token });
+        const userAttributes = await cognitoClient.send(getUserCommand);
+        const emailAttribute = userAttributes.UserAttributes.find(attr => attr.Name === 'email');
+        if (emailAttribute) {
+          req.user.email = emailAttribute.Value;
+        } else {
+          console.warn('Email attribute not found in Cognito user attributes.');
+        }
+      } catch (cognitoError) {
+        console.error('Error fetching user attributes from Cognito:', cognitoError);
+        // Optionally, handle this error more gracefully, e.g., by returning a 401
+      }
+    } else {
+      req.user.email = decoded.email;
+    }
 
     next();
   });
