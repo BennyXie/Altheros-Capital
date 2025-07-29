@@ -287,7 +287,7 @@ async function completeProviderProfile(req, res) {
       languages = [],
       hobbies,
       quote,
-      calendly_url,
+      meeting_url,
       headshot_url,
       user: { first_name, last_name }
     } = req.body;
@@ -304,7 +304,7 @@ async function completeProviderProfile(req, res) {
         email, first_name, last_name,
         insurance_networks, location, specialty, gender, experience_years,
         education, focus_groups, about_me, languages, hobbies, quote,
-        calendly_url, headshot_url, created_at, updated_at
+        meeting_url, headshot_url, created_at, updated_at
       ) VALUES (
         $1, $2, $3, $4,
         $5, $6, $7, $8, $9,
@@ -328,7 +328,7 @@ async function completeProviderProfile(req, res) {
       languages,
       hobbies,
       quote,
-      calendly_url,
+      meeting_url,
       headshot_url,
       now,
       now,
@@ -365,7 +365,7 @@ async function updateProviderProfile(req, res) {
       languages = [],
       hobbies,
       quote,
-      calendly_url,
+      meeting_url,
       headshot_url,
     } = req.body;
 
@@ -379,7 +379,7 @@ async function updateProviderProfile(req, res) {
       UPDATE providers SET
         insurance_networks = $1, location = $2, specialty = $3, gender = $4,
         experience_years = $5, education = $6, focus_groups = $7, about_me = $8,
-        languages = $9, hobbies = $10, quote = $11, calendly_url = $12,
+        languages = $9, hobbies = $10, quote = $11, meeting_url = $12,
         headshot_url = $13, updated_at = $14
       WHERE email = $15
       RETURNING id;
@@ -397,7 +397,7 @@ async function updateProviderProfile(req, res) {
       languages,
       hobbies,
       quote,
-      calendly_url,
+      meeting_url,
       headshot_url,
       now,
       email,
