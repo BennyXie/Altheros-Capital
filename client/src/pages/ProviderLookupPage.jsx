@@ -1,69 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Title, Text, MultiSelect, Select, Grid, Paper, Stack } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import ProviderCard from '../components/ui/ProviderCard';
 import classes from './ProviderLookupPage.module.css';
+import apiClient from '../utils/apiClient';
 
 const ProviderLookupPage = () => {
+    const [providers, setProviders] = useState([]);
+    const [filteredProviders, setFilteredProviders] = useState([]);
     const [myNeeds, setMyNeeds] = useState([]);
     const [insurance, setInsurance] = useState(null);
 
-    // Dummy data for now
-    const providers = [
-        {
-            name: 'Dr. John Doe',
-            qualifications: 'MD, PhD',
-            specialties: ['Anxiety', 'Depression'],
-            experience: '10+ years',
-            communicationStyle: 'Direct',
-            insurance: ['Blue Cross Blue Shield', 'Aetna'],
-            headshot: 'https://via.placeholder.com/150',
-            approach: 'Cognitive Behavioral Therapy (CBT)',
-            interests: 'Hiking, reading, and playing the piano.',
-            location: 'Chicago, IL'
-        },
-        {
-            name: 'Dr. Jane Smith',
-            qualifications: 'MD',
-            specialties: ['Trauma', 'PTSD'],
-            experience: '5-10 years',
-            communicationStyle: 'Empathetic',
-            insurance: ['Cigna', 'United Healthcare'],
-            headshot: 'https://via.placeholder.com/150',
-            approach: 'Eye Movement Desensitization and Reprocessing (EMDR)',
-            interests: 'Yoga, cooking, and traveling.',
-            location: 'New York, NY'
-        },
-        {
-            name: 'Dr. Sam Jones',
-            qualifications: 'PsyD',
-            specialties: ['Anxiety', 'Trauma'],
-            experience: '1-5 years',
-            communicationStyle: 'Direct',
-            insurance: ['Aetna', 'Cigna'],
-            headshot: '',
-            approach: 'Acceptance and Commitment Therapy (ACT)',
-            interests: 'Running, photography, and spending time with family.',
-            location: 'Los Angeles, CA'
-        }
-    ];
+    const [needsData, setNeedsData] = useState([]);
+    const [insuranceData, setInsuranceData] = useState([]);
 
-    const needsData = [
-        { group: 'Specialty', items: ['Anxiety', 'Depression', 'Trauma', 'PTSD'] },
-        { group: 'Experience', items: ['1-5 years', '5-10 years', '10+ years'] },
-        { group: 'Communication Style', items: ['Direct', 'Empathetic'] },
-    ];
+    useEffect(() => {
+        const fetchProviders = async () => {
+            try {
+                const response = await apiClient.get('/public/providers', {}, false);
+                const fetchedProviders = response.providers.map(p => {
+                    let headshotUrl = p.headshot_url;
+                    // Check if the URL is an S3 URL. If not, set to null to trigger fallback.
+                    // Using a more generic S3 pattern check
+                    const isS3Url = headshotUrl && (
+                        headshotUrl.includes('s3.amazonaws.com') || 
+                        headshotUrl.includes('s3-') || // Covers s3-region.amazonaws.com
+                        (process.env.REACT_APP_S3_BUCKET_NAME && headshotUrl.includes(process.env.REACT_APP_S3_BUCKET_NAME))
+                    );
 
-    const filteredProviders = providers.filter(provider => {
-        const needsMatch = myNeeds.length === 0 || myNeeds.every(need => 
-            provider.specialties.includes(need) || 
-            provider.experience === need || 
-            provider.communicationStyle === need
-        );
-        const insuranceMatch = !insurance || provider.insurance.includes(insurance);
-        return needsMatch && insuranceMatch;
-    });
+                    if (!isS3Url) {
+                        headshotUrl = null;
+                    }
+
+                    return {
+                        id: p.id,
+                        name: `${p.first_name} ${p.last_name}`,
+                        qualifications: p.education,
+                        specialties: p.specialty || [],
+                        experience: `${p.experience_years} years`,
+                        communicationStyle: p.communication_style || 'N/A',
+                        headshot: headshotUrl,
+                        approach: p.about_me,
+                        interests: p.hobbies,
+                        location: p.location,
+                        insurance: p.insurance_networks || []
+                    };
+                });
+                setProviders(fetchedProviders);
+                setFilteredProviders(fetchedProviders);
+
+                // Extract unique values for filters
+                const specialties = [...new Set(fetchedProviders.flatMap(p => p.specialties))];
+                const experiences = [...new Set(fetchedProviders.map(p => p.experience))];
+                const communicationStyles = [...new Set(fetchedProviders.map(p => p.communicationStyle))];
+                const insurances = [...new Set(fetchedProviders.flatMap(p => p.insurance))];
+
+                setNeedsData([
+                    { group: 'Specialty', items: specialties },
+                    { group: 'Experience', items: experiences },
+                    { group: 'Communication Style', items: communicationStyles },
+                ]);
+                setInsuranceData(insurances);
+
+            } catch (error) {
+                console.error("Failed to fetch providers:", error);
+            }
+        };
+
+        fetchProviders();
+    }, []);
+
+    useEffect(() => {
+        const filterProviders = () => {
+            let updatedProviders = providers;
+
+            if (myNeeds.length > 0) {
+                updatedProviders = updatedProviders.filter(provider => 
+                    myNeeds.every(need => 
+                        (provider.specialties && provider.specialties.includes(need)) || 
+                        provider.experience === need || 
+                        provider.communicationStyle === need
+                    )
+                );
+            }
+
+            if (insurance) {
+                updatedProviders = updatedProviders.filter(provider => provider.insurance && provider.insurance.includes(insurance));
+            }
+
+            setFilteredProviders(updatedProviders);
+        };
+
+        filterProviders();
+    }, [myNeeds, insurance, providers]);
 
     return (
         <motion.div variants={staggerContainer} initial="initial" animate="animate">
@@ -93,7 +123,7 @@ const ProviderLookupPage = () => {
                                         <Select
                                             label="Insurance"
                                             placeholder="Select your insurance"
-                                            data={['Blue Cross Blue Shield', 'Aetna', 'Cigna', 'United Healthcare']}
+                                            data={insuranceData}
                                             value={insurance}
                                             onChange={setInsurance}
                                             clearable

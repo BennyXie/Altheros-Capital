@@ -18,6 +18,7 @@ const { initializeSocket } = require("./services/socketService"); // Added for s
 const AWS = require('aws-sdk');
 const resumeRoute = require("./routes/resumeRoute");
 const profileRoutes = require("./routes/profileRoutes");
+const publicRoutes = require("./routes/publicRoutes");
 
 console.log("Before app.use(profileRoutes) - Type of profileRoutes:", typeof profileRoutes);
 console.log("Before app.use(profileRoutes) - profileRoutes:", profileRoutes);
@@ -59,6 +60,7 @@ app.use("/api/symptoms", require("./routes/symptomsRoute"));
 // Me route
 app.use("/api/me", require("./routes/me.js"));
 app.use("/api/resume", resumeRoute);
+app.use("/public", publicRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
