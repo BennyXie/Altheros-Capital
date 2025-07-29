@@ -82,9 +82,10 @@ class ProfileIntegrationService {
     }
   }
 
-  async updateUserProfile(profileData) {
+  async updateUserProfile(profileData, role) {
     try {
-      return await apiService.updateUserProfile(profileData);
+      const payload = { ...profileData, role };
+      return await apiService.updateUserProfile(payload);
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
@@ -96,9 +97,17 @@ class ProfileIntegrationService {
    * Note: With OAuth, user data should be passed as parameters or retrieved from AuthContext
    * @returns {Promise} - Promise that resolves with user profile
    */
-  async getCurrentUserProfile() {
+  async getCurrentUserProfile(user) {
     try {
-      const backendProfile = await apiService.getUserProfile();
+      let backendProfile;
+      if (user && user.role === 'provider') {
+        backendProfile = await apiService.getProviderProfile();
+      } else if (user && user.role === 'patient') {
+        backendProfile = await apiService.getPatientProfile();
+      } else {
+        // Fallback or error if role is not determined
+        backendProfile = await apiService.getUserProfile();
+      }
       
       return {
         profile: backendProfile

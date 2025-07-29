@@ -100,9 +100,20 @@ class ApiService {
   }
 
   async updateUserProfile(profileData) {
-    return this.makeRequest('/api/profile/patient', {
+    const { role, ...dataToSend } = profileData;
+    let endpoint = '';
+
+    if (role === 'patient') {
+      endpoint = '/api/profile/patient';
+    } else if (role === 'provider') {
+      endpoint = '/api/profile/provider';
+    } else {
+      throw new Error('Invalid role specified for profile update');
+    }
+
+    return this.makeRequest(endpoint, {
       method: 'PUT',
-      body: JSON.stringify(profileData),
+      body: JSON.stringify(dataToSend),
     });
   }
 
@@ -116,6 +127,14 @@ class ApiService {
    */
   async getUserProfile() {
     return this.makeRequest('/api/auth/profile');
+  }
+
+  async getProviderProfile() {
+    return this.makeRequest('/api/profile/provider');
+  }
+
+  async getPatientProfile() {
+    return this.makeRequest('/api/profile/patient');
   }
 
   /**

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Container, 
   Title, 
@@ -17,7 +17,7 @@ import {
   Card,
   NumberInput
 } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck, IconStethoscope } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -31,7 +31,8 @@ import profileIntegrationService from '../services/profileIntegrationService';
  */
 const ProviderCompleteProfilePage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const location = useLocation();
+  const { authStatus, user, setAuthStatus } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     insurance_networks: [],
@@ -48,6 +49,55 @@ const ProviderCompleteProfilePage = () => {
     calendly_url: '',
     headshot_url: ''
   });
+
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === '/provider-update-profile') {
+      setIsEditMode(true);
+    } else {
+      setIsEditMode(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (authStatus === 'authenticated' && user) {
+      const fetchProfile = async () => {
+        try {
+          const { profile } = await profileIntegrationService.getCurrentUserProfile(user);
+          if (profile) {
+            setFormData({
+              insurance_networks: profile.insurance_networks || [],
+              location: profile.location || '',
+              specialty: profile.specialty || [],
+              gender: profile.gender || '',
+              experience_years: profile.experience_years || '',
+              education: profile.education || '',
+              focus_groups: profile.focus_groups || [],
+              about_me: profile.about_me || '',
+              languages: profile.languages || [],
+              hobbies: profile.hobbies || '',
+              quote: profile.quote || '',
+              calendly_url: profile.calendly_url || '',
+              headshot_url: profile.headshot_url || '',
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching provider profile:', error);
+          notifications.show({
+            title: 'Profile Load Error',
+            message: 'Failed to load provider profile data.',
+            color: 'red',
+          });
+        }
+      };
+      if (isEditMode) {
+        fetchProfile();
+      }
+    } else if (authStatus === 'unauthenticated') {
+      navigate('/login');
+    }
+  }, [authStatus, user, navigate, isEditMode]);
 
   // Form options
   const genderOptions = [
@@ -107,8 +157,8 @@ const ProviderCompleteProfilePage = () => {
   const focusGroupOptions = [
     { value: 'children', label: 'Children & Adolescents' },
     { value: 'elderly', label: 'Elderly Care' },
-    { value: 'women-health', label: 'Women\'s Health' },
-    { value: 'men-health', label: 'Men\'s Health' },
+    { value: 'women-health', label: "Women's Health" },
+    { value: 'men-health', label: "Men's Health" },
     { value: 'mental-health', label: 'Mental Health' },
     { value: 'chronic-conditions', label: 'Chronic Conditions' },
     { value: 'preventive-care', label: 'Preventive Care' },
@@ -188,27 +238,37 @@ const ProviderCompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      await profileIntegrationService.completeUserProfile(
-        user, // Cognito user data
-        formData,
-        'provider' // Role
-      );
-      
-      notifications.show({
-        title: 'Profile Created Successfully',
-        message: 'Your provider profile has been completed!',
-        color: 'green',
-        icon: <IconCheck size={16} />
-      });
+      if (isEditMode) {
+        await profileIntegrationService.updateUserProfile(formData, 'provider');
+        notifications.show({
+          title: 'Profile Updated Successfully',
+          message: 'Your provider profile has been updated!',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+      } else {
+        await profileIntegrationService.completeUserProfile(
+          user, // Cognito user data
+          formData,
+          'provider' // Role
+        );
+        notifications.show({
+          title: 'Profile Created Successfully',
+          message: 'Your provider profile has been completed!',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+        setAuthStatus('profile_complete'); // Update auth status
+      }
 
       // Redirect to provider dashboard
       navigate('/provider-dashboard');
       
     } catch (error) {
-      console.error('Error creating provider profile:', error);
+      console.error('Error submitting provider profile:', error);
       notifications.show({
-        title: 'Profile Creation Failed',
-        message: error.response?.data?.error || 'An error occurred while creating your profile',
+        title: isEditMode ? 'Profile Update Failed' : 'Profile Creation Failed',
+        message: error.response?.data?.error || 'An error occurred while submitting your profile',
         color: 'red'
       });
     } finally {
@@ -240,7 +300,7 @@ const ProviderCompleteProfilePage = () => {
               <Group mb="md">
                 <IconStethoscope size={24} color="var(--color-primary)" />
                 <Title order={2} c="var(--color-primary)">
-                  Complete Your Provider Profile
+                  {isEditMode ? 'Update Your Provider Profile' : 'Complete Your Provider Profile'}
                 </Title>
               </Group>
               
@@ -413,7 +473,7 @@ const ProviderCompleteProfilePage = () => {
                     leftSection={<IconCheck size={16} />}
                     size="lg"
                   >
-                    Complete Profile
+                    {isEditMode ? 'Update Profile' : 'Complete Profile'}
                   </Button>
                 </Group>
               </Stack>

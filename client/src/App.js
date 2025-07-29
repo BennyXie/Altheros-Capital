@@ -79,6 +79,16 @@ const AppRoutes = () => {
           </Layout>
         }
       />
+      <Route
+        path="/provider-update-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
       <Route path="*" element={<Navigate to={isAuthenticated ? '/user-dashboard' : '/'} />} />
     </Routes>
   );

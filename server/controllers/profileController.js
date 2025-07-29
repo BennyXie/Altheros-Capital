@@ -24,6 +24,8 @@ async function completePatientProfile(req, res) {
       user: { first_name, last_name } // email is now from req.user
     } = req.body;
 
+    console.log('completePatientProfile: Received req.body:', req.body);
+
     if (!dob || !gender || !address || !phone_number) {
       console.error("profileController: Missing required patient fields:", { dob, gender, address, phone_number });
       return res.status(400).json({ error: "Missing required patient profile fields." });
@@ -49,12 +51,14 @@ async function completePatientProfile(req, res) {
       address,
       phone_number,
       insurance,
-      current_medication,
+      current_medication || '',
       health_provider_id,
       true,
       now,
       now,
     ];
+
+    console.log('completePatientProfile: Patient INSERT values:', values);
 
     const result = await db.query(query, values);
     const patientId = result.rows[0].id;
@@ -67,6 +71,7 @@ async function completePatientProfile(req, res) {
           VALUES ($1, $2, $3)
         `;
         const symptomValues = [patientId, symptom, now];
+        console.log('completePatientProfile: Symptom INSERT values:', symptomValues);
         await db.query(insertSymptomQuery, symptomValues);
       }
     }
@@ -79,37 +84,46 @@ async function completePatientProfile(req, res) {
         VALUES ($1, $2)
       `;
       const languageValues = [patientId, patientLan];
+      console.log('completePatientProfile: Language INSERT values:', languageValues);
       await db.query(insertLanguageQuery, languageValues);
     }
 
     // Insert patient preferences if provided
     const { preferredProviderGender, smsOptIn, languagePreference, insuranceRequired, optInContact } = preferences;
-    if (Object.keys(preferences).length > 0) {
-      const insertPrefQuery = `
-        INSERT INTO patient_preferences (
-          patient_id,
-          preferred_provider_gender,
-          sms_opt_in,
-          language_preference,
-          insurance_required,
-          opt_in_contact,
-          created_at,
-          updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
-      `;
+    // Always insert preferences, even if empty, to ensure a record exists
+    const insertPrefQuery = `
+      INSERT INTO patient_preferences (
+        patient_id,
+        preferred_provider_gender,
+        sms_opt_in,
+        language_preference,
+        insurance_required,
+        opt_in_contact,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+      ON CONFLICT (patient_id) DO UPDATE SET
+        preferred_provider_gender = EXCLUDED.preferred_provider_gender,
+        sms_opt_in = EXCLUDED.sms_opt_in,
+        language_preference = EXCLUDED.language_preference,
+        insurance_required = EXCLUDED.insurance_required,
+        opt_in_contact = EXCLUDED.opt_in_contact,
+        updated_at = EXCLUDED.updated_at;
+    `;
 
-      const insertPrefValues = [
-        patientId,
-        preferredProviderGender,
-        smsOptIn,
-        languagePreference,
-        insuranceRequired,
-        optInContact,
-        now,
-      ];
+    const insertPrefValues = [
+      patientId,
+      preferredProviderGender || null,
+      smsOptIn || false,
+      languagePreference || null,
+      insuranceRequired || false,
+      optInContact || false,
+      now,
+    ];
 
-      await db.query(insertPrefQuery, insertPrefValues);
-    }
+    console.log('completePatientProfile: Preferences INSERT/UPDATE values:', insertPrefValues);
+
+    await db.query(insertPrefQuery, insertPrefValues);
 
     res.status(200).json({ message: "Patient profile completed successfully", patientId });
 
@@ -133,12 +147,14 @@ async function updatePatientProfile(req, res) {
       gender,
       address,
       phone_number,
-      insurance = null,
-      current_medication = null,
-      symptoms = [],
-      languages = [],
-      preferences = {},
+      insurance,
+      currentMedication, // Corrected destructuring
+      symptoms,
+      languages,
+      preferences,
     } = req.body;
+
+    console.log('updatePatientProfile: Received req.body:', req.body);
 
     if (!dob || !gender || !address || !phone_number) {
       return res.status(400).json({ error: "Missing required patient profile fields." });
@@ -155,30 +171,39 @@ async function updatePatientProfile(req, res) {
     `;
 
     const values = [
-      dob, gender, address, phone_number, insurance, current_medication, now, email
+      dob, gender, address, phone_number, insurance, currentMedication || '', now, email
     ];
+
+    console.log('updatePatientProfile: Patient UPDATE values:', values);
 
     const result = await db.query(query, values);
     const patientId = result.rows[0].id;
 
+    // Update symptoms
     await db.query('DELETE FROM symptoms WHERE patient_id = $1', [patientId]);
-    for (const symptom of symptoms) {
-      await db.query('INSERT INTO symptoms (patient_id, symptom_text, recorded_at) VALUES ($1, $2, $3)', [patientId, symptom, now]);
+    if (symptoms && symptoms.length > 0) {
+      for (const symptom of symptoms) {
+        await db.query('INSERT INTO symptoms (patient_id, symptom_text, recorded_at) VALUES ($1, $2, $3)', [patientId, symptom, now]);
+      }
     }
 
+    // Update languages
     await db.query('DELETE FROM patient_language WHERE patient_id = $1', [patientId]);
-    const patientLan = languages.join(" ");
-    await db.query('INSERT INTO patient_language (patient_id, language) VALUES ($1, $2)', [patientId, patientLan]);
+    if (languages && languages.length > 0) {
+      const patientLan = languages.join(" ");
+      await db.query('INSERT INTO patient_language (patient_id, language) VALUES ($1, $2)', [patientId, patientLan]);
+    }
 
     const { preferredProviderGender, smsOptIn, languagePreference, insuranceRequired, optInContact } = preferences;
-    if (Object.keys(preferences).length > 0) {
-      await db.query(`
-        UPDATE patient_preferences SET
-          preferred_provider_gender = $1, sms_opt_in = $2, language_preference = $3,
-          insurance_required = $4, opt_in_contact = $5, updated_at = $6
-        WHERE patient_id = $7
-      `, [preferredProviderGender, smsOptIn, languagePreference, insuranceRequired, optInContact, now, patientId]);
-    }
+    // Always attempt to update preferences, even if some fields are null/empty
+    await db.query(`
+      UPDATE patient_preferences SET
+        preferred_provider_gender = $1, sms_opt_in = $2, language_preference = $3,
+        insurance_required = $4, opt_in_contact = $5, updated_at = $6
+      WHERE patient_id = $7
+    `, [preferredProviderGender || null, smsOptIn || false, languagePreference || null, insuranceRequired || false, optInContact || false, now, patientId]);
+
+    console.log('updatePatientProfile: Preferences UPDATE values:', [preferredProviderGender || null, smsOptIn || false, languagePreference || null, insuranceRequired || false, optInContact || false, now, patientId]);
 
     res.status(200).json({ message: "Patient profile updated successfully", patientId });
 
@@ -220,7 +245,14 @@ async function getPatientProfile(req, res) {
       dob: patient.dob ? patient.dob.toISOString().split('T')[0] : '', // Format DOB to YYYY-MM-DD
       symptoms: symptomsResult.rows.map(r => r.symptom_text),
       languages: languagesResult.rows.length > 0 ? languagesResult.rows[0].language.split(' ') : [],
-      preferences: preferencesResult.rows.length > 0 ? preferencesResult.rows[0] : {},
+      preferences: preferencesResult.rows.length > 0 ? {
+        preferredProviderGender: preferencesResult.rows[0].preferred_provider_gender || '',
+        smsOptIn: preferencesResult.rows[0].sms_opt_in || false,
+        languagePreference: preferencesResult.rows[0].language_preference || '',
+        insuranceRequired: preferencesResult.rows[0].insurance_required || false,
+        optInContact: preferencesResult.rows[0].opt_in_contact || false,
+      } : {},
+      currentMedication: patient.current_medication || '', // Ensure currentMedication is retrieved
     };
     console.log(`profileController: getPatientProfile - Final profile object: ${JSON.stringify(profile)}`);
 
@@ -312,6 +344,110 @@ async function completeProviderProfile(req, res) {
   }
 }
 
+async function updateProviderProfile(req, res) {
+  console.log('profileController: updateProviderProfile called');
+  try {
+    if (!req.user || !req.user.email) {
+      return res.status(400).json({ error: "Incomplete user information from token." });
+    }
+
+    const { email } = req.user;
+
+    const {
+      insurance_networks = [],
+      location,
+      specialty = [],
+      gender,
+      experience_years,
+      education,
+      focus_groups = [],
+      about_me,
+      languages = [],
+      hobbies,
+      quote,
+      calendly_url,
+      headshot_url,
+    } = req.body;
+
+    if (!location || !gender || !experience_years || !education || !about_me) {
+      return res.status(400).json({ error: "Missing required provider profile fields." });
+    }
+
+    const now = new Date();
+
+    const query = `
+      UPDATE providers SET
+        insurance_networks = $1, location = $2, specialty = $3, gender = $4,
+        experience_years = $5, education = $6, focus_groups = $7, about_me = $8,
+        languages = $9, hobbies = $10, quote = $11, calendly_url = $12,
+        headshot_url = $13, updated_at = $14
+      WHERE email = $15
+      RETURNING id;
+    `;
+
+    const values = [
+      insurance_networks,
+      location,
+      specialty,
+      gender,
+      experience_years,
+      education,
+      focus_groups,
+      about_me,
+      languages,
+      hobbies,
+      quote,
+      calendly_url,
+      headshot_url,
+      now,
+      email,
+    ];
+
+    await db.query(query, values);
+
+    res.status(200).json({ message: "Provider profile updated successfully" });
+
+  } catch (error) {
+    console.error("profileController: Error updating provider profile:", error);
+    res.status(500).json({ error: "Internal server error during provider profile update", details: error.message });
+  }
+}
+
+async function getProviderProfile(req, res) {
+  console.log('profileController: getProviderProfile called');
+  try {
+    if (!req.user || !req.user.email) {
+      return res.status(400).json({ error: "Incomplete user information from token." });
+    }
+
+    const { email } = req.user;
+    console.log(`profileController: getProviderProfile - Fetching profile for email: ${email}`);
+
+    const providerResult = await db.query('SELECT * FROM providers WHERE email = $1', [email]);
+    console.log(`profileController: getProviderProfile - Provider query result: ${JSON.stringify(providerResult.rows)}`);
+
+    if (providerResult.rows.length === 0) {
+      return res.status(404).json({ error: "Provider profile not found." });
+    }
+    const provider = providerResult.rows[0];
+
+    const profile = {
+      ...provider,
+      insurance_networks: provider.insurance_networks ? String(provider.insurance_networks).split(',').map(item => item.trim()) : [],
+      specialty: provider.specialty ? String(provider.specialty).split(',').map(item => item.trim()) : [],
+      focus_groups: provider.focus_groups ? String(provider.focus_groups).split(',').map(item => item.trim()) : [],
+      languages: provider.languages ? String(provider.languages).split(',').map(item => item.trim()) : [],
+    };
+    console.log(`profileController: getProviderProfile - Final profile object: ${JSON.stringify(profile)}`);
+
+    res.status(200).json(profile);
+
+  } catch (error) {
+    console.error("profileController: Error fetching provider profile:", error);
+    res.status(500).json({ error: "Internal server error fetching provider profile", details: error.message });
+  }
+}
+
 async function checkProfileStatus(req, res) {
   console.log('profileController: checkProfileStatus called');
   try {
@@ -349,4 +485,6 @@ module.exports = {
   getPatientProfile,
   completeProviderProfile,
   checkProfileStatus,
+  updateProviderProfile,
+  getProviderProfile,
 };
