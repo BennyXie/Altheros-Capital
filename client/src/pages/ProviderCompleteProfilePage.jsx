@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Container, 
   Title, 
@@ -15,14 +15,20 @@ import {
   Divider,
   Progress,
   Card,
-  NumberInput
+  NumberInput,
+  FileInput,
+  Image,
+  Center,
+  SegmentedControl,
+  Box
 } from '@mantine/core';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { IconArrowLeft, IconCheck, IconStethoscope } from '@tabler/icons-react';
+import { IconArrowLeft, IconCheck, IconStethoscope, IconUpload, IconUserCircle, IconCamera, IconPhoto, IconRefresh } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import profileIntegrationService from '../services/profileIntegrationService';
+import apiClient from '../utils/apiClient';
 
 /**
  * Provider Complete Profile Page Component
@@ -32,9 +38,12 @@ import profileIntegrationService from '../services/profileIntegrationService';
 const ProviderCompleteProfilePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { authStatus, user, setAuthStatus } = useAuth();
+  const { isAuthenticated, user, setAuthStatus } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null); // Renamed from 'file' to avoid confusion
   const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
     insurance_networks: [],
     location: '',
     specialty: [],
@@ -46,11 +55,15 @@ const ProviderCompleteProfilePage = () => {
     languages: [],
     hobbies: '',
     quote: '',
-    calendly_url: '',
-    headshot_url: ''
+    communication_style: '',
   });
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [captureMode, setCaptureMode] = useState('upload'); // 'upload' or 'camera'
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [stream, setStream] = useState(null);
+  const [capturedImageBlob, setCapturedImageBlob] = useState(null);
 
   useEffect(() => {
     if (location.pathname === '/provider-update-profile') {
@@ -61,12 +74,17 @@ const ProviderCompleteProfilePage = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (authStatus === 'authenticated' && user) {
+    console.log('ProviderCompleteProfilePage: useEffect triggered. isAuthenticated:', isAuthenticated, 'user:', user, 'isEditMode:', isEditMode);
+    if (isAuthenticated && user) {
       const fetchProfile = async () => {
+        console.log('ProviderCompleteProfilePage: Attempting to fetch profile for user:', user);
         try {
           const { profile } = await profileIntegrationService.getCurrentUserProfile(user);
+          console.log('ProviderCompleteProfilePage: Fetched profile data:', profile);
           if (profile) {
             setFormData({
+              first_name: profile.first_name || '',
+              last_name: profile.last_name || '',
               insurance_networks: profile.insurance_networks || [],
               location: profile.location || '',
               specialty: profile.specialty || [],
@@ -75,12 +93,14 @@ const ProviderCompleteProfilePage = () => {
               education: profile.education || '',
               focus_groups: profile.focus_groups || [],
               about_me: profile.about_me || '',
-              languages: profile.languages || [],
+              languages: profile.languages || '',
               hobbies: profile.hobbies || '',
               quote: profile.quote || '',
-              calendly_url: profile.calendly_url || '',
-              headshot_url: profile.headshot_url || '',
+              communication_style: profile.communication_style || '',
             });
+            console.log('ProviderCompleteProfilePage: Form data set with fetched profile.');
+          } else {
+            console.log('ProviderCompleteProfilePage: Profile data was empty or null.');
           }
         } catch (error) {
           console.error('Error fetching provider profile:', error);
@@ -94,10 +114,73 @@ const ProviderCompleteProfilePage = () => {
       if (isEditMode) {
         fetchProfile();
       }
-    } else if (authStatus === 'unauthenticated') {
+    } else if (!isAuthenticated) {
+      console.log('ProviderCompleteProfilePage: User unauthenticated, navigating to login.');
       navigate('/login');
     }
-  }, [authStatus, user, navigate, isEditMode]);
+  }, [isAuthenticated, user, navigate, isEditMode]);
+
+  // Camera logic
+  const startCamera = async () => {
+    console.log("startCamera function called.");
+    setCapturedImageBlob(null);
+    setFormData(prev => ({ ...prev, headshot_url: '' })); // Clear preview
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setStream(mediaStream);
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      notifications.show({
+        title: 'Camera Access Denied',
+        message: 'Please grant camera permissions to use this feature.',
+        color: 'red',
+      });
+    }
+  };
+
+  // Effect to play video when stream and videoRef are ready
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      console.log("Stream and videoRef ready. Attempting to play video.");
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(playErr => {
+        console.error("Error playing video:", playErr);
+        notifications.show({
+          title: 'Video Playback Error',
+          message: 'Could not play camera feed. Check browser settings.',
+          color: 'red',
+        });
+      });
+    }
+  }, [stream]);
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+  };
+
+  const takePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
+          setSelectedFile(fileFromBlob);
+          setCapturedImageBlob(blob);
+          setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+          stopCamera(); // Stop camera after taking photo
+        }
+      }, 'image/png');
+    }
+  };
 
   // Form options
   const genderOptions = [
@@ -167,6 +250,13 @@ const ProviderCompleteProfilePage = () => {
     { value: 'addiction-recovery', label: 'Addiction & Recovery' }
   ];
 
+  const communicationStyleOptions = [
+    { value: 'Direct', label: 'Direct' },
+    { value: 'Empathetic', label: 'Empathetic' },
+    { value: 'Supportive', label: 'Supportive' },
+    { value: 'Challenging', label: 'Challenging' },
+  ];
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -174,8 +264,49 @@ const ProviderCompleteProfilePage = () => {
     }));
   };
 
+  const handleFileChange = (fileInput) => {
+    setSelectedFile(fileInput);
+    if (fileInput) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, headshot_url: reader.result }));
+      };
+      reader.readAsDataURL(fileInput);
+    } else {
+      setFormData(prev => ({ ...prev, headshot_url: '' }));
+    }
+  };
+
+  const uploadHeadshot = async (fileToUpload) => {
+    if (!fileToUpload) return;
+
+    setIsLoading(true);
+    const formDataPayload = new FormData();
+    formDataPayload.append('headshot', fileToUpload);
+
+    try {
+      const response = await apiClient.post('/api/headshot/headshot', formDataPayload, true);
+      notifications.show({
+        title: 'Headshot Uploaded',
+        message: 'Your headshot has been successfully uploaded.',
+        color: 'green',
+      });
+      setFormData(prev => ({ ...prev, headshot_url: response.imageUrl }));
+    } catch (error) {
+      console.error('Error uploading headshot:', error);
+      notifications.show({
+        title: 'Upload Failed',
+        message: error.response?.data?.error || 'An error occurred while uploading headshot.',
+        color: 'red',
+      });
+      throw error; // Re-throw to prevent form submission if upload fails
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const calculateProgress = () => {
-    const requiredFields = ['location', 'specialty', 'gender', 'experience_years', 'education'];
+    const requiredFields = ['first_name', 'last_name', 'location', 'specialty', 'gender', 'experience_years', 'education', 'communication_style'];
     const filledRequired = requiredFields.filter(field => {
       if (Array.isArray(formData[field])) {
         return formData[field].length > 0;
@@ -190,8 +321,7 @@ const ProviderCompleteProfilePage = () => {
       'languages',
       'hobbies',
       'quote',
-      'calendly_url',
-      'headshot_url'
+      // 'headshot_url' is handled separately
     ];
     const filledOptional = optionalFields.filter(field => {
       if (Array.isArray(formData[field])) {
@@ -207,11 +337,14 @@ const ProviderCompleteProfilePage = () => {
   };
 
   const isFormValid = () => {
-    return formData.location.trim() &&
+    return formData.first_name.trim() &&
+           formData.last_name.trim() &&
+           formData.location.trim() &&
            formData.specialty.length > 0 && 
            formData.gender && 
            formData.experience_years && 
-           formData.education.trim();
+           formData.education.trim() &&
+           formData.communication_style;
   };
 
   const handleSubmit = async (e) => {
@@ -238,6 +371,11 @@ const ProviderCompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
+      // Upload headshot first if a new file is selected
+      if (selectedFile) {
+        await uploadHeadshot(selectedFile);
+      }
+
       if (isEditMode) {
         await profileIntegrationService.updateUserProfile(formData, 'provider');
         notifications.show({
@@ -326,6 +464,27 @@ const ProviderCompleteProfilePage = () => {
                 <Grid>
                   <Grid.Col span={{ base: 12, md: 6 }}>
                     <TextInput
+                      label="First Name"
+                      placeholder="Your first name"
+                      value={formData.first_name}
+                      onChange={(e) => handleInputChange('first_name', e.target.value)}
+                      required
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <TextInput
+                      label="Last Name"
+                      placeholder="Your last name"
+                      value={formData.last_name}
+                      onChange={(e) => handleInputChange('last_name', e.target.value)}
+                      required
+                    />
+                  </Grid.Col>
+                </Grid>
+
+                <Grid>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <TextInput
                       label="Practice Location"
                       placeholder="City, State"
                       value={formData.location}
@@ -363,6 +522,16 @@ const ProviderCompleteProfilePage = () => {
                       max={50}
                       value={formData.experience_years}
                       onChange={(value) => handleInputChange('experience_years', value)}
+                      required
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <Select
+                      label="Communication Style"
+                      placeholder="Select your communication style"
+                      data={communicationStyleOptions}
+                      value={formData.communication_style}
+                      onChange={(value) => handleInputChange('communication_style', value)}
                       required
                     />
                   </Grid.Col>
@@ -432,23 +601,103 @@ const ProviderCompleteProfilePage = () => {
                 {/* Scheduling */}
                 <Divider label="Scheduling" labelPosition="center" />
 
-                <TextInput
-                  label="Calendly URL (Optional)"
-                  placeholder="https://calendly.com/your-username"
-                  value={formData.calendly_url}
-                  onChange={(e) => handleInputChange('calendly_url', e.target.value)}
-                />
-
                 {/* Profile Photo */}
                 <Divider label="Profile Photo" labelPosition="center" />
 
-                <TextInput
-                  label="Headshot URL (Optional)"
-                  placeholder="https://example.com/your-photo.jpg"
-                  value={formData.headshot_url}
-                  onChange={(e) => handleInputChange('headshot_url', e.target.value)}
-                  description="Link to your professional headshot photo"
+                <Stack align="center" mb="md">
+                  {formData.headshot_url ? (
+                    <Image
+                      src={formData.headshot_url}
+                      alt="Headshot Preview"
+                      radius="md"
+                      h={200}
+                      w={200}
+                      fit="cover"
+                    />
+                  ) : (
+                    <Center h={200} w={200} bg="gray.1" style={{ borderRadius: '7px' }}>
+                      <IconUserCircle size={100} color="gray" />
+                    </Center>
+                  )}
+                </Stack>
+
+                <SegmentedControl
+                  value={captureMode}
+                  onChange={setCaptureMode}
+                  data={[
+                    { label: <Group gap="xs"><IconPhoto size={16} /> <Text>Upload File</Text></Group>, value: 'upload' },
+                    { label: <Group gap="xs"><IconCamera size={16} /> <Text>Take Photo</Text></Group>, value: 'camera' },
+                  ]}
+                  fullWidth
+                  mb="md"
                 />
+
+                {captureMode === 'upload' && (
+                  <FileInput
+                    label="Upload Headshot"
+                    placeholder="Choose file"
+                    accept="image/png,image/jpeg"
+                    leftSection={<IconUpload size={16} />}
+                    value={selectedFile}
+                    onChange={handleFileChange}
+                    clearable
+                  />
+                )}
+
+                {captureMode === 'camera' && (
+                  <Box>
+                    <video 
+                      ref={videoRef} 
+                      style={{
+                        width: '100%', 
+                        maxWidth: '300px', 
+                        borderRadius: '8px',
+                        display: stream && !capturedImageBlob ? 'block' : 'none' 
+                      }} 
+                      autoPlay 
+                      playsInline 
+                    />
+                    <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+                    {!stream && !capturedImageBlob && (
+                      <Button onClick={startCamera} leftSection={<IconCamera size={16} />} fullWidth>
+                        Open Camera
+                      </Button>
+                    )}
+
+                    {stream && !capturedImageBlob && (
+                      <Stack align="center" mt="md">
+                        <Button onClick={takePhoto} leftSection={<IconCamera size={16} />}>
+                          Take Photo
+                        </Button>
+                        <Button onClick={stopCamera} variant="outline" color="red">
+                          Stop Camera
+                        </Button>
+                      </Stack>
+                    )}
+
+                    {capturedImageBlob && (
+                      <Stack align="center" mt="md">
+                        <Image
+                          src={URL.createObjectURL(capturedImageBlob)}
+                          alt="Captured Headshot Preview"
+                          radius="md"
+                          h={200}
+                          w={200}
+                          fit="cover"
+                        />
+                        <Button onClick={() => {
+                          setCapturedImageBlob(null);
+                          setSelectedFile(null);
+                          setFormData(prev => ({ ...prev, headshot_url: '' }));
+                          startCamera();
+                        }} leftSection={<IconRefresh size={16} />}>
+                          Retake Photo
+                        </Button>
+                      </Stack>
+                    )}
+                  </Box>
+                )}
 
                 {/* Submit */}
                 <Group justify="space-between" mt="xl">

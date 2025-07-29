@@ -52,9 +52,23 @@ class ApiClient {
   }
 
   async post(endpoint, data = null, options = {}, authRequired = true) {
+    let requestBody = null;
+    let requestHeaders = { ...options.headers };
+
+    if (data instanceof FormData) {
+      requestBody = data;
+      // When sending FormData, the browser automatically sets the Content-Type header
+      // to multipart/form-data with the correct boundary. Do not set it manually.
+      delete requestHeaders['Content-Type']; 
+    } else if (data !== null) {
+      requestBody = JSON.stringify(data);
+      requestHeaders['Content-Type'] = 'application/json';
+    }
+
     const response = await this.request(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : null,
+      body: requestBody,
+      headers: requestHeaders,
       ...options,
     }, authRequired);
 

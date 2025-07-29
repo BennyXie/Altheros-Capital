@@ -118,9 +118,18 @@ async function getProviderHeadshotUrl(providerId) {
   return presignedUrl;
 }
 
+async function getProviderProfileByCognitoSub(cognitoSub) {
+  const result = await pool.query(
+    `SELECT * FROM providers WHERE cognito_sub = $1`,
+    [cognitoSub]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   updateProviderHeadshot,
   listProviders,
   getProvider,
   getProviderHeadshotUrl,
+  getProviderProfileByCognitoSub,
 };

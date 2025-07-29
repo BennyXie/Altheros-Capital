@@ -2,6 +2,8 @@ const { uploadHeadshotToS3 } = require("../services/s3Uploader");
 const { updateProviderHeadshot } = require("../services/providerService");
 
 const uploadHeadshot = async (req, res) => {
+  console.log("uploadHeadshot controller - req.file:", req.file);
+  console.log("uploadHeadshot controller - req.user.sub:", req.user?.sub);
   try {
     const file = req.file;
     const cognitoSub = req.user.sub;

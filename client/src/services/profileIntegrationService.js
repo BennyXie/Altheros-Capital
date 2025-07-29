@@ -100,7 +100,9 @@ class ProfileIntegrationService {
   async getCurrentUserProfile(user) {
     try {
       let backendProfile;
-      if (user && user.role === 'provider') {
+      console.log('profileIntegrationService: User object in getCurrentUserProfile:', user);
+      console.log('profileIntegrationService: User role:', user?.role);
+      if (user && user.role === 'providers') {
         backendProfile = await apiService.getProviderProfile();
       } else if (user && user.role === 'patient') {
         backendProfile = await apiService.getPatientProfile();
