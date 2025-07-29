@@ -55,6 +55,7 @@ const ProviderCompleteProfilePage = () => {
     languages: [],
     hobbies: '',
     quote: '',
+    headshot_url: '',
     communication_style: '',
   });
 
@@ -96,9 +97,11 @@ const ProviderCompleteProfilePage = () => {
               languages: profile.languages || '',
               hobbies: profile.hobbies || '',
               quote: profile.quote || '',
+              headshot_url: profile.headshot_url || '',
               communication_style: profile.communication_style || '',
             });
             console.log('ProviderCompleteProfilePage: Form data set with fetched profile.');
+            console.log('ProviderCompleteProfilePage: headshot_url from fetched profile:', profile.headshot_url);
           } else {
             console.log('ProviderCompleteProfilePage: Profile data was empty or null.');
           }
@@ -285,7 +288,7 @@ const ProviderCompleteProfilePage = () => {
     formDataPayload.append('headshot', fileToUpload);
 
     try {
-      const response = await apiClient.post('/api/headshot/headshot', formDataPayload, true);
+      const response = await apiClient.post('/api/headshot/headshot', formDataPayload, {}, true);
       notifications.show({
         title: 'Headshot Uploaded',
         message: 'Your headshot has been successfully uploaded.',
@@ -597,9 +600,6 @@ const ProviderCompleteProfilePage = () => {
                   value={formData.hobbies}
                   onChange={(e) => handleInputChange('hobbies', e.target.value)}
                 />
-
-                {/* Scheduling */}
-                <Divider label="Scheduling" labelPosition="center" />
 
                 {/* Profile Photo */}
                 <Divider label="Profile Photo" labelPosition="center" />

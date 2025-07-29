@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Container, Grid, Card, Image, Text, Badge, Group, Title, Paper, Center } from '@mantine/core';
+import { Container, Grid, Card, Image, Text, Badge, Group, Title, Paper, Center, Box } from '@mantine/core';
 import { IconUserCircle } from '@tabler/icons-react';
 
 const ProviderProfilePage = () => {
@@ -21,16 +21,18 @@ const ProviderProfilePage = () => {
                         <Grid gutter="xl">
                             <Grid.Col span={{ base: 12, sm: 4 }}>
                                 {headshot ? (
-                                    <Image
-                                        src={headshot}
-                                        radius="md"
-                                        alt={name}
-                                        fit="cover"
-                                        h={200}
-                                        w="100%"
-                                    />
+                                    <Box h={200} w={200}>
+                                        <Image
+                                            src={headshot}
+                                            radius="md"
+                                            alt={name}
+                                            fit="cover"
+                                            h="100%"
+                                            w="100%"
+                                        />
+                                    </Box>
                                 ) : (
-                                    <Center h={200} bg="gray.1">
+                                    <Center h={200} w={200} bg="gray.1">
                                         <IconUserCircle size={80} color="gray" />
                                     </Center>
                                 )}

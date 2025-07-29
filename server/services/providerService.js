@@ -76,7 +76,7 @@ async function listProviders(queryParams) {
 
 async function getProvider(providerId) {
   const result = await pool.query(
-    `SELECT id, first_name, last_name, email, phone_number, address, gender, bio 
+    `SELECT id, first_name, last_name, email, address, gender, bio 
      FROM providers 
      WHERE id = $1`,
     [providerId]

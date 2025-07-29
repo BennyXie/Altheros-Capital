@@ -5,10 +5,16 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 class ApiClient {
   async request(endpoint, options = {}, authRequired = true) {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      };
+      const finalOptions = { ...options };
+      let headers = finalOptions.headers || {};
+
+      if (finalOptions.body instanceof FormData) {
+        delete headers['Content-Type'];
+      } else if (!headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      finalOptions.headers = headers;
 
       if (authRequired) {
         const session = await fetchAuthSession();
@@ -17,13 +23,10 @@ class ApiClient {
         if (!token) {
           throw new Error('No access token available');
         }
-        headers['Authorization'] = `Bearer ${token}`;
+        finalOptions.headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-      });
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, finalOptions);
 
       return response;
     } catch (error) {

@@ -35,18 +35,12 @@ const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 
-// Conditionally apply express.json() to skip headshot upload route
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/headshot')) {
-    next(); // Skip express.json() for headshot routes
-  } else {
-    express.json()(req, res, next); // Apply express.json() for other routes
-  }
-});
+// Headshot routes - MUST be before any body-parser middleware
+app.use("/api/headshot", headshotRoutes);
 
 // Auth routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/appointments", appointmentRoutes);
+app.use("/api/appointments", appointmentRoutes);
 app.use("/api/providers", providersRoutes);
 
 // AI routes
@@ -55,8 +49,6 @@ app.use("/ai", aiRoutes);
 app.use("/calendly", calendlyRoutes);
 // Chat routes
 app.use("/chat", chatRoutes);
-// Headshot routes
-app.use("/api/headshot", headshotRoutes);
 // Profile routes
 app.use("/api/profile", profileRoutes);
 // Schedule routes

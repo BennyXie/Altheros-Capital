@@ -14,7 +14,6 @@ async function completePatientProfile(req, res) {
       dob,
       gender,
       address,
-      phone_number,
       insurance = null,
       current_medication = null,
       health_provider_id,
@@ -26,8 +25,8 @@ async function completePatientProfile(req, res) {
 
     console.log('completePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phone_number) {
-      console.error("profileController: Missing required patient fields:", { dob, gender, address, phone_number });
+    if (!dob || !gender || !address) {
+      console.error("profileController: Missing required patient fields:", { dob, gender, address });
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -35,10 +34,10 @@ async function completePatientProfile(req, res) {
 
     const query = `
       INSERT INTO patients (
-        email, first_name, last_name, dob, gender, address, phone_number,
+        email, first_name, last_name, dob, gender, address,
         insurance, current_medication, health_provider_id, is_active,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING id;
     `;
 
@@ -49,7 +48,6 @@ async function completePatientProfile(req, res) {
       dob,
       gender,
       address,
-      phone_number,
       insurance,
       current_medication || '',
       health_provider_id,
@@ -146,7 +144,6 @@ async function updatePatientProfile(req, res) {
       dob,
       gender,
       address,
-      phone_number,
       insurance,
       currentMedication, // Corrected destructuring
       symptoms,
@@ -156,7 +153,7 @@ async function updatePatientProfile(req, res) {
 
     console.log('updatePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phone_number) {
+    if (!dob || !gender || !address) {
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -164,14 +161,14 @@ async function updatePatientProfile(req, res) {
 
     const query = `
       UPDATE patients SET
-        dob = $1, gender = $2, address = $3, phone_number = $4, insurance = $5,
-        current_medication = $6, updated_at = $7
-      WHERE email = $8
+        dob = $1, gender = $2, address = $3, insurance = $4,
+        current_medication = $5, updated_at = $6
+      WHERE email = $7
       RETURNING id;
     `;
 
     const values = [
-      dob, gender, address, phone_number, insurance, currentMedication || '', now, email
+      dob, gender, address, insurance, currentMedication || '', now, email
     ];
 
     console.log('updatePatientProfile: Patient UPDATE values:', values);
@@ -223,7 +220,7 @@ async function getPatientProfile(req, res) {
     const { email } = req.user;
     console.log(`profileController: getPatientProfile - Fetching profile for email: ${email}`);
 
-    const patientResult = await db.query('SELECT * FROM patients WHERE email = $1', [email]);
+    const patientResult = await db.query('SELECT id, email, first_name, last_name, dob, gender, address, insurance, current_medication FROM patients WHERE email = $1', [email]);
     console.log(`profileController: getPatientProfile - Patient query result: ${JSON.stringify(patientResult.rows)}`);
 
     if (patientResult.rows.length === 0) {
@@ -287,7 +284,6 @@ async function completeProviderProfile(req, res) {
       languages = [],
       hobbies,
       quote,
-      calendly_url,
       headshot_url,
       user: { first_name, last_name }
     } = req.body;
@@ -304,12 +300,12 @@ async function completeProviderProfile(req, res) {
         email, first_name, last_name,
         insurance_networks, location, specialty, gender, experience_years,
         education, focus_groups, about_me, languages, hobbies, quote,
-        calendly_url, headshot_url, created_at, updated_at
+        headshot_url, created_at, updated_at
       ) VALUES (
         $1, $2, $3, $4,
         $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15,
-        $16, $17, $18
+        $10, $11, $12, $13, $14,
+        $15, $16
       )
     `;
 
@@ -328,7 +324,6 @@ async function completeProviderProfile(req, res) {
       languages,
       hobbies,
       quote,
-      calendly_url,
       headshot_url,
       now,
       now,
@@ -365,7 +360,6 @@ async function updateProviderProfile(req, res) {
       languages = [],
       hobbies,
       quote,
-      calendly_url,
       headshot_url,
     } = req.body;
 
@@ -379,9 +373,9 @@ async function updateProviderProfile(req, res) {
       UPDATE providers SET
         insurance_networks = $1, location = $2, specialty = $3, gender = $4,
         experience_years = $5, education = $6, focus_groups = $7, about_me = $8,
-        languages = $9, hobbies = $10, quote = $11, calendly_url = $12,
-        headshot_url = $13, updated_at = $14
-      WHERE email = $15
+        languages = $9, hobbies = $10, quote = $11,
+        headshot_url = $12, updated_at = $13
+      WHERE email = $14
       RETURNING id;
     `;
 
@@ -397,7 +391,6 @@ async function updateProviderProfile(req, res) {
       languages,
       hobbies,
       quote,
-      calendly_url,
       headshot_url,
       now,
       email,
@@ -439,6 +432,7 @@ async function getProviderProfile(req, res) {
       languages: provider.languages ? String(provider.languages).split(',').map(item => item.trim()) : [],
     };
     console.log(`profileController: getProviderProfile - Final profile object: ${JSON.stringify(profile)}`);
+    console.log(`profileController: getProviderProfile - headshot_url: ${profile.headshot_url}`);
 
     res.status(200).json(profile);
 

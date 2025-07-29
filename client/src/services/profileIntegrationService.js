@@ -68,7 +68,6 @@ class ProfileIntegrationService {
           languages: profileData.languages || [],
           hobbies: profileData.hobbies,
           quote: profileData.quote,
-          calendly_url: profileData.calendly_url,
           headshot_url: profileData.headshot_url,
         };
 

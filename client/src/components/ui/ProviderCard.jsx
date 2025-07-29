@@ -1,4 +1,4 @@
-import { Card, Image, Text, Button, Group, Badge, Center, Grid } from '@mantine/core';
+import { Card, Image, Text, Button, Group, Badge, Center, Grid, Box } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -18,13 +18,16 @@ const ProviderCard = ({ provider }) => {
                 <Grid>
                     <Grid.Col span={4}>
                         {headshot ? (
-                            <Image
-                                src={headshot}
-                                height={120}
-                                width={120}
-                                radius="md"
-                                alt={name}
-                            />
+                            <Box h={120} w={120}>
+                                <Image
+                                    src={headshot}
+                                    height="100%"
+                                    width="100%"
+                                    radius="md"
+                                    alt={name}
+                                    fit="cover"
+                                />
+                            </Box>
                         ) : (
                             <Center h={120} w={120} bg="gray.1" style={{ borderRadius: '7px' }}>
                                 <IconUserCircle size={60} color="gray" />
