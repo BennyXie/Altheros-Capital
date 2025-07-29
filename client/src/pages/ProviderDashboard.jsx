@@ -9,7 +9,7 @@ import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader,
 import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import ProviderCompleteProfilePage from './ProviderCompleteProfilePage';
+
 import apiClient from '../utils/apiClient';
 import { notifications } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
@@ -53,10 +53,10 @@ const ProviderDashboard = () => {
     );
   }
 
-  // Only redirect to complete profile if profile is incomplete AND there is a database entry
-  if (!profileStatus.isProfileComplete && profileStatus.hasDatabaseEntry) {
-    return <ProviderCompleteProfilePage />;
-  }
+  
+
+  const profileActionText = profileStatus.hasDatabaseEntry ? 'Update Profile' : 'Complete Profile';
+  const profileActionPath = profileStatus.hasDatabaseEntry ? '/provider-update-profile' : '/provider-complete-profile';
 
   const statsCards = [
     {
@@ -79,14 +79,6 @@ const ProviderDashboard = () => {
     }
   ];
 
-  const completeProfileCard = {
-    title: 'Complete Your Profile',
-    description: 'Ensure your profile is complete to unlock all features and be visible to patients.',
-    icon: <IconStethoscope size={24} />,
-    color: 'orange',
-    link: '/provider-complete-profile'
-  };
-
   return (
     <Container size="xl" py={40}>
       <motion.div
@@ -107,66 +99,65 @@ const ProviderDashboard = () => {
 
           {/* Stats Grid */}
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
-            {!profileStatus.isProfileComplete ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Card.Section withBorder inheritPadding py="xs">
+                  <Group justify="space-between">
+                    <Text fw={500} size="lg">{profileActionText}</Text>
+                    {!profileStatus.hasDatabaseEntry && <Badge color="orange" variant="light">Action Needed</Badge>}
+                  </Group>
+                </Card.Section>
+
+                <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      {profileStatus.hasDatabaseEntry
+                        ? 'Your profile is complete. You can update it at any time.'
+                        : 'Complete your account setup to unlock all features and be visible to patients.'}
+                    </Text>
+                  </div>
+                  
+                  <Stack gap="xs">
+                    <Button 
+                      component={Link}
+                      to={profileActionPath}
+                      variant="filled"
+                      color={profileStatus.hasDatabaseEntry ? "green" : "orange"}
+                      leftSection={<IconStethoscope size={16} />}
+                      size="sm"
+                    >
+                      {profileActionText}
+                    </Button>
+                  </Stack>
+                </Stack>
+              </Card>
+            </motion.div>
+            {profileStatus.isProfileComplete && statsCards.map((stat, index) => (
               <motion.div
+                key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <Card.Section withBorder inheritPadding py="xs">
-                    <Group justify="space-between">
-                      <Text fw={500} size="lg">{completeProfileCard.title}</Text>
-                      <Badge color={completeProfileCard.color} variant="light">Action Needed</Badge>
-                    </Group>
-                  </Card.Section>
-
-                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
-                    <div>
-                      <Text size="sm" c="dimmed">
-                        {completeProfileCard.description}
-                      </Text>
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Group justify="apart" mb="xs">
+                    <Text size="sm" c="dimmed" fw={500}>
+                      {stat.title}
+                    </Text>
+                    <div style={{ color: `var(--mantine-color-${stat.color}-6)` }}>
+                      {stat.icon}
                     </div>
-                    
-                    <Stack gap="xs">
-                      <Button 
-                        component={Link}
-                        to={completeProfileCard.link}
-                        variant="filled"
-                        color={completeProfileCard.color}
-                        leftSection={completeProfileCard.icon}
-                        size="sm"
-                      >
-                        Complete Profile
-                      </Button>
-                    </Stack>
-                  </Stack>
+                  </Group>
+                  <Text size="xl" fw={700}>
+                    {stat.value}
+                  </Text>
                 </Card>
               </motion.div>
-            ) : (
-              statsCards.map((stat, index) => (
-                <motion.div
-                  key={stat.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card shadow="sm" padding="lg" radius="md" withBorder>
-                    <Group justify="apart" mb="xs">
-                      <Text size="sm" c="dimmed" fw={500}>
-                        {stat.title}
-                      </Text>
-                      <div style={{ color: `var(--mantine-color-${stat.color}-6)` }}>
-                        {stat.icon}
-                      </div>
-                    </Group>
-                    <Text size="xl" fw={700}>
-                      {stat.value}
-                    </Text>
-                  </Card>
-                </motion.div>
-              ))
-            )}
+            ))}
           </SimpleGrid>
 
           {/* Quick Actions */}

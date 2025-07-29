@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
 import { Hub } from 'aws-amplify/utils';
-import { fetchAuthSession, getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
+import { fetchAuthSession, signOut } from 'aws-amplify/auth';
 
 
 const AuthContext = createContext();
@@ -76,14 +76,14 @@ export const AuthProvider = ({ children }) => {
     return user ? user.attributes : null;
   };
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     isAuthenticated: !!user,
     loading,
     logout: handleLogout,
     getUserAttributes,
     checkUserSession: checkUser, // Expose checkUser function
-  };
+  }), [user, loading]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -75,9 +75,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // If profile is incomplete AND there is a database entry, redirect to complete profile
+  // If profile is incomplete AND there is a database entry, redirect to update profile
   if (profileStatus.isProfileComplete === false && profileStatus.hasDatabaseEntry === true) {
-    const redirectPath = userRole === 'provider' ? '/provider-complete-profile' : '/user-complete-profile';
+    const redirectPath = userRole === 'provider' ? '/provider-update-profile' : '/update-profile';
+    if (location.pathname !== redirectPath) {
+      return <Navigate to={redirectPath} replace />;
+    }
+  }
+
+  // If profile is incomplete AND there is NO database entry, redirect to complete profile
+  if (profileStatus.isProfileComplete === false && profileStatus.hasDatabaseEntry === false) {
+    const redirectPath = userRole === 'provider' ? '/provider-complete-profile' : '/complete-profile';
     if (location.pathname !== redirectPath) {
       return <Navigate to={redirectPath} replace />;
     }

@@ -3,7 +3,6 @@ import { Container, Title, Text, Grid, Card, Stack, Button, Group, Avatar, Badge
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboardList } from '@tabler/icons-react';
-import UserCompleteProfilePage from './UserCompleteProfilePage';
 import apiClient from '../utils/apiClient';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
  */
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: true, hasDatabaseEntry: true }); // Assume complete until checked
+  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: false, hasDatabaseEntry: false });
   const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
 
   useEffect(() => {
@@ -52,10 +51,9 @@ const DashboardPage = () => {
     );
   }
 
-  // Only redirect to complete profile if profile is incomplete AND there is a database entry
-  if (!profileStatus.isProfileComplete && profileStatus.hasDatabaseEntry) {
-    return <UserCompleteProfilePage />;
-  }
+  const profileActionText = profileStatus.hasDatabaseEntry ? 'Update Profile' : 'Complete Profile';
+  const profileActionPath = profileStatus.hasDatabaseEntry ? '/update-profile' : '/complete-profile';
+
 
   return (
     <Container size="xl" py={40}>
@@ -89,31 +87,33 @@ const DashboardPage = () => {
                 <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Card.Section withBorder inheritPadding py="xs">
                     <Group justify="space-between">
-                      <Text fw={500} size="lg">Complete Your Profile</Text>
-                      <Badge color="orange" variant="light">Action Needed</Badge>
+                      <Text fw={500} size="lg">{profileActionText}</Text>
+                      {!profileStatus.hasDatabaseEntry && <Badge color="orange" variant="light">Action Needed</Badge>}
                     </Group>
                   </Card.Section>
 
                   <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
                     <div>
                       <Text size="sm" c="dimmed">
-                        Complete your account setup to unlock all features and get personalized healthcare recommendations.
+                        {profileStatus.hasDatabaseEntry
+                          ? 'Your profile is complete. You can update it at any time.'
+                          : 'Complete your account setup to unlock all features and get personalized healthcare recommendations.'}
                       </Text>
                     </div>
                     
                     <Stack gap="xs">
-                      <Progress value={25} color="orange" size="sm" />
-                      <Text size="xs" c="dimmed">25% Complete</Text>
+                      <Progress value={profileStatus.hasDatabaseEntry ? 100 : 25} color={profileStatus.hasDatabaseEntry ? "green" : "orange"} size="sm" />
+                      <Text size="xs" c="dimmed">{profileStatus.hasDatabaseEntry ? '100% Complete' : '25% Complete'}</Text>
                       
                       <Button 
                         component={Link}
-                        to="/complete-profile"
+                        to={profileActionPath}
                         variant="filled"
                         color="blue"
                         leftSection={<IconUser size={16} />}
                         size="sm"
                       >
-                        Complete Profile
+                        {profileActionText}
                       </Button>
                     </Stack>
                   </Stack>
@@ -314,11 +314,11 @@ const DashboardPage = () => {
               <Group>
                 <Button 
                   component={Link}
-                  to="/complete-profile"
+                  to={profileActionPath}
                   variant="filled"
                   color="blue"
                 >
-                  Complete Profile
+                  {profileActionText}
                 </Button>
                 <Button 
                   component={Link}
