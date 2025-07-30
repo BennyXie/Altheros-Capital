@@ -172,14 +172,15 @@ const ProviderCompleteProfilePage = () => {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob((blob) => {
-        if (blob) {
-          const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
-          setSelectedFile(fileFromBlob);
-          setCapturedImageBlob(blob);
-          setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
-          stopCamera(); // Stop camera after taking photo
-        }
-      }, 'image/png');
+            if (blob) {
+              const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
+              setSelectedFile(fileFromBlob);
+              setCapturedImageBlob(blob);
+              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+              stopCamera(); // Stop camera after taking photo
+              
+            }
+          }, 'image/png');
     }
   };
 
@@ -286,6 +287,7 @@ const ProviderCompleteProfilePage = () => {
         color: 'green',
       });
       setFormData(prev => ({ ...prev, headshot_url: response.imageUrl }));
+      return response.imageUrl; // Return the image URL
     } catch (error) {
       console.error('Error uploading headshot:', error);
       notifications.show({
@@ -363,14 +365,20 @@ const ProviderCompleteProfilePage = () => {
 
     setIsLoading(true);
 
+    
+
     try {
       // Upload headshot first if a new file is selected
+      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
       if (selectedFile) {
-        await uploadHeadshot(selectedFile);
+        newHeadshotUrl = await uploadHeadshot(selectedFile);
       }
 
+      // Update formData with the new headshot URL before submitting the profile
+      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+
       if (isEditMode) {
-        await profileIntegrationService.updateUserProfile(formData, 'provider');
+        await profileIntegrationService.updateUserProfile(finalFormData, 'provider');
         notifications.show({
           title: 'Profile Updated Successfully',
           message: 'Your provider profile has been updated!',
@@ -380,7 +388,7 @@ const ProviderCompleteProfilePage = () => {
       } else {
         await profileIntegrationService.completeUserProfile(
           user, // Cognito user data
-          formData,
+          finalFormData,
           'provider' // Role
         );
         notifications.show({

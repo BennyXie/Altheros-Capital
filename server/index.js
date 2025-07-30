@@ -38,6 +38,10 @@ app.use(cors());
 // Headshot routes - MUST be before any body-parser middleware
 app.use("/api/headshot", headshotRoutes);
 
+// Body parsing middleware - apply after headshotRoutes to avoid interference
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
 // Auth routes
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
