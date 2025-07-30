@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { fadeInUp } from '../../animations/variants';
 
 const ProviderCard = ({ provider }) => {
-    const { name, qualifications, specialties, experience, communicationStyle, headshot } = provider;
+    const { name, qualifications, specialties, experience, headshot } = provider;
     const navigate = useNavigate();
 
     const handleViewProfile = () => {
@@ -43,9 +43,6 @@ const ProviderCard = ({ provider }) => {
                         </Group>
                         <Text size="sm" c="dimmed">
                             <strong>Experience:</strong> {experience}
-                        </Text>
-                        <Text size="sm" c="dimmed" mt="xs">
-                           <strong>Comm. Style:</strong> {communicationStyle}
                         </Text>
                         <Group gap="xs" mt="xs">
                             {specialties.map((specialty, index) => (

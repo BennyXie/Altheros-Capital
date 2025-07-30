@@ -56,7 +56,6 @@ const ProviderCompleteProfilePage = () => {
     hobbies: '',
     quote: '',
     headshot_url: '',
-    communication_style: '',
   });
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -98,7 +97,6 @@ const ProviderCompleteProfilePage = () => {
               hobbies: profile.hobbies || '',
               quote: profile.quote || '',
               headshot_url: profile.headshot_url || '',
-              communication_style: profile.communication_style || '',
             });
             console.log('ProviderCompleteProfilePage: Form data set with fetched profile.');
             console.log('ProviderCompleteProfilePage: headshot_url from fetched profile:', profile.headshot_url);
@@ -253,13 +251,6 @@ const ProviderCompleteProfilePage = () => {
     { value: 'addiction-recovery', label: 'Addiction & Recovery' }
   ];
 
-  const communicationStyleOptions = [
-    { value: 'Direct', label: 'Direct' },
-    { value: 'Empathetic', label: 'Empathetic' },
-    { value: 'Supportive', label: 'Supportive' },
-    { value: 'Challenging', label: 'Challenging' },
-  ];
-
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -309,7 +300,7 @@ const ProviderCompleteProfilePage = () => {
   };
 
   const calculateProgress = () => {
-    const requiredFields = ['first_name', 'last_name', 'location', 'specialty', 'gender', 'experience_years', 'education', 'communication_style'];
+    const requiredFields = ['first_name', 'last_name', 'location', 'specialty', 'gender', 'experience_years', 'education'];
     const filledRequired = requiredFields.filter(field => {
       if (Array.isArray(formData[field])) {
         return formData[field].length > 0;
@@ -346,8 +337,7 @@ const ProviderCompleteProfilePage = () => {
            formData.specialty.length > 0 && 
            formData.gender && 
            formData.experience_years && 
-           formData.education.trim() &&
-           formData.communication_style;
+           formData.education.trim();
   };
 
   const handleSubmit = async (e) => {
@@ -525,16 +515,6 @@ const ProviderCompleteProfilePage = () => {
                       max={50}
                       value={formData.experience_years}
                       onChange={(value) => handleInputChange('experience_years', value)}
-                      required
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <Select
-                      label="Communication Style"
-                      placeholder="Select your communication style"
-                      data={communicationStyleOptions}
-                      value={formData.communication_style}
-                      onChange={(value) => handleInputChange('communication_style', value)}
                       required
                     />
                   </Grid.Col>

@@ -38,28 +38,26 @@ const ProviderLookupPage = () => {
                         name: `${p.first_name} ${p.last_name}`,
                         qualifications: p.education,
                         specialties: p.specialty || [],
-                        experience: `${p.experience_years} years`,
-                        communicationStyle: p.communication_style || 'N/A',
+                        yearsOfExperience: p.experience_years,
                         headshot: headshotUrl,
                         approach: p.about_me,
                         interests: p.hobbies,
                         location: p.location,
-                        insurance: p.insurance_networks || []
+                        acceptedInsurance: p.insurance_networks || [],
+                        languages: p.languages || []
                     };
                 });
                 setProviders(fetchedProviders);
                 setFilteredProviders(fetchedProviders);
 
                 // Extract unique values for filters
-                const specialties = [...new Set(fetchedProviders.flatMap(p => p.specialties))];
-                const experiences = [...new Set(fetchedProviders.map(p => p.experience))];
-                const communicationStyles = [...new Set(fetchedProviders.map(p => p.communicationStyle))];
-                const insurances = [...new Set(fetchedProviders.flatMap(p => p.insurance))];
+                const specialties = [...new Set(fetchedProviders.flatMap(p => p.specialties || []).filter(Boolean))];
+                const experiences = [...new Set(fetchedProviders.map(p => p.experience).filter(Boolean))];
+                const insurances = [...new Set(fetchedProviders.flatMap(p => p.insurance || []).filter(Boolean))];
 
                 setNeedsData([
                     { group: 'Specialty', items: specialties },
                     { group: 'Experience', items: experiences },
-                    { group: 'Communication Style', items: communicationStyles },
                 ]);
                 setInsuranceData(insurances);
 
@@ -79,8 +77,7 @@ const ProviderLookupPage = () => {
                 updatedProviders = updatedProviders.filter(provider => 
                     myNeeds.every(need => 
                         (provider.specialties && provider.specialties.includes(need)) || 
-                        provider.experience === need || 
-                        provider.communicationStyle === need
+                        provider.experience === need
                     )
                 );
             }
@@ -114,7 +111,7 @@ const ProviderLookupPage = () => {
                                         <MultiSelect
                                             label="My Needs"
                                             placeholder="Select all that apply"
-                                            data={needsData.map(group => ({ group: group.group, items: group.items }))}
+                                            data={needsData}
                                             value={myNeeds}
                                             onChange={setMyNeeds}
                                             searchable
