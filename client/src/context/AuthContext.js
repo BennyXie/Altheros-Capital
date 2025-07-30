@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
     logout: handleLogout,
     getUserAttributes,
     checkUserSession: checkUser, // Expose checkUser function
-  }), [user, loading]);
+  }), [user, loading, getUserAttributes]);
 
   return (
     <AuthContext.Provider value={value}>

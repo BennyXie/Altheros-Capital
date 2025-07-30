@@ -13,7 +13,7 @@ const ProviderProfilePage = () => {
         return <Container><Text>Provider not found.</Text></Container>;
     }
 
-    const { name, title, qualifications, acceptedInsurance, headshot, approach, interests, location: providerLocation, languages, specialties, yearsOfExperience, bio } = provider;
+    const { name, title, qualifications, acceptedInsurance, headshot, approach, interests, location: providerLocation, languages, specialties, yearsOfExperience } = provider;
 
     return (
         <motion.div variants={staggerContainer} initial="initial" animate="animate">
@@ -88,6 +88,7 @@ const ProviderProfilePage = () => {
                                     width="100%"
                                     height="400px"
                                     frameBorder="0"
+                                    title="Cal Scheduling Widget"
                                 ></iframe>
                             </Paper>
                             <Paper shadow="sm" radius="md" withBorder p="md" mt="xl">
