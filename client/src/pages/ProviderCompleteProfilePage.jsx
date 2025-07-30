@@ -64,6 +64,7 @@ const ProviderCompleteProfilePage = () => {
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [capturedImageBlob, setCapturedImageBlob] = useState(null);
+  const [previewHeadshotUrl, setPreviewHeadshotUrl] = useState(''); // New state for image preview
 
   useEffect(() => {
     if (location.pathname === '/provider-update-profile') {
@@ -98,6 +99,7 @@ const ProviderCompleteProfilePage = () => {
               quote: profile.quote || '',
               headshot_url: profile.headshot_url || '',
             });
+            setPreviewHeadshotUrl(profile.headshot_url || ''); // Set preview URL from fetched profile
             console.log('ProviderCompleteProfilePage: Form data set with fetched profile.');
             console.log('ProviderCompleteProfilePage: headshot_url from fetched profile:', profile.headshot_url);
           } else {
@@ -125,7 +127,7 @@ const ProviderCompleteProfilePage = () => {
   const startCamera = async () => {
     console.log("startCamera function called.");
     setCapturedImageBlob(null);
-    setFormData(prev => ({ ...prev, headshot_url: '' })); // Clear preview
+    setPreviewHeadshotUrl(''); // Clear preview when starting camera
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       setStream(mediaStream);
@@ -176,9 +178,8 @@ const ProviderCompleteProfilePage = () => {
               const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
               setSelectedFile(fileFromBlob);
               setCapturedImageBlob(blob);
-              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+              setPreviewHeadshotUrl(URL.createObjectURL(blob)); // Update preview URL
               stopCamera(); // Stop camera after taking photo
-              
             }
           }, 'image/png');
     }
@@ -264,11 +265,11 @@ const ProviderCompleteProfilePage = () => {
     if (fileInput) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, headshot_url: reader.result }));
+        setPreviewHeadshotUrl(reader.result); // Update preview URL
       };
       reader.readAsDataURL(fileInput);
     } else {
-      setFormData(prev => ({ ...prev, headshot_url: '' }));
+      setPreviewHeadshotUrl(''); // Clear preview
     }
   };
 
@@ -593,9 +594,9 @@ const ProviderCompleteProfilePage = () => {
                 <Divider label="Profile Photo" labelPosition="center" />
 
                 <Stack align="center" mb="md">
-                  {formData.headshot_url ? (
+                  {previewHeadshotUrl ? (
                     <Image
-                      src={formData.headshot_url}
+                      src={previewHeadshotUrl}
                       alt="Headshot Preview"
                       radius="md"
                       h={200}
@@ -677,7 +678,7 @@ const ProviderCompleteProfilePage = () => {
                         <Button onClick={() => {
                           setCapturedImageBlob(null);
                           setSelectedFile(null);
-                          setFormData(prev => ({ ...prev, headshot_url: '' }));
+                          setPreviewHeadshotUrl(''); // Clear preview
                           startCamera();
                         }} leftSection={<IconRefresh size={16} />}>
                           Retake Photo
