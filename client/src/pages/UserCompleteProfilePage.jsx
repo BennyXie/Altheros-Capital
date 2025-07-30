@@ -69,33 +69,31 @@ const CompleteProfilePage = () => {
 
           if (profile) {
             setFormData(prevData => {
-              const fetchedData = profile || {}; // Ensure data is at least an empty object
+              const fetchedData = profile || {}; 
               const fetchedPreferences = fetchedData.preferences || {};
 
-            // Apply formatting to phone number when fetching from DB
             const formattedPhoneNumber = fetchedData.phone_number ? formatPhoneNumberInput(fetchedData.phone_number) : '';
             console.log('DEBUG: formattedPhoneNumber in setFormData:', formattedPhoneNumber);
 
-            // Map symptoms and languages from array of objects to array of strings
-            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s.symptom_text).filter(Boolean) : [];
-            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l.language).filter(Boolean) : [];
+            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s).filter(Boolean) : [];
+            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l).filter(Boolean) : [];
 
             return {
-              ...prevData, // Keep existing state
+              ...prevData,
               dob: fetchedData.dob || '',
               gender: fetchedData.gender || '',
               address: fetchedData.address || '',
-              phoneNumber: formattedPhoneNumber, // Use formatted phone number
+              phoneNumber: formattedPhoneNumber,
               insurance: fetchedData.insurance || '',
-              currentMedication: fetchedData.current_medication || '', // Use current_medication from API
+              currentMedication: fetchedData.currentMedication || '',
               symptoms: mappedSymptoms,
               languages: mappedLanguages,
               preferences: {
-                preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
-                smsOptIn: fetchedPreferences.sms_opt_in || false,
-                languagePreference: fetchedPreferences.language_preference || '',
-                insuranceRequired: fetchedPreferences.insurance_required || false,
-                optInContact: fetchedPreferences.opt_in_contact || false,
+                preferredProviderGender: fetchedPreferences.preferredProviderGender || '',
+                smsOptIn: fetchedPreferences.smsOptIn || false,
+                languagePreference: fetchedPreferences.languagePreference || '',
+                insuranceRequired: fetchedPreferences.insuranceRequired || false,
+                optInContact: fetchedPreferences.optInContact || false,
               },
             };
             });
@@ -265,59 +263,7 @@ const CompleteProfilePage = () => {
            phoneNumberValid;
   };
 
-  useEffect(() => {
-    if (location.pathname === '/update-profile') {
-      setIsUpdateMode(true);
-      setIsFetching(true); // Set isFetching to true immediately
-      const fetchProfileData = async () => {
-        try {
-          const data = await apiClient.get('/api/profile/patient');
-          console.log('Full Patient Profile DB Output:', data);
-
-          setFormData(prevData => {
-            const fetchedData = data || {}; // Ensure data is at least an empty object
-            const fetchedPreferences = fetchedData.preferences || {};
-
-            // Apply formatting to phone number when fetching from DB
-            const formattedPhoneNumber = fetchedData.phone_number ? formatPhoneNumberInput(fetchedData.phone_number) : '';
-            console.log('DEBUG: formattedPhoneNumber in setFormData:', formattedPhoneNumber);
-
-            // Map symptoms and languages from array of objects to array of strings
-            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s.symptom_text).filter(Boolean) : [];
-            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l.language).filter(Boolean) : [];
-
-            return {
-              ...prevData, // Keep existing state
-              dob: fetchedData.dob || '',
-              gender: fetchedData.gender || '',
-              address: fetchedData.address || '',
-              phoneNumber: formattedPhoneNumber, // Use formatted phone number
-              insurance: fetchedData.insurance || '',
-              currentMedication: fetchedData.current_medication || '', // Use current_medication from API
-              symptoms: mappedSymptoms,
-              languages: mappedLanguages,
-              preferences: {
-                preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
-                smsOptIn: fetchedPreferences.sms_opt_in || false,
-                languagePreference: fetchedPreferences.language_preference || '',
-                insuranceRequired: fetchedPreferences.insurance_required || false,
-                optInContact: fetchedPreferences.opt_in_contact || false,
-              },
-            };
-          });
-        } catch (error) {
-          notifications.show({
-            title: 'Fetch Error',
-            message: 'Failed to fetch profile data.',
-            color: 'red'
-          });
-        } finally {
-          setIsFetching(false);
-        }
-      };
-      fetchProfileData();
-    }
-  }, [location.pathname]);
+  
 
   console.log('Submitting formData:', formData);
 

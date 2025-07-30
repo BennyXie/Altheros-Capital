@@ -78,14 +78,15 @@ async function completePatientProfile(req, res) {
 
     // Insert languages if provided
     if (languages && languages.length > 0) {
-      const patientLan = languages.join(" ");
-      const insertLanguageQuery = `
-        INSERT INTO patient_language (patient_id, language)
-        VALUES ($1, $2)
-      `;
-      const languageValues = [patientId, patientLan];
-      console.log('completePatientProfile: Language INSERT values:', languageValues);
-      await db.query(insertLanguageQuery, languageValues);
+      for (const language of languages) {
+        const insertLanguageQuery = `
+          INSERT INTO patient_language (patient_id, language)
+          VALUES ($1, $2)
+        `;
+        const languageValues = [patientId, language];
+        console.log('completePatientProfile: Language INSERT values:', languageValues);
+        await db.query(insertLanguageQuery, languageValues);
+      }
     }
 
     // Insert patient preferences if provided
@@ -190,8 +191,9 @@ async function updatePatientProfile(req, res) {
     // Update languages
     await db.query('DELETE FROM patient_language WHERE patient_id = $1', [patientId]);
     if (languages && languages.length > 0) {
-      const patientLan = languages.join(" ");
-      await db.query('INSERT INTO patient_language (patient_id, language) VALUES ($1, $2)', [patientId, patientLan]);
+      for (const language of languages) {
+        await db.query('INSERT INTO patient_language (patient_id, language) VALUES ($1, $2)', [patientId, language]);
+      }
     }
 
     const { preferredProviderGender, smsOptIn, languagePreference, insuranceRequired, optInContact } = preferences;
@@ -268,13 +270,13 @@ async function getPatientProfile(req, res) {
       ...patient,
       dob: patient.dob ? patient.dob.toISOString().split('T')[0] : '', // Format DOB to YYYY-MM-DD
       symptoms: symptomsResult.rows.map(r => r.symptom_text),
-      languages: languagesResult.rows.length > 0 ? languagesResult.rows[0].language.split(' ') : [],
+      languages: languagesResult.rows.map(r => r.language),
       preferences: preferencesResult.rows.length > 0 ? {
-        preferredProviderGender: preferencesResult.rows[0].preferred_provider_gender || '',
-        smsOptIn: preferencesResult.rows[0].sms_opt_in || false,
-        languagePreference: preferencesResult.rows[0].language_preference || '',
-        insuranceRequired: preferencesResult.rows[0].insurance_required || false,
-        optInContact: preferencesResult.rows[0].opt_in_contact || false,
+        preferredProviderGender: preferencesResult.rows[0].preferred_provider_gender,
+        smsOptIn: preferencesResult.rows[0].sms_opt_in,
+        languagePreference: preferencesResult.rows[0].language_preference,
+        insuranceRequired: preferencesResult.rows[0].insurance_required,
+        optInContact: preferencesResult.rows[0].opt_in_contact,
       } : {},
       currentMedication: patient.current_medication || '', // Ensure currentMedication is retrieved
     };
