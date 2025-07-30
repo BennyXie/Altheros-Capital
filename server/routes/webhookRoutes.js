@@ -238,22 +238,20 @@ async function handleBookingRescheduled(data) {
     const newUid = data.payload?.uid;
     const newStart = data.payload?.startTime;
     const newEnd = data.payload?.endTime;
-    const rescheduleReason = data.payload?.rescheduleReason || null;
+    const rescheduleReason = data.payload?.responses?.rescheduleReason?.value || null;
     if (!rescheduleUid || !newUid || !newStart || !newEnd) {
       throw new Error("Missing required reschedule data");
     }
     client = await pool.connect();
-    let notesUpdateSql = '';
-    let notesUpdateParams = [];
+    let query, params;
     if (rescheduleReason) {
-      notesUpdateSql = ', notes = COALESCE(notes, \'\') || $6';
-      notesUpdateParams = [`\nReschedule reason: ${rescheduleReason}`];
+      query = `UPDATE appointments SET appointment_start = $1, appointment_end = $2, status = $3, updated_at = $4, ical_uid = $5, notes = COALESCE(notes, '') || $6 WHERE ical_uid = $7 RETURNING *`;
+      params = [newStart, newEnd, 'rescheduled', new Date().toISOString(), newUid, `\nReason for reschedule: ${rescheduleReason}`, rescheduleUid];
+    } else {
+      query = `UPDATE appointments SET appointment_start = $1, appointment_end = $2, status = $3, updated_at = $4, ical_uid = $5 WHERE ical_uid = $6 RETURNING *`;
+      params = [newStart, newEnd, 'rescheduled', new Date().toISOString(), newUid, rescheduleUid];
     }
-    // Update the appointment's start/end, status, notes, and set ical_uid to the new uid
-    const result = await client.query(
-      `UPDATE appointments SET appointment_start = $1, appointment_end = $2, status = $3, updated_at = $4, ical_uid = $5${notesUpdateSql} WHERE ical_uid = $6 RETURNING *`,
-      [newStart, newEnd, 'rescheduled', new Date().toISOString(), newUid, rescheduleUid, ...notesUpdateParams]
-    );
+    const result = await client.query(query, params);
     if (result.rows.length > 0) {
       console.log("Appointment rescheduled:", result.rows[0]);
     } else {
