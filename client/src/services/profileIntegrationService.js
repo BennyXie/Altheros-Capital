@@ -103,7 +103,7 @@ class ProfileIntegrationService {
       console.log('profileIntegrationService: User role:', user?.role);
       if (user && user.role === 'providers') {
         backendProfile = await apiService.getProviderProfile();
-      } else if (user && user.role === 'patient') {
+      } else if (user && user.role === 'patients') {
         backendProfile = await apiService.getPatientProfile();
       } else {
         // Fallback or error if role is not determined

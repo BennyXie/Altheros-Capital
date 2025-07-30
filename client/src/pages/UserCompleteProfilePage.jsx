@@ -51,28 +51,70 @@ const CompleteProfilePage = () => {
     languages: []
   });
 
+  console.log('DEBUG: isFetching at render:', isFetching);
+
   useEffect(() => {
     if (location.pathname === '/update-profile') {
       setIsUpdateMode(true);
-      fetchProfileData();
     }
   }, [location.pathname]);
 
-  const fetchProfileData = async () => {
-    setIsFetching(true);
-    try {
-      const data = await apiClient.get('/api/profile/patient');
-      setFormData(data);
-    } catch (error) {
-      notifications.show({
-        title: 'Fetch Error',
-        message: 'Failed to fetch profile data.',
-        color: 'red'
-      });
-    } finally {
-      setIsFetching(false);
+  useEffect(() => {
+    if (isUpdateMode && user) {
+      setIsFetching(true);
+      const fetchProfileData = async () => {
+        try {
+          const { profile } = await profileIntegrationService.getCurrentUserProfile(user, 'patient');
+          console.log('Full Patient Profile DB Output:', profile);
+
+          if (profile) {
+            setFormData(prevData => {
+              const fetchedData = profile || {}; // Ensure data is at least an empty object
+              const fetchedPreferences = fetchedData.preferences || {};
+
+            // Apply formatting to phone number when fetching from DB
+            const formattedPhoneNumber = fetchedData.phone_number ? formatPhoneNumberInput(fetchedData.phone_number) : '';
+            console.log('DEBUG: formattedPhoneNumber in setFormData:', formattedPhoneNumber);
+
+            // Map symptoms and languages from array of objects to array of strings
+            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s.symptom_text).filter(Boolean) : [];
+            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l.language).filter(Boolean) : [];
+
+            return {
+              ...prevData, // Keep existing state
+              dob: fetchedData.dob || '',
+              gender: fetchedData.gender || '',
+              address: fetchedData.address || '',
+              phoneNumber: formattedPhoneNumber, // Use formatted phone number
+              insurance: fetchedData.insurance || '',
+              currentMedication: fetchedData.current_medication || '', // Use current_medication from API
+              symptoms: mappedSymptoms,
+              languages: mappedLanguages,
+              preferences: {
+                preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
+                smsOptIn: fetchedPreferences.sms_opt_in || false,
+                languagePreference: fetchedPreferences.language_preference || '',
+                insuranceRequired: fetchedPreferences.insurance_required || false,
+                optInContact: fetchedPreferences.opt_in_contact || false,
+              },
+            };
+            });
+          } else {
+            console.log('UserCompleteProfilePage: Profile data was empty or null.');
+          }
+        } catch (error) {
+          notifications.show({
+            title: 'Fetch Error',
+            message: 'Failed to fetch profile data.',
+            color: 'red'
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      };
+      fetchProfileData();
     }
-  };
+  }, [isUpdateMode, user]);
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -179,6 +221,28 @@ const CompleteProfilePage = () => {
     handleInputChange('dob', formatted);
   };
 
+  const formatPhoneNumberInput = (value) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Apply formatting (e.g., (XXX) XXX-XXXX)
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else if (digits.length <= 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else {
+      // For more than 10 digits, just return the first 10 formatted
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneNumberChange = (value) => {
+    const formatted = formatPhoneNumberInput(value);
+    handleInputChange('phoneNumber', formatted);
+  };
+
   const isValidDate = (dateString) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(dateString)) return false;
@@ -204,34 +268,41 @@ const CompleteProfilePage = () => {
   useEffect(() => {
     if (location.pathname === '/update-profile') {
       setIsUpdateMode(true);
+      setIsFetching(true); // Set isFetching to true immediately
       const fetchProfileData = async () => {
-        setIsFetching(true);
         try {
           const data = await apiClient.get('/api/profile/patient');
-          console.log('Fetched profile data:', data); // Log fetched data
+          console.log('Full Patient Profile DB Output:', data);
 
           setFormData(prevData => {
-            const fetchedPreferences = data.preferences || {}; // Ensure it's an object
-            const newPreferences = {
-              ...prevData.preferences, // Start with the initial structure
-              preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
-              smsOptIn: fetchedPreferences.sms_opt_in || false,
-              languagePreference: fetchedPreferences.language_preference || '',
-              insuranceRequired: fetchedPreferences.insurance_required || false,
-              optInContact: fetchedPreferences.opt_in_contact || false,
-            };
+            const fetchedData = data || {}; // Ensure data is at least an empty object
+            const fetchedPreferences = fetchedData.preferences || {};
+
+            // Apply formatting to phone number when fetching from DB
+            const formattedPhoneNumber = fetchedData.phone_number ? formatPhoneNumberInput(fetchedData.phone_number) : '';
+            console.log('DEBUG: formattedPhoneNumber in setFormData:', formattedPhoneNumber);
+
+            // Map symptoms and languages from array of objects to array of strings
+            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s.symptom_text).filter(Boolean) : [];
+            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l.language).filter(Boolean) : [];
 
             return {
-              ...prevData, // Keep other fields from previous state
-              ...data, // Overlay fetched data for top-level fields
-              preferences: newPreferences, // Use the carefully constructed preferences object
-              symptoms: data.symptoms || [],
-              languages: data.languages || [],
-              dob: data.dob || '',
-              address: data.address || '',
-              phoneNumber: data.phone_number || '',
-              currentMedication: data.current_medication || '',
-              insurance: data.insurance || '',
+              ...prevData, // Keep existing state
+              dob: fetchedData.dob || '',
+              gender: fetchedData.gender || '',
+              address: fetchedData.address || '',
+              phoneNumber: formattedPhoneNumber, // Use formatted phone number
+              insurance: fetchedData.insurance || '',
+              currentMedication: fetchedData.current_medication || '', // Use current_medication from API
+              symptoms: mappedSymptoms,
+              languages: mappedLanguages,
+              preferences: {
+                preferredProviderGender: fetchedPreferences.preferred_provider_gender || '',
+                smsOptIn: fetchedPreferences.sms_opt_in || false,
+                languagePreference: fetchedPreferences.language_preference || '',
+                insuranceRequired: fetchedPreferences.insurance_required || false,
+                optInContact: fetchedPreferences.opt_in_contact || false,
+              },
             };
           });
         } catch (error) {
@@ -248,7 +319,7 @@ const CompleteProfilePage = () => {
     }
   }, [location.pathname]);
 
-  console.log('Current formData state:', formData); // Log formData state in render
+  console.log('Submitting formData:', formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -276,7 +347,7 @@ const CompleteProfilePage = () => {
 
     try {
       if (isUpdateMode) {
-        await profileIntegrationService.updateUserProfile(formData);
+        await profileIntegrationService.updateUserProfile(formData, 'patient');
         notifications.show({
           title: 'Profile Updated!',
           message: 'Your profile has been successfully updated.',
@@ -306,6 +377,10 @@ const CompleteProfilePage = () => {
       setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return <Container size="md" py={40}><Loader /></Container>;
+  }
 
   if (isFetching) {
     return <Container size="md" py={40}><Loader /></Container>;
@@ -398,8 +473,8 @@ const CompleteProfilePage = () => {
                       <TextInput
                         label="Phone Number *"
                         placeholder="(555) 123-4567"
-                        value={String(formData.phoneNumber)}
-                        onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                        value={formData.phoneNumber || ''}
+                        onChange={(e) => handlePhoneNumberChange(e.target.value)} // Use new handler
                         required
                       />
                     </Grid.Col>
@@ -454,7 +529,7 @@ const CompleteProfilePage = () => {
                     
                     <Checkbox
                       label="I consent to be contacted directly by healthcare providers"
-                      checked={formData.preferences.optInContact}
+                      checked={formData.preferences.optInContact || false}
                       onChange={(e) => handleInputChange('preferences.optInContact', e.target.checked)}
                     />
                   </Stack>
@@ -502,7 +577,7 @@ const CompleteProfilePage = () => {
                         label="Current Symptoms (if any)"
                         placeholder="Select any symptoms you're experiencing"
                         data={symptomOptions}
-                        value={formData.symptoms}
+                        value={formData.symptoms || []}
                         onChange={(value) => handleInputChange('symptoms', value)}
                         searchable
                       />
