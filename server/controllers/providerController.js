@@ -93,8 +93,25 @@ async function getProviderHeadshot(req, res) {
   }
 }
 
+async function getAuthenticatedProviderProfile(req, res) {
+  try {
+    const cognitoSub = req.user.sub; // Assuming verifyToken middleware attaches user info to req.user
+    const providerProfile = await providerService.getProviderProfileByCognitoSub(cognitoSub);
+
+    if (!providerProfile) {
+      return res.status(404).json({ error: "Provider profile not found." });
+    }
+
+    res.json(providerProfile);
+  } catch (error) {
+    console.error('Error fetching authenticated provider profile:', error);
+    res.status(500).json({ error: 'Failed to fetch provider profile', details: error.message });
+  }
+}
+
 module.exports = {
   listProviders,
   getProvider,
   getProviderHeadshot,
+  getAuthenticatedProviderProfile,
 };

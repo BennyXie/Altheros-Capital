@@ -14,6 +14,8 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LandingPage from './components/landing/LandingPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import ProviderAccessPage from './pages/ProviderAccessPage.jsx';
+import ProviderLookupPage from './pages/ProviderLookupPage.jsx';
+import ProviderProfilePage from './pages/ProviderProfilePage.jsx';
 import Layout from './components/layout';
 
 Amplify.configure(amplifyConfig);
@@ -29,6 +31,8 @@ const AppRoutes = () => {
       <Route path="/" element={<Layout><LandingPage /></Layout>} />
       <Route path="/about" element={<Layout><AboutPage /></Layout>} />
       <Route path="/providers" element={<Layout><ProviderAccessPage /></Layout>} />
+      <Route path="/provider-lookup" element={<Layout><ProviderLookupPage /></Layout>} />
+      <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
       <Route
         path="/user-dashboard"
         element={
@@ -96,7 +100,7 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>

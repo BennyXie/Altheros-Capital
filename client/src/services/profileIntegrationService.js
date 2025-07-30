@@ -68,7 +68,6 @@ class ProfileIntegrationService {
           languages: profileData.languages || [],
           hobbies: profileData.hobbies,
           quote: profileData.quote,
-          calendly_url: profileData.calendly_url,
           headshot_url: profileData.headshot_url,
         };
 
@@ -100,9 +99,11 @@ class ProfileIntegrationService {
   async getCurrentUserProfile(user) {
     try {
       let backendProfile;
-      if (user && user.role === 'provider') {
+      console.log('profileIntegrationService: User object in getCurrentUserProfile:', user);
+      console.log('profileIntegrationService: User role:', user?.role);
+      if (user && user.role === 'providers') {
         backendProfile = await apiService.getProviderProfile();
-      } else if (user && user.role === 'patient') {
+      } else if (user && user.role === 'patients') {
         backendProfile = await apiService.getPatientProfile();
       } else {
         // Fallback or error if role is not determined

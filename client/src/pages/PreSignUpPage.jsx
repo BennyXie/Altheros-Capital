@@ -15,9 +15,9 @@ import { Link } from 'react-router-dom';
 import { SIGNUP_SELECTION_CONFIG } from "../config/preSignUpConfig.js";
 import AuthService from "../services/authService.js";
 
-const MotionCard = motion(Card);
-const MotionActionIcon = motion(ActionIcon);
-const MotionLine = motion.div; // the growing shaft
+const MotionCard = motion.create(Card);
+const MotionActionIcon = motion.create(ActionIcon);
+const MotionLine = motion.create('div'); // the growing shaft
 
 /* how far the arrow line should grow (px) */
 const arrowVariants = {

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Title,
@@ -12,25 +13,9 @@ import { fadeInUp } from "../../../animations/variants";
 import { CTA_CONFIG } from "../../../config/landingConfig";
 import classes from "./CTASection.module.css";
 
-/**
- * Call-to-Action Section Component
- *
- * Final conversion section that encourages users to take action.
- * Should be compelling and create urgency without being pushy.
- *
- * Typically includes:
- * - Compelling headline
- * - Brief value reminder
- * - Primary and secondary CTAs
- * - Optional urgency element
- *
- * @component
- * @example
- * return (
- *   <CTASection />
- * )
- */
 const CTASection = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="cta" className={classes.cta}>
       <Container size="md" py={80}>
@@ -61,6 +46,7 @@ const CTASection = () => {
                   size="xl"
                   variant="filled"
                   className={classes.primaryButton}
+                  onClick={() => navigate("/provider-lookup")}
                 >
                   {CTA_CONFIG.primaryCTA}
                 </Button>

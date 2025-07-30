@@ -18,6 +18,7 @@ const { initializeSocket } = require("./services/socketService"); // Added for s
 const AWS = require('aws-sdk');
 const resumeRoute = require("./routes/resumeRoute");
 const profileRoutes = require("./routes/profileRoutes");
+const publicRoutes = require("./routes/publicRoutes");
 
 console.log("Before app.use(profileRoutes) - Type of profileRoutes:", typeof profileRoutes);
 console.log("Before app.use(profileRoutes) - profileRoutes:", profileRoutes);
@@ -33,11 +34,17 @@ const PORT = process.env.PORT || 8080;
 // Initializing the app
 
 app.use(cors());
-app.use(express.json());
+
+// Headshot routes - MUST be before any body-parser middleware
+app.use("/api/headshot", headshotRoutes);
+
+// Body parsing middleware - apply after headshotRoutes to avoid interference
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Auth routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/appointments", appointmentRoutes);
+app.use("/api/appointments", appointmentRoutes);
 app.use("/api/providers", providersRoutes);
 
 // AI routes
@@ -46,8 +53,6 @@ app.use("/ai", aiRoutes);
 app.use("/calendly", calendlyRoutes);
 // Chat routes
 app.use("/chat", chatRoutes);
-// Headshot routes
-app.use("/api/headshot", headshotRoutes);
 // Profile routes
 app.use("/api/profile", profileRoutes);
 // Schedule routes
@@ -59,6 +64,7 @@ app.use("/api/symptoms", require("./routes/symptomsRoute"));
 // Me route
 app.use("/api/me", require("./routes/me.js"));
 app.use("/api/resume", resumeRoute);
+app.use("/public", publicRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
