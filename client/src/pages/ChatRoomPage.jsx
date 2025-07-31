@@ -51,6 +51,7 @@ const ChatRoomPage = () => {
         text: newMessage,
         senderId: user.sub,
         senderType: user.role,
+        timestamp: new Date().toISOString(),
       };
       socketRef.current.emit('send_message', messageData);
       setNewMessage('');

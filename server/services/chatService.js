@@ -9,7 +9,7 @@ async function getSenderDetails(senderId, senderType) {
   let avatar = null;
 
   if (senderType === 'patients') {
-    query = `SELECT first_name, last_name FROM patients WHERE id = $1`;
+    query = `SELECT first_name, last_name FROM patients WHERE cognito_sub = $1`;
     result = await db.query(query, [senderId]);
     if (result.rows.length > 0) {
       const { first_name, last_name } = result.rows[0];
@@ -17,7 +17,7 @@ async function getSenderDetails(senderId, senderType) {
       // Patients might not have avatars, so leave as null or default
     }
   } else if (senderType === 'providers') {
-    query = `SELECT first_name, last_name, headshot_url FROM providers WHERE id = $1`;
+    query = `SELECT first_name, last_name, headshot_url FROM providers WHERE cognito_sub = $1`;
     result = await db.query(query, [senderId]);
     if (result.rows.length > 0) {
       const { first_name, last_name, headshot_url } = result.rows[0];
@@ -97,27 +97,27 @@ async function getMessagesByChatId(chat_id) {
   return formattedMessages;
 }
 
-async function createOrGetChat(participantIds, order = "ASC") {
-  const sortedParticipants = participantIds.sort(
-    parseUtils.compareUUIDs(order)
-  );
+async function createOrGetChat(participantIds) {
+  const sortedParticipants = participantIds.sort();
   const numParticipants = sortedParticipants.length;
 
-  order = order === "ASC" || order === "DESC" ? order : "ASC";
+  
 
   const matchingChat = await db.query(
     `
-    SELECT chat_id, array_agg(participant_id ORDER BY participant_id ${order}) AS participant_ids
+    SELECT chat_id, array_agg(participant_id ORDER BY participant_id ASC) AS participant_ids
     FROM chat_participant
     GROUP BY chat_id
-    HAVING COUNT(*) = $1 AND array_agg(participant_id ORDER BY participant_id ${order}) = $2::uuid[];
+    HAVING COUNT(*) = $1 AND array_agg(participant_id ORDER BY participant_id ASC) @> $2::uuid[] AND array_agg(participant_id ORDER BY participant_id ASC) <@ $2::uuid[];
   `,
     [numParticipants, sortedParticipants]
   );
 
+  console.log("createOrGetChat: matchingChat.rows.length:", matchingChat.rows.length);
+
   if (matchingChat.rows.length > 0) {
     return matchingChat.rows[0].chat_id;
-  }
+  } else {
 
   const chatInsert = await db.query(
     `INSERT INTO chats DEFAULT VALUES
@@ -148,6 +148,10 @@ async function createOrGetChat(participantIds, order = "ASC") {
   `,
     participantInsertValues // Pass all values in a single array
   );
+
+  console.log("createOrGetChat: Returning chatId:", chatId);
+  return chatId;
+}
 }
 
 async function removeChatMemberShip(chatId, participants) {
@@ -158,11 +162,72 @@ async function removeChatMemberShip(chatId, participants) {
 }
 
 async function getChatIds(userDbId) {
-  const result = await db.query(
+  console.log("getChatIds: userDbId:", userDbId);
+  const chatIdsResult = await db.query(
     `SELECT chat_id FROM chat_participant WHERE participant_id = $1`,
     [userDbId]
   );
-  return result.rows;
+  console.log("getChatIds: chatIdsResult.rows:", chatIdsResult.rows);
+
+  const chatRooms = await Promise.all(chatIdsResult.rows.map(async (chatRow) => {
+    const chatId = chatRow.chat_id;
+
+    // Get all participants for this chat
+    const participantsResult = await db.query(
+      `SELECT participant_id FROM chat_participant WHERE chat_id = $1`,
+      [chatId]
+    );
+    const participantIds = participantsResult.rows.map(row => row.participant_id);
+
+    // Find the other user
+    const otherUserId = participantIds.find(id => id !== userDbId);
+    console.log("getChatIds: otherUserId:", otherUserId);
+
+    let otherUser = { name: "Unknown", avatar: null };
+    if (otherUserId) {
+      // Determine if the other user is a patient or provider
+      let otherUserRole = null;
+      const patientCheck = await db.query(`SELECT id FROM patients WHERE cognito_sub = $1`, [otherUserId]);
+      if (patientCheck.rows.length > 0) {
+        otherUserRole = 'patients';
+      } else {
+        const providerCheck = await db.query(`SELECT id FROM providers WHERE cognito_sub = $1`, [otherUserId]);
+        if (providerCheck.rows.length > 0) {
+          otherUserRole = 'providers';
+        }
+      }
+
+      console.log("getChatIds: otherUserRole:", otherUserRole);
+      if (otherUserRole) {
+        otherUser = await getSenderDetails(otherUserId, otherUserRole);
+      }
+    }
+    console.log("getChatIds: otherUser:", otherUser);
+
+    // Get the last message for the chat
+    const lastMessageResult = await db.query(
+      `SELECT text, sent_at FROM messages WHERE chat_id = $1 ORDER BY sent_at DESC LIMIT 1`,
+      [chatId]
+    );
+    const lastMessage = lastMessageResult.rows.length > 0 ? lastMessageResult.rows[0] : null;
+    console.log("getChatIds: lastMessage:", lastMessage);
+
+    return {
+      id: chatId,
+      otherUser: {
+        id: otherUserId,
+        name: otherUser.name,
+        avatar: otherUser.avatar,
+      },
+      lastMessage: lastMessage ? {
+        text: lastMessage.text,
+        timestamp: lastMessage.sent_at,
+      } : null,
+    };
+  }));
+
+  console.log("getChatIds: Final chatRooms:", chatRooms);
+  return chatRooms;
 }
 
 async function getChatIdByParticipants(participant1Id, participant2Id) {

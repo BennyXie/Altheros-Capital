@@ -35,6 +35,17 @@ const verifyToken = async (req, res, next) => {
     // Attach the entire decoded token to the request for downstream use
     req.user = decoded;
     
+    // Add name property to req.user
+    if (decoded.given_name && decoded.family_name) {
+      req.user.name = `${decoded.given_name} ${decoded.family_name}`;
+    } else if (decoded.given_name) {
+      req.user.name = decoded.given_name;
+    } else if (decoded.family_name) {
+      req.user.name = decoded.family_name;
+    } else {
+      req.user.name = decoded.email || decoded.sub; // Fallback to email or sub
+    }
+    
     // Specifically extract the username and email for convenience
     req.user.username = decoded.sub;
 

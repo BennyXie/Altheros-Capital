@@ -12,7 +12,7 @@ const ChatSelectionPage = () => {
     const fetchChatRooms = async () => {
       try {
         const response = await apiClient.get('/chat/rooms');
-        setChatRooms(response.data);
+        setChatRooms(response);
       } catch (error) {
         console.error('Error fetching chat rooms:', error);
       }

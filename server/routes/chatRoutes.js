@@ -14,6 +14,6 @@ router.post("/", verifyToken, asyncHandler(chatController.createOrGetChat));
 
 router.delete("/:chatId", verifyToken, asyncHandler(chatController.deleteChat));
 
-router.get("/", verifyToken, asyncHandler(chatController.getChatIds));
+router.get("/rooms", verifyToken, asyncHandler(chatController.getChatIds));
 
 module.exports = router;

@@ -9,8 +9,9 @@ const dbUtils = require("../utils/dbUtils.js");
  *    timestamp: "timstamp" //ISO string
  * })
  */
-async function handleJoin(socket, providerId, username, timestamp) {
+async function handleJoin(socket, providerId, timestamp) {
   const patientId = socket.user.sub;
+  const patientName = socket.user.name;
   try {
     const chatId = await chatService.getChatIdByParticipants(patientId, providerId);
     if (!chatId) {
@@ -19,13 +20,14 @@ async function handleJoin(socket, providerId, username, timestamp) {
     }
     socket.join(chatId);
 
-    const message = chatService.formatMessage(
-      username,
-      `${username} has joined the chat`,
+    const message = await chatService.formatMessage(
+      patientId,
+      socket.user.role,
+      `${patientName} has joined the chat`,
       timestamp
     );
     socket.server.to(chatId).emit("receive_message", message);
-    console.log(`${username} joined room ${chatId}`);
+    console.log(`${patientName} joined room ${chatId}`);
   } catch (error) {
     console.error("chatController: Error in handleJoin:", error);
   }
@@ -134,9 +136,14 @@ async function deleteChat(req, res) {
 }
 
 async function getChatIds(req, res) {
-  const userDbId = dbUtils.getUserDbId(req.user);
-  const chatIds = await chatService.getChatIds(userDbId);
-  res.json(chatIds);
+  const userDbId = await dbUtils.getUserDbId(req.user);
+  try {
+    const chatIds = await chatService.getChatIds(userDbId);
+    res.json(chatIds);
+  } catch (error) {
+    console.error("Error in getChatIds (chatController):", error);
+    res.status(500).json({ error: "Failed to retrieve chat rooms." });
+  }
 }
 
 module.exports = {
