@@ -131,7 +131,7 @@ async function createOrGetChat(participantIds, order = "ASC") {
   let paramIndex = 1; // Start from $1 for all parameters
 
   for (const participantId of sortedParticipants) {
-    valuePlaceholders.push(`(${paramIndex}::uuid, ${paramIndex + 1}::uuid)`);
+    valuePlaceholders.push(`($${paramIndex}::uuid, $${paramIndex + 1}::uuid)`);
     participantInsertValues.push(chatId); // chat_id for this row
     participantInsertValues.push(participantId); // participant_id for this row
     paramIndex += 2;
