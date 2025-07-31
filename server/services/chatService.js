@@ -1,7 +1,7 @@
 require("dotenv").config();
 const db = require("../db/pool.js");
 const dbUtils = require("../utils/dbUtils.js");
-const parseUtils = require("../utils/parseUtils");
+const path = require("path");
 const s3Service = require("./s3Service.js");
 const { uploadToS3 } = require("./s3Service.js");
 require("dotenv").config({ path: "./.env" });
@@ -22,7 +22,7 @@ function formatMessage(sender, text, timestamp) {
 }
 
 async function verifyChatMembership(req, res, next) {
-  const userId = await dbUtils.getUserDbId(res.user);
+  const userId = await dbUtils.getUserDbId(req.user);
   const query = `SELECT EXISTS (SELECT 1 FROM chat_participant WHERE chat_id = $1 AND participant_id = $2)`;
   const result = await db.query(query, [req.params.chatId, userId]);
   result.rows[0].exists
@@ -62,7 +62,6 @@ async function getMessagesByChatId(chat_id) {
 }
 
 async function createOrGetChat(participantIds, order = "ASC") {
-
   const numParticipants = participantIds.length;
 
   order = order === "ASC" || order === "DESC" ? order : "ASC";
@@ -258,17 +257,19 @@ async function uploadFileToS3(req, res) {
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-    const key = `${req.user.sub}/${req.params.chatId}/${file.originalname}.${
+
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+
+    const key = `users/${req.user.sub}/chats/${req.params.chatId}/${name}.${
       file.mimetype.split("/")[1]
     }`;
-    const fileUrl = await uploadToS3({
+    await uploadToS3({
       fileBuffer: file.buffer,
       key: key,
       mimeType: file.mimetype,
       bucketName: process.env.S3_CHAT_BUCKET_NAME,
     });
-
-    return fileUrl;
   } catch (err) {
     console.error("File upload failed:", err.message);
     res.status(500).json({ error: "Upload failed", details: err.message });
@@ -287,8 +288,8 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
 
   const result = await db.query(query, [
     chatId,
-    dbUtils.getUserDbId(req.user),
-    req.user["cognito:groups"],
+    await dbUtils.getUserDbId(req.user),
+    req.user["cognito:groups"][0],
     textType,
     text,
     sentAt,

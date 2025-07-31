@@ -1,5 +1,6 @@
 const chatService = require("../services/chatService");
-const dbUtils = require("../utils/dbUtils.js");
+const s3Service = require("../services/s3Service");
+const dbUtils = require("../utils/dbUtils");
 require("dotenv").config({ path: "./.env" });
 
 /**
@@ -68,7 +69,7 @@ async function handleJoin(socket, data, timestamp) {
  * timestamp: "2025-07-03T23:59:59Z" // timestamp as ISO string
  * });
  */
-function handleMessage(socket, data, io) {
+async function handleMessage(socket, data, io) {
   const { chatId, textType, text, timestamp } = data;
   const sender = socket.user.name;
 
@@ -76,7 +77,7 @@ function handleMessage(socket, data, io) {
     textType != "string"
       ? chatService.formatMessage(
           sender,
-          dbUtils.getFromS3(text, process.env.S3_CHAT_BUCKET_NAME),
+          await s3Service.getFromS3(text, process.env.S3_CHAT_BUCKET_NAME),
           timestamp
         )
       : chatService.formatMessage(sender, text, timestamp);
@@ -130,9 +131,12 @@ async function handleDisconnect(socket, io) {
 
 async function createOrGetChat(req, res) {
   const { participants } = req.body;
-  // participants.push(dbUtils.getUserDbId(req.user));
+  if (!participants || participants.length === 0) {
+    res.status(400).json({ error: "No participants provided" });
+  }
+  participants.push(await dbUtils.getUserDbId(req.user));
   const chat = await chatService.createOrGetChat([...new Set(participants)]);
-  res.json(chat);
+  res.status(201).json(chat);
 }
 
 async function getChatMessages(req, res) {
@@ -162,7 +166,7 @@ async function getChatMessages(req, res) {
 async function getChatMessagesByChatId(req, res) {
   const { chatId } = req.params;
   const messages = await chatService.getMessagesByChatId(chatId);
-  res.json(messages);
+  res.status(200).json(messages);
 }
 
 async function deleteChat(req, res) {
@@ -173,9 +177,9 @@ async function deleteChat(req, res) {
 }
 
 async function getChatIds(req, res) {
-  const userDbId = dbUtils.getUserDbId(req.user);
+  const userDbId = await dbUtils.getUserDbId(req.user);
   const chatIds = await chatService.getChatIds(userDbId);
-  res.json(chatIds);
+  res.status(200).json(chatIds);
 }
 
 async function createMessage(req, res) {
@@ -201,7 +205,7 @@ async function createMessage(req, res) {
     sentAt: req.body.sentAt,
   });
 
-  res.status(200).json(messageObj);
+  res.status(201).json(messageObj);
 }
 
 async function deleteMessage(req, res) {

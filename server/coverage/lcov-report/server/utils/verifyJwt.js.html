@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">34.78% </span>
+                <span class="strong">86.95% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/23</span>
+                <span class='fraction'>20/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>3/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -126,33 +126,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,34 +173,34 @@ const client = jwksClient({
 });
 &nbsp;
 // Get the public key for the given JWT header
-function <span class="fstat-no" title="function not covered" >getSigningKey(</span>kid) {
-<span class="cstat-no" title="statement not covered" >  return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    client.getSigningKey(kid, <span class="fstat-no" title="function not covered" >(e</span>rr, key) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (err) <span class="cstat-no" title="statement not covered" >return reject(err);</span></span>
-<span class="cstat-no" title="statement not covered" >      resolve(key.getPublicKey());</span>
+function getSigningKey(kid) {
+  return new Promise((resolve, reject) =&gt; {
+    client.getSigningKey(kid, (err, key) =&gt; {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (err) <span class="cstat-no" title="statement not covered" >return reject(err);</span>
+      resolve(key.getPublicKey());
     });
   });
 }
 &nbsp;
 // Verify and decode the JWT
-async function <span class="fstat-no" title="function not covered" >verifyJwt(</span>token) {
-  const decodedHeader = <span class="cstat-no" title="statement not covered" >jwt.decode(token, { complete: true });</span>
-<span class="cstat-no" title="statement not covered" >  if (!decodedHeader) <span class="cstat-no" title="statement not covered" >throw new Error("Invalid JWT format");</span></span>
+async function verifyJwt(token) {
+  const decodedHeader = jwt.decode(token, { complete: true });
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!decodedHeader) <span class="cstat-no" title="statement not covered" >throw new Error("Invalid JWT format");</span>
 &nbsp;
-  const kid = <span class="cstat-no" title="statement not covered" >decodedHeader.header.kid;</span>
-  const key = <span class="cstat-no" title="statement not covered" >await getSigningKey(kid);</span>
+  const kid = decodedHeader.header.kid;
+  const key = await getSigningKey(kid);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    jwt.verify(</span>
+  return new Promise((resolve, reject) =&gt; {
+    jwt.verify(
       token,
       key,
       {
         algorithms: ["RS256"],
         issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
       },
-<span class="fstat-no" title="function not covered" >      (e</span>rr, decoded) =&gt; {
-<span class="cstat-no" title="statement not covered" >        if (err) <span class="cstat-no" title="statement not covered" >reject(err);</span></span>
-        else <span class="cstat-no" title="statement not covered" >resolve(decoded);</span>
+      (err, decoded) =&gt; {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (err) <span class="cstat-no" title="statement not covered" >reject(err);</span>
+        else resolve(decoded);
       }
     );
   });
@@ -214,7 +214,7 @@ module.exports = verifyJwt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-27T08:38:45.265Z
+                at 2025-07-30T04:58:07.266Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

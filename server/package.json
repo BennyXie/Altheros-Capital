@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
-    "test:mocha": "mocha --timeout 10000 test/**/*.js",
+    "test": "mocha --timeout 10000 test/**/*.js",
     "test:jest": "jest --coverage --watchAll"
   },
   "keywords": [],
@@ -24,11 +24,9 @@
     "jsonwebtoken": "^9.0.2",
     "jwk-to-pem": "^2.0.7",
     "jwks-rsa": "^3.2.0",
+    "local-storage": "^2.0.0",
     "multer": "^2.0.2",
-    "multer": "^2.0.1",
-    "node-fetch": "^3.3.2",
     "openai": "^5.8.2",
-    "pdf-parse": "^1.1.1",
     "pg": "^8.16.1",
     "pg-promise": "^11.15.0",
     "socket.io": "^4.8.1",

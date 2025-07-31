@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1753605525281" clover="3.2.0">
-  <project timestamp="1753605525281" name="All files">
-    <metrics statements="449" coveredstatements="164" conditionals="111" coveredconditionals="8" methods="59" coveredmethods="7" elements="619" coveredelements="179" complexity="0" loc="449" ncloc="449" packages="6" files="24" classes="24"/>
+<coverage generated="1753851487293" clover="3.2.0">
+  <project timestamp="1753851487293" name="All files">
+    <metrics statements="460" coveredstatements="191" conditionals="113" coveredconditionals="15" methods="60" coveredmethods="17" elements="633" coveredelements="223" complexity="0" loc="460" ncloc="460" packages="7" files="25" classes="25"/>
     <package name="server">
-      <metrics statements="28" coveredstatements="27" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="1"/>
+      <metrics statements="28" coveredstatements="28" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
       <file name="index.js" path="/Users/lillywu/Altheros-Capital/server/index.js">
-        <metrics statements="28" coveredstatements="27" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="1"/>
+        <metrics statements="28" coveredstatements="28" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -29,7 +29,7 @@
         <line num="40" count="1" type="stmt"/>
         <line num="42" count="1" type="stmt"/>
         <line num="44" count="1" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
         <line num="49" count="1" type="stmt"/>
         <line num="51" count="1" type="stmt"/>
         <line num="52" count="1" type="stmt"/>
@@ -37,7 +37,7 @@
       </file>
     </package>
     <package name="server.controllers">
-      <metrics statements="159" coveredstatements="22" conditionals="40" coveredconditionals="0" methods="17" coveredmethods="1"/>
+      <metrics statements="160" coveredstatements="22" conditionals="40" coveredconditionals="0" methods="17" coveredmethods="1"/>
       <file name="aiController.js" path="/Users/lillywu/Altheros-Capital/server/controllers/aiController.js">
         <metrics statements="10" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
@@ -129,7 +129,7 @@
         <line num="24" count="1" type="stmt"/>
       </file>
       <file name="chatController.js" path="/Users/lillywu/Altheros-Capital/server/controllers/chatController.js">
-        <metrics statements="46" coveredstatements="7" conditionals="8" coveredconditionals="0" methods="9" coveredmethods="1"/>
+        <metrics statements="47" coveredstatements="7" conditionals="8" coveredconditionals="0" methods="9" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -147,8 +147,9 @@
         <line num="73" count="0" type="stmt"/>
         <line num="76" count="0" type="stmt"/>
         <line num="80" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
         <line num="82" count="1" type="stmt"/>
-        <line num="83" count="1" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
         <line num="88" count="0" type="stmt"/>
         <line num="89" count="0" type="stmt"/>
@@ -224,6 +225,23 @@
         <line num="2" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="13" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="server.middleware">
+      <metrics statements="11" coveredstatements="8" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
+      <file name="verifyToken.js" path="/Users/lillywu/Altheros-Capital/server/middleware/verifyToken.js">
+        <metrics statements="11" coveredstatements="8" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
       </file>
     </package>
     <package name="server.routes">
@@ -306,14 +324,14 @@
       </file>
     </package>
     <package name="server.services">
-      <metrics statements="152" coveredstatements="39" conditionals="43" coveredconditionals="4" methods="26" coveredmethods="2"/>
+      <metrics statements="151" coveredstatements="37" conditionals="43" coveredconditionals="3" methods="26" coveredmethods="2"/>
       <file name="aiService.js" path="/Users/lillywu/Altheros-Capital/server/services/aiService.js">
         <metrics statements="2" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="6" count="0" type="stmt"/>
         <line num="17" count="1" type="stmt"/>
       </file>
       <file name="chatService.js" path="/Users/lillywu/Altheros-Capital/server/services/chatService.js">
-        <metrics statements="49" coveredstatements="13" conditionals="15" coveredconditionals="4" methods="12" coveredmethods="1"/>
+        <metrics statements="48" coveredstatements="11" conditionals="15" coveredconditionals="3" methods="12" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -335,8 +353,8 @@
         <line num="60" count="1" type="stmt"/>
         <line num="62" count="1" type="cond" truecount="2" falsecount="2"/>
         <line num="64" count="1" type="stmt"/>
-        <line num="74" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="75" count="1" type="stmt"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="75" count="0" type="stmt"/>
         <line num="78" count="0" type="stmt"/>
         <line num="83" count="0" type="stmt"/>
         <line num="85" count="0" type="stmt"/>
@@ -349,9 +367,8 @@
         <line num="119" count="0" type="stmt"/>
         <line num="120" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="121" count="0" type="stmt"/>
-        <line num="123" count="0" type="stmt"/>
-        <line num="126" count="0" type="stmt"/>
-        <line num="133" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
         <line num="135" count="0" type="stmt"/>
         <line num="136" count="0" type="stmt"/>
         <line num="141" count="0" type="stmt"/>
@@ -479,24 +496,24 @@
       </file>
     </package>
     <package name="server.utils">
-      <metrics statements="48" coveredstatements="23" conditionals="19" coveredconditionals="2" methods="11" coveredmethods="3"/>
+      <metrics statements="48" coveredstatements="43" conditionals="19" coveredconditionals="9" methods="11" coveredmethods="11"/>
       <file name="dbUtils.js" path="/Users/lillywu/Altheros-Capital/server/utils/dbUtils.js">
-        <metrics statements="10" coveredstatements="2" conditionals="6" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="10" coveredstatements="9" conditionals="6" coveredconditionals="4" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
-        <line num="4" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="7" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="8" count="0" type="stmt"/>
-        <line num="10" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
+        <line num="10" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
         <line num="17" count="1" type="stmt"/>
       </file>
       <file name="hashUtils.js" path="/Users/lillywu/Altheros-Capital/server/utils/hashUtils.js">
-        <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
-        <line num="4" count="0" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
         <line num="10" count="1" type="stmt"/>
       </file>
       <file name="parseUtils.js" path="/Users/lillywu/Altheros-Capital/server/utils/parseUtils.js">
@@ -518,7 +535,7 @@
         <line num="31" count="2" type="stmt"/>
       </file>
       <file name="verifyJwt.js" path="/Users/lillywu/Altheros-Capital/server/utils/verifyJwt.js">
-        <metrics statements="20" coveredstatements="8" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
+        <metrics statements="20" coveredstatements="20" conditionals="6" coveredconditionals="3" methods="6" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
@@ -526,18 +543,18 @@
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="1" type="stmt"/>
         <line num="10" count="1" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="41" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="42" count="0" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
       </file>
     </package>
