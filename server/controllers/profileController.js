@@ -485,6 +485,7 @@ async function checkProfileStatus(req, res) {
     const { email, 'cognito:groups': groups } = req.user;
     let isProfileComplete = false;
     let hasDatabaseEntry = false;
+    let calUsername = null;
 
     if (groups.includes('patients')) {
       console.log(`profileController: checkProfileStatus - User is patient. Email: ${email}`);
@@ -494,16 +495,15 @@ async function checkProfileStatus(req, res) {
       isProfileComplete = hasDatabaseEntry; // For patients, existence in DB means profile is complete
       console.log(`profileController: Patient profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
     } else if (groups.includes('providers')) {
-      const result = await db.query('SELECT id, cal_username FROM providers WHERE email = $1', [email]);
+      const result = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
       hasDatabaseEntry = result.rows.length > 0;
       isProfileComplete = hasDatabaseEntry;
       if (hasDatabaseEntry) {
-        res.status(200).json({ isProfileComplete, hasDatabaseEntry, cal_username: result.rows[0].cal_username });
-        return;
+        calUsername = result.rows[0].cal_username;
       }
     }
 
-    res.status(200).json({ isProfileComplete, hasDatabaseEntry });
+    res.status(200).json({ isProfileComplete, hasDatabaseEntry, cal_username: calUsername });
   } catch (error) {
     console.error("profileController: Error checking profile status:", error);
     res.status(500).json({ error: "Internal server error checking profile status", details: error.message });

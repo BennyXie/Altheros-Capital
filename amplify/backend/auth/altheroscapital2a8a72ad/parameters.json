@@ -19,9 +19,12 @@
     "Requires Numbers",
     "Requires Symbols"
   ],
-  "mfaConfiguration": "OFF",
+  "mfaConfiguration": "ON",
   "autoVerifiedAttributes": [
     "email"
   ],
-  "mfaTypes": []
+  "mfaTypes": [
+    "SMS Text Message",
+    "TOTP"
+  ]
 }
