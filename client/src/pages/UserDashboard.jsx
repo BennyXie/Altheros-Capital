@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, Text, Grid, Card, Stack, Button, Group, Avatar, Badge, Progress, Loader } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboardList } from '@tabler/icons-react';
+import { IconUser, IconBell, IconSettings, IconHeart, IconCalendar, IconClipboardList, IconMessageCircle } from '@tabler/icons-react';
 import apiClient from '../utils/apiClient';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';

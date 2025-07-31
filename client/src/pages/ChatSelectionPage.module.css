@@ -1,0 +1,22 @@
+.container {
+    padding: 2rem;
+  }
+  
+  .title {
+    margin-bottom: 2rem;
+  }
+  
+  .chatList {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .chatCard {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .chatCard:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--mantine-shadow-md);
+  }

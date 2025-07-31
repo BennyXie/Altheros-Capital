@@ -15,6 +15,8 @@ const ProviderProfilePage = () => {
 
     const { name, title, qualifications, acceptedInsurance, headshot, approach, interests, location: providerLocation, languages, specialties, yearsOfExperience } = provider;
 
+    const canChat = user && user.attributes['custom:role'] === 'patient' && profileStatus.isProfileComplete;
+
     return (
         <motion.div variants={staggerContainer} initial="initial" animate="animate">
             <Container size="xl" py="xl">
@@ -52,6 +54,19 @@ const ProviderProfilePage = () => {
                                                     {insurance}
                                                 </Badge>
                                             ))}
+                                        </Group>
+                                    <Group mt="md">
+                                            {canChat && (
+                                                <Button
+                                                    component={Link}
+                                                    to={`/chat/${provider.cognito_id}`}
+                                                    leftSection={<IconMessageCircle size={16} />}
+                                                    variant="filled"
+                                                    color="teal"
+                                                >
+                                                    Chat with {name}
+                                                </Button>
+                                            )}
                                         </Group>
                                     </Grid.Col>
                                 </Grid>

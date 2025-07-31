@@ -1,0 +1,20 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px); /* Adjust based on header height */
+    padding: 1rem;
+  }
+  
+  .messageContainer {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .inputContainer {
+    width: 100%;
+  }
+  
+  .messageInput {
+    flex-grow: 1;
+  }

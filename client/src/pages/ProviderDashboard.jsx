@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader, Badge } from '@mantine/core';
-import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
+import { IconStethoscope, IconCalendar, IconUsers, IconChartLine, IconMessageCircle } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 

@@ -12,6 +12,11 @@ const AuthCallback = () => {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState('Initializing authentication...');
 
+  console.log('AuthCallback: Component rendered');
+  console.log('AuthCallback: isAuthenticated:', isAuthenticated);
+  console.log('AuthCallback: loading:', loading);
+  console.log('AuthCallback: user:', user);
+
   const pollForRole = useCallback(async () => {
     setStatus('Finalizing account setup...');
     try {

@@ -138,10 +138,14 @@ class AuthService {
   static extractRoleFromState(state) {
     try {
       if (!state) return null;
-      // The state from Cognito is not always a valid JSON string.
-      // It can be a simple string. We are only interested in the role.
+      // The state from Cognito can be a simple string or a JSON string.
+      // We need to handle both cases.
+      if (state.startsWith('{') && state.endsWith('}')) {
+        const parsedState = JSON.parse(state);
+        return parsedState.role || null;
+      }
       const match = state.match(/"role":"(.*?)"/);
-      return match ? match[1] : null;
+      return match ? match[1] : state;
     } catch (error) {
       console.error('AuthService: Error extracting role from state:', error);
       return null;

@@ -16,6 +16,8 @@ import AboutPage from './pages/AboutPage.jsx';
 import ProviderAccessPage from './pages/ProviderAccessPage.jsx';
 import ProviderLookupPage from './pages/ProviderLookupPage.jsx';
 import ProviderProfilePage from './pages/ProviderProfilePage.jsx';
+import ChatSelectionPage from './pages/ChatSelectionPage.jsx';
+import ChatRoomPage from './pages/ChatRoomPage.jsx';
 import Layout from './components/layout';
 
 Amplify.configure(amplifyConfig);
@@ -33,6 +35,8 @@ const AppRoutes = () => {
       <Route path="/providers" element={<Layout><ProviderAccessPage /></Layout>} />
       <Route path="/provider-lookup" element={<Layout><ProviderLookupPage /></Layout>} />
       <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
+      <Route path="/chats" element={<Layout><ChatSelectionPage /></Layout>} />
+      <Route path="/chat/:chatId" element={<Layout><ChatRoomPage /></Layout>} />
       <Route
         path="/user-dashboard"
         element={
