@@ -265,6 +265,42 @@ const DashboardPage = () => {
               </motion.div>
             </Grid.Col>
 
+            {/* Chats Card */}
+            <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <Card.Section withBorder inheritPadding py="xs">
+                    <Group justify="space-between">
+                      <Text fw={500} size="lg">Chats</Text>
+                      <IconMessageCircle size={20} color="teal" />
+                    </Group>
+                  </Card.Section>
+
+                  <Stack gap="sm" mt="md" style={{ flex: 1, justifyContent: 'space-between' }}>
+                    <Text size="sm" c="dimmed">
+                      Communicate with your healthcare providers.
+                    </Text>
+                    
+                    <Stack gap="xs">
+                      <Button 
+                        variant="light"
+                        color="teal"
+                        leftSection={<IconMessageCircle size={16} />}
+                        component={Link}
+                        to="/chats"
+                        size="sm"
+                      >
+                        View Chats
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Card>
+              </motion.div>
+            </Grid.Col>
+
             {/* Settings Card */}
             <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
               <motion.div

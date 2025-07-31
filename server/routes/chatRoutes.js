@@ -5,7 +5,7 @@ const chatController = require("../controllers/chatController");
 const verifyToken = require("../middleware/verifyToken");
 
 router.get(
-  "/:chatId/messages",
+  "/messages/:providerId",
   verifyToken,
   asyncHandler(chatController.getChatMessages)
 );

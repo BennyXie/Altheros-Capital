@@ -8,7 +8,7 @@ import apiClient from '../utils/apiClient';
 import styles from './ChatRoomPage.module.css';
 
 const ChatRoomPage = () => {
-  const { chatId } = useParams();
+  const { providerId } = useParams();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -17,8 +17,9 @@ const ChatRoomPage = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await apiClient.get(`/chat/${chatId}`);
-        setMessages(response.data);
+        console.log("ChatRoomPage: providerId before API call:", providerId);
+        const response = await apiClient.get(`/chat/messages/${providerId}`);
+        setMessages(response);
       } catch (error) {
         console.error('Error fetching messages:', error);
       }
@@ -28,11 +29,11 @@ const ChatRoomPage = () => {
 
     socketRef.current = io(process.env.REACT_APP_API_URL, {
       auth: {
-        token: user.jwtToken,
+        token: user.accessToken,
       },
     });
 
-    socketRef.current.emit('join_chat', { chatId });
+    socketRef.current.emit('join_chat', { providerId });
 
     socketRef.current.on('receive_message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
@@ -41,14 +42,15 @@ const ChatRoomPage = () => {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [chatId, user.jwtToken]);
+  }, [providerId, user.jwtToken]);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       const messageData = {
-        chatId,
+        providerId,
         text: newMessage,
-        sender: user.attributes.sub,
+        senderId: user.sub,
+        senderType: user.role,
       };
       socketRef.current.emit('send_message', messageData);
       setNewMessage('');

@@ -188,6 +188,24 @@ const ProviderDashboard = () => {
             </SimpleGrid>
           </Card>
 
+          {/* Chats Card */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Title order={3} mb="md">Chats</Title>
+            <Stack gap="sm">
+              <Text size="sm" c="dimmed">
+                You have 3 unread messages.
+              </Text>
+              <Button 
+                leftSection={<IconMessageCircle size={16} />}
+                variant="light"
+                component={Link}
+                to="/chats"
+              >
+                View Chats
+              </Button>
+            </Stack>
+          </Card>
+
           {/* Recent Activity */}
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Title order={3} mb="md">Recent Activity</Title>

@@ -20,6 +20,8 @@ const ProviderLookupPage = () => {
             try {
                 const response = await apiClient.get('/public/providers', {}, false);
                 const fetchedProviders = response.providers.map(p => {
+                    console.log("Provider object from backend in ProviderLookupPage:", p);
+                    console.log("p.cognito_sub in ProviderLookupPage:", p.cognito_sub);
                     let headshotUrl = p.headshot_url;
                     // Check if the URL is an S3 URL. If not, set to null to trigger fallback.
                     // Using a more generic S3 pattern check
@@ -35,6 +37,7 @@ const ProviderLookupPage = () => {
 
                     return {
                         id: p.id,
+                        cognito_id: p.cognito_sub, // Use cognito_sub from the backend
                         name: `${p.first_name} ${p.last_name}`,
                         qualifications: p.education,
                         specialties: p.specialty || [],

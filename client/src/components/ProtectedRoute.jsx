@@ -1,37 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Container, Loader, Stack, Text } from '@mantine/core';
 import { useAuth } from '../context/AuthContext';
-import apiService from '../services/apiService';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, profileStatus } = useAuth();
   const location = useLocation();
-  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: null, hasDatabaseEntry: null });
-  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
 
-  useEffect(() => {
-    const checkProfile = async () => {
-      if (user) {
-        try {
-          const { isProfileComplete, hasDatabaseEntry } = await apiService.checkProfileStatus();
-          setProfileStatus({ isProfileComplete, hasDatabaseEntry });
-          console.log('ProtectedRoute: Profile Status after API call:', { isProfileComplete, hasDatabaseEntry });
-        } catch (error) {
-          console.error("Error checking profile status:", error);
-          setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume profile is incomplete on error
-        } finally {
-          setIsCheckingProfile(false);
-        }
-      }
-    };
-
-    if (!isLoading) {
-      checkProfile();
-    }
-  }, [user, isLoading]);
-
-  if (isLoading || isCheckingProfile) {
+  if (isLoading) {
     return (
       <Container size="sm" py={100}>
         <Stack align="center" gap="lg">

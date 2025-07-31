@@ -8,7 +8,7 @@ async function completePatientProfile(req, res) {
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       dob,
@@ -35,15 +35,16 @@ async function completePatientProfile(req, res) {
 
     const query = `
       INSERT INTO patients (
-        email, first_name, last_name, dob, gender, address, phone_number,
+        email, cognito_sub, first_name, last_name, dob, gender, address, phone_number,
         insurance, current_medication, health_provider_id, is_active,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING id;
     `;
 
     const values = [
       email,
+      sub, // Add cognito_sub here
       first_name,
       last_name,
       dob,
@@ -137,11 +138,11 @@ async function completePatientProfile(req, res) {
 async function updatePatientProfile(req, res) {
   console.log('profileController: updatePatientProfile called');
   try {
-    if (!req.user || !req.user.email) {
+    if (!req.user || !req.user.email || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       dob,
@@ -166,13 +167,13 @@ async function updatePatientProfile(req, res) {
     const query = `
       UPDATE patients SET
         dob = $1, gender = $2, address = $3, insurance = $4,
-        current_medication = $5, phone_number = $6, updated_at = $7
-      WHERE email = $8
+        current_medication = $5, phone_number = $6, updated_at = $7, cognito_sub = $8
+      WHERE email = $9
       RETURNING id;
     `;
 
     const values = [
-      dob, gender, address, insurance, currentMedication || '', phoneNumber, now, email
+      dob, gender, address, insurance, currentMedication || '', phoneNumber, now, sub, email
     ];
 
     console.log('updatePatientProfile: Patient UPDATE values:', values);
@@ -299,7 +300,7 @@ async function completeProviderProfile(req, res) {
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       insurance_networks = [],
@@ -327,7 +328,7 @@ async function completeProviderProfile(req, res) {
 
     const query = `
       INSERT INTO providers (
-        email, first_name, last_name,
+        email, cognito_sub, first_name, last_name,
         insurance_networks, location, specialty, gender, experience_years,
         education, focus_groups, about_me, languages, hobbies, quote,
         meeting_url, headshot_url, created_at, updated_at
@@ -335,12 +336,13 @@ async function completeProviderProfile(req, res) {
         $1, $2, $3, $4,
         $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14,
-        $15, $16
+        $15, $16, $17
       )
     `;
 
     const values = [
       email,
+      sub, // Add cognito_sub here
       first_name,
       last_name,
       insurance_networks,
@@ -373,11 +375,11 @@ async function completeProviderProfile(req, res) {
 async function updateProviderProfile(req, res) {
   console.log('profileController: updateProviderProfile called');
   try {
-    if (!req.user || !req.user.email) {
+    if (!req.user || !req.user.email || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       insurance_networks = [],
@@ -406,8 +408,8 @@ async function updateProviderProfile(req, res) {
         insurance_networks = $1, location = $2, specialty = $3, gender = $4,
         experience_years = $5, education = $6, focus_groups = $7, about_me = $8,
         languages = $9, hobbies = $10, quote = $11, meeting_url = $12,
-        headshot_url = $13, updated_at = $14
-      WHERE email = $15
+        headshot_url = $13, updated_at = $14, cognito_sub = $15
+      WHERE email = $16
       RETURNING id;
     `;
 
@@ -426,6 +428,7 @@ async function updateProviderProfile(req, res) {
       meeting_url,
       headshot_url,
       now,
+      sub, // Add cognito_sub here
       email,
     ];
 

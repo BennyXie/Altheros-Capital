@@ -37,7 +37,9 @@ function initializeSocket(server) {
       // Attach user info to socket
       socket.user = {
         email: decoded.email,
-        name: `${decoded.given_name} ${decoded.family_name}`,
+        name: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim() || decoded.email,
+        sub: decoded.sub, // Add sub to socket.user
+        role: decoded['cognito:groups'] && decoded['cognito:groups'][0] // Add role to socket.user
       };
 
       next(); // Go to connection
@@ -64,8 +66,8 @@ function initializeSocket(server) {
      * Front end needs to emit:
      * socket.emit("join_chat, { chatId, timestamp }")
      */
-    socket.on("join_chat", ({ chatId, timestamp }) => {
-      chatController.handleJoin(socket, chatId, name, timestamp);
+    socket.on("join_chat", ({ providerId, timestamp }) => {
+      chatController.handleJoin(socket, providerId, name, timestamp);
     });
 
     /**
