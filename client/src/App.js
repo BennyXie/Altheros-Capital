@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Amplify } from 'aws-amplify';
-import amplifyConfig from './config/amplifyConfig';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PreLoginPage from './pages/PreLoginPage.jsx';
 import PreSignUpPage from './pages/PreSignUpPage.jsx';
@@ -17,8 +15,6 @@ import ProviderAccessPage from './pages/ProviderAccessPage.jsx';
 import ProviderLookupPage from './pages/ProviderLookupPage.jsx';
 import ProviderProfilePage from './pages/ProviderProfilePage.jsx';
 import Layout from './components/layout';
-
-Amplify.configure(amplifyConfig);
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();

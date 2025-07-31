@@ -494,9 +494,13 @@ async function checkProfileStatus(req, res) {
       isProfileComplete = hasDatabaseEntry; // For patients, existence in DB means profile is complete
       console.log(`profileController: Patient profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
     } else if (groups.includes('providers')) {
-      const result = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
+      const result = await db.query('SELECT id, cal_username FROM providers WHERE email = $1', [email]);
       hasDatabaseEntry = result.rows.length > 0;
       isProfileComplete = hasDatabaseEntry;
+      if (hasDatabaseEntry) {
+        res.status(200).json({ isProfileComplete, hasDatabaseEntry, cal_username: result.rows[0].cal_username });
+        return;
+      }
     }
 
     res.status(200).json({ isProfileComplete, hasDatabaseEntry });

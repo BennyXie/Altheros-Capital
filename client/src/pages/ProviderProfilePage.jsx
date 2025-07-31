@@ -84,7 +84,7 @@ const ProviderProfilePage = () => {
                         <motion.div variants={fadeInUp}>
                             <Paper shadow="sm" radius="md" withBorder>
                                 <iframe
-                                    src="https://cal.com/your-calendly-link"
+                                    src={`http://localhost:3000/${provider.cal_username}`}
                                     width="100%"
                                     height="400px"
                                     frameBorder="0"

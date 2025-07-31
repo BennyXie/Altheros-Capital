@@ -5,19 +5,22 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader, Badge } from '@mantine/core';
+import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader, Badge, Modal } from '@mantine/core';
 import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 
 import apiClient from '../utils/apiClient';
 import { notifications } from '@mantine/notifications';
-import { Link } from 'react-router-dom';
 
 const ProviderDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profileStatus, setProfileStatus] = useState({ isProfileComplete: true, hasDatabaseEntry: true }); // Assume complete until checked
   const [isLoadingProfileStatus, setIsLoadingProfileStatus] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', text: '', buttonLabel: '', action: null });
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -29,6 +32,28 @@ const ProviderDashboard = () => {
       try {
         const response = await apiClient.get('/api/profile/status');
         setProfileStatus(response);
+
+        // Scenario 1: Profile is not in the database at all.
+        if (!response.hasDatabaseEntry) {
+          setModalContent({
+            title: 'Complete Your Profile',
+            text: 'To get started and become visible to patients, you need to complete your professional profile.',
+            buttonLabel: 'Complete Profile',
+            action: () => navigate('/provider-complete-profile'),
+          });
+          setIsModalOpen(true);
+        } 
+        // Scenario 2: Profile exists, but Cal.com account is not linked.
+        else if (response.hasDatabaseEntry && !response.cal_username) {
+          setModalContent({
+            title: 'Set Up Your Schedule',
+            text: 'Your profile is live! The final step is to set up your Cal.com scheduling account to start accepting appointments.',
+            buttonLabel: 'Set Up Cal.com Account',
+            action: () => window.open('http://localhost:3000/auth/signup', '_blank'),
+          });
+          setIsModalOpen(true);
+        }
+
       } catch (error) {
         console.error("Error checking profile status:", error);
         notifications.show({
@@ -43,7 +68,7 @@ const ProviderDashboard = () => {
     };
 
     checkProfile();
-  }, [user]);
+  }, [user, navigate]);
 
   if (isLoadingProfileStatus) {
     return (
@@ -52,8 +77,6 @@ const ProviderDashboard = () => {
       </Container>
     );
   }
-
-  
 
   const profileActionText = profileStatus.hasDatabaseEntry ? 'Update Profile' : 'Complete Profile';
   const profileActionPath = profileStatus.hasDatabaseEntry ? '/provider-update-profile' : '/provider-complete-profile';
@@ -81,6 +104,16 @@ const ProviderDashboard = () => {
 
   return (
     <Container size="xl" py={40}>
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+      >
+        <Text>{modalContent.text}</Text>
+        <Button onClick={modalContent.action} mt="md">
+          {modalContent.buttonLabel}
+        </Button>
+      </Modal>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
