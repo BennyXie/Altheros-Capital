@@ -130,7 +130,7 @@ async function getChatMessages(req, res) {
 
 async function deleteChat(req, res) {
   const { chatId } = req.params;
-  const userDbId = dbUtils.getUserDbId(req.user);
+  const userDbId = await dbUtils.getUserDbId(req.user);
   await chatService.removeChatMemberShip(chatId, [userDbId]);
   res.status(204).send();
 }

@@ -154,11 +154,15 @@ async function createOrGetChat(participantIds) {
 }
 }
 
-async function removeChatMemberShip(chatId, participants) {
-  await db.query(
-    `DELETE FROM chat_participant WHERE chat_id = $1 AND participant_id = ANY ($2::uuid[])`,
-    [chatId, participants]
-  );
+async function removeChatMemberShip(chatId) {
+  // Delete all messages for the given chatId
+  await db.query(`DELETE FROM messages WHERE chat_id = $1`, [chatId]);
+
+  // Delete all participants for the given chatId
+  await db.query(`DELETE FROM chat_participant WHERE chat_id = $1`, [chatId]);
+
+  // Delete the chat entry itself
+  await db.query(`DELETE FROM chats WHERE id = $1`, [chatId]);
 }
 
 async function getChatIds(userDbId) {
@@ -187,11 +191,11 @@ async function getChatIds(userDbId) {
     if (otherUserId) {
       // Determine if the other user is a patient or provider
       let otherUserRole = null;
-      const patientCheck = await db.query(`SELECT id FROM patients WHERE cognito_sub = $1`, [otherUserId]);
+      const patientCheck = await db.query(`SELECT 1 FROM patients WHERE cognito_sub = $1`, [otherUserId]);
       if (patientCheck.rows.length > 0) {
         otherUserRole = 'patients';
       } else {
-        const providerCheck = await db.query(`SELECT id FROM providers WHERE cognito_sub = $1`, [otherUserId]);
+        const providerCheck = await db.query(`SELECT 1 FROM providers WHERE cognito_sub = $1`, [otherUserId]);
         if (providerCheck.rows.length > 0) {
           otherUserRole = 'providers';
         }

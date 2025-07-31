@@ -106,7 +106,11 @@ class ApiClient {
       throw new Error(`DELETE ${endpoint} failed: ${response.status}`);
     }
 
-    return response.json();
+    // Only parse JSON if there is content
+    if (response.status !== 204) {
+      return response.json();
+    }
+    return null;
   }
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Card, Text, Group, Avatar } from '@mantine/core';
+import { Container, Title, Card, Text, Group, Avatar, Button } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import apiClient from '../utils/apiClient';
@@ -20,6 +20,15 @@ const ChatSelectionPage = () => {
 
     fetchChatRooms();
   }, []);
+
+  const handleDeleteChat = async (chatId) => {
+    try {
+      await apiClient.delete(`/chat/${chatId}`);
+      setChatRooms((prevChatRooms) => prevChatRooms.filter((room) => room.id !== chatId));
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+    }
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -44,9 +53,10 @@ const ChatSelectionPage = () => {
                       </Text>
                     </div>
                   </Group>
-                  <Text size="xs" color="dimmed">
-                    {room.lastMessage ? new Date(room.lastMessage.timestamp).toLocaleTimeString() : ''}
-                  </Text>
+                  <Button color="red" onClick={(e) => {
+                    e.preventDefault(); // Prevent Link navigation
+                    handleDeleteChat(room.id);
+                  }}>Delete</Button>
                 </Group>
               </Card>
             </motion.div>
