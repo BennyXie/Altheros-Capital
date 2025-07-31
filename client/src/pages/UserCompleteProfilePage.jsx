@@ -24,7 +24,6 @@ import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import profileIntegrationService from '../services/profileIntegrationService';
-import apiClient from '../utils/apiClient';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();

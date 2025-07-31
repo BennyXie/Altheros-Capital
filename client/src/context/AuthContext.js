@@ -72,18 +72,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const getUserAttributes = () => {
-    return user ? user.attributes : null;
-  };
+  const value = useMemo(() => {
+    const getUserAttributes = () => {
+      return user ? user.attributes : null;
+    };
 
-  const value = useMemo(() => ({
-    user,
-    isAuthenticated: !!user,
-    loading,
-    logout: handleLogout,
-    getUserAttributes,
-    checkUserSession: checkUser, // Expose checkUser function
-  }), [user, loading, getUserAttributes]);
+    return {
+      user,
+      isAuthenticated: !!user,
+      loading,
+      logout: handleLogout,
+      getUserAttributes,
+      checkUserSession: checkUser, // Expose checkUser function
+    };
+  }, [user, loading]);
 
   return (
     <AuthContext.Provider value={value}>
