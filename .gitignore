@@ -4,6 +4,8 @@ node_modules/
 
 client/build/
 
+# Cal.com Docker setup
+calcom-docker/
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*

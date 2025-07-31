@@ -10,9 +10,10 @@ const authRoutes = require("./routes/authRoutes");
 const appointmentRoutes = require("./routes/appointments");
 const providersRoutes = require("./routes/providerRoutes");
 const aiRoutes = require("./routes/aiRoutes");
-const calendlyRoutes = require("./routes/calendlyRoute");
 const chatRoutes = require("./routes/chatRoutes");
 const headshotRoutes = require("./routes/headshotRoutes");
+const webhookRoutes = require("./routes/webhookRoutes");
+const calendlyRoutes = require("./routes/calendlyRoute");
 const db = require("./db/pool"); // Added from coworker's branch
 const { initializeSocket } = require("./services/socketService"); // Added for socket.io
 const AWS = require('aws-sdk');
@@ -49,6 +50,9 @@ app.use("/api/providers", providersRoutes);
 
 // AI routes
 app.use("/ai", aiRoutes);
+
+// General webhook routes
+app.use("/api/webhooks", webhookRoutes);
 // Calendly routes
 app.use("/calendly", calendlyRoutes);
 // Chat routes

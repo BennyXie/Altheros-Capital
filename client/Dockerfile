@@ -10,6 +10,6 @@ RUN npm ci
 COPY . .
 
 # Port used by frontend dev server (e.g. React/Vite)
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["npm", "start"]
