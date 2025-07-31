@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Container, 
   Title, 
@@ -15,24 +15,24 @@ import {
   MultiSelect,
   Divider,
   Progress,
-  Card
+  Card,
+  Loader
 } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import profileIntegrationService from '../services/profileIntegrationService';
+import apiClient from '../utils/apiClient';
 
-/**
- * Complete Profile Page Component
- * 
- * Form to collect comprehensive user information and integrate with backend
- */
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [formData, setFormData] = useState({
     dob: '',
     gender: '',
@@ -50,6 +50,69 @@ const CompleteProfilePage = () => {
     symptoms: [],
     languages: []
   });
+
+  console.log('DEBUG: isFetching at render:', isFetching);
+
+  useEffect(() => {
+    if (location.pathname === '/update-profile') {
+      setIsUpdateMode(true);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isUpdateMode && user) {
+      setIsFetching(true);
+      const fetchProfileData = async () => {
+        try {
+          const { profile } = await profileIntegrationService.getCurrentUserProfile(user, 'patient');
+          console.log('Full Patient Profile DB Output:', profile);
+
+          if (profile) {
+            setFormData(prevData => {
+              const fetchedData = profile || {}; 
+              const fetchedPreferences = fetchedData.preferences || {};
+
+            const formattedPhoneNumber = fetchedData.phone_number ? formatPhoneNumberInput(fetchedData.phone_number) : '';
+            console.log('DEBUG: formattedPhoneNumber in setFormData:', formattedPhoneNumber);
+
+            const mappedSymptoms = Array.isArray(fetchedData.symptoms) ? fetchedData.symptoms.map(s => s).filter(Boolean) : [];
+            const mappedLanguages = Array.isArray(fetchedData.languages) ? fetchedData.languages.map(l => l).filter(Boolean) : [];
+
+            return {
+              ...prevData,
+              dob: fetchedData.dob || '',
+              gender: fetchedData.gender || '',
+              address: fetchedData.address || '',
+              phoneNumber: formattedPhoneNumber,
+              insurance: fetchedData.insurance || '',
+              currentMedication: fetchedData.currentMedication || '',
+              symptoms: mappedSymptoms,
+              languages: mappedLanguages,
+              preferences: {
+                preferredProviderGender: fetchedPreferences.preferredProviderGender || '',
+                smsOptIn: fetchedPreferences.smsOptIn || false,
+                languagePreference: fetchedPreferences.languagePreference || '',
+                insuranceRequired: fetchedPreferences.insuranceRequired || false,
+                optInContact: fetchedPreferences.optInContact || false,
+              },
+            };
+            });
+          } else {
+            console.log('UserCompleteProfilePage: Profile data was empty or null.');
+          }
+        } catch (error) {
+          notifications.show({
+            title: 'Fetch Error',
+            message: 'Failed to fetch profile data.',
+            color: 'red'
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      };
+      fetchProfileData();
+    }
+  }, [isUpdateMode, user]);
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -94,6 +157,7 @@ const CompleteProfilePage = () => {
   ];
 
   const handleInputChange = (field, value) => {
+    console.log(`handleInputChange: field=${field}, value=${value}`);
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => ({
@@ -140,10 +204,7 @@ const CompleteProfilePage = () => {
   };
 
   const formatDateInput = (value) => {
-    // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
-    // Apply YYYY-MM-DD formatting
     if (digits.length <= 4) {
       return digits;
     } else if (digits.length <= 6) {
@@ -158,31 +219,53 @@ const CompleteProfilePage = () => {
     handleInputChange('dob', formatted);
   };
 
+  const formatPhoneNumberInput = (value) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Apply formatting (e.g., (XXX) XXX-XXXX)
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else if (digits.length <= 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else {
+      // For more than 10 digits, just return the first 10 formatted
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneNumberChange = (value) => {
+    const formatted = formatPhoneNumberInput(value);
+    handleInputChange('phoneNumber', formatted);
+  };
+
   const isValidDate = (dateString) => {
-    // Check format YYYY-MM-DD
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(dateString)) return false;
-    
     const [year, month, day] = dateString.split('-').map(num => parseInt(num));
-    
-    // Basic range checks
     if (year < 1900 || year > new Date().getFullYear()) return false;
     if (month < 1 || month > 12) return false;
     if (day < 1 || day > 31) return false;
-    
-    // More detailed date validation
     const date = new Date(year, month - 1, day);
-    return date.getFullYear() === year && 
-           date.getMonth() === month - 1 && 
-           date.getDate() === day;
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   };
 
   const isFormValid = () => {
+    // Add defensive checks to prevent calling .trim() on undefined values
+    const addressValid = typeof formData.address === 'string' && formData.address.trim() !== '';
+    const phoneNumberValid = typeof formData.phoneNumber === 'string' && formData.phoneNumber.trim() !== '';
+
     return isValidDate(formData.dob) &&
            formData.gender && 
-           formData.address.trim() && 
-           formData.phoneNumber.trim();
+           addressValid && 
+           phoneNumberValid;
   };
+
+  
+
+  console.log('Submitting formData:', formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,40 +292,45 @@ const CompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      // Integrate with backend - complete user profile
-      await profileIntegrationService.completeUserProfile(
-        user, // Cognito user data
-        {
-          ...formData,
-          // Add any additional mapping needed for your backend
-          password: 'temp_password', // You might handle this differently
-        },
-        'patient' // Default role, could be made configurable
-      );
-      
-      notifications.show({
-        title: 'Profile Completed!',
-        message: 'Your profile has been successfully saved to our system',
-        color: 'green',
-        icon: <IconCheck size={16} />
-      });
+      if (isUpdateMode) {
+        await profileIntegrationService.updateUserProfile(formData, 'patient');
+        notifications.show({
+          title: 'Profile Updated!',
+          message: 'Your profile has been successfully updated.',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+      } else {
+        await profileIntegrationService.completeUserProfile(user, formData, 'patient');
+        notifications.show({
+          title: 'Profile Completed!',
+          message: 'Your profile has been successfully saved.',
+          color: 'green',
+          icon: <IconCheck size={16} />
+        });
+      }
 
-      // Navigate back to dashboard after successful submission
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      setTimeout(() => navigate('/dashboard'), 1500);
 
     } catch (error) {
-      console.error('Profile completion error:', error);
+      console.error('Profile submission error:', error);
       notifications.show({
-        title: 'Profile Save Failed',
-        message: error.message || 'Failed to save your profile. Please try again.',
+        title: isUpdateMode ? 'Update Failed' : 'Save Failed',
+        message: error.message || 'An error occurred. Please try again.',
         color: 'red'
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return <Container size="md" py={40}><Loader /></Container>;
+  }
+
+  if (isFetching) {
+    return <Container size="md" py={40}><Loader /></Container>;
+  }
 
   return (
     <Container size="md" py={40}>
@@ -252,7 +340,6 @@ const CompleteProfilePage = () => {
         transition={{ duration: 0.5 }}
       >
         <Stack gap="lg">
-          {/* Header */}
           <Group justify="space-between" align="center">
             <div>
               <Group align="center" gap="sm">
@@ -266,14 +353,13 @@ const CompleteProfilePage = () => {
                   Back to Dashboard
                 </Button>
               </Group>
-              <Title order={1} mt="sm">Complete Your Profile</Title>
+              <Title order={1} mt="sm">{isUpdateMode ? 'Update Your Profile' : 'Complete Your Profile'}</Title>
               <Text c="dimmed" size="lg" mt={5}>
-                Help us provide you with personalized healthcare services
+                {isUpdateMode ? 'Keep your information up to date.' : 'Help us provide you with personalized healthcare services'}
               </Text>
             </div>
           </Group>
 
-          {/* Progress Card */}
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Group justify="space-between" align="center" mb="xs">
               <Text fw={500}>Profile Completion</Text>
@@ -282,11 +368,9 @@ const CompleteProfilePage = () => {
             <Progress value={calculateProgress()} color="blue" size="lg" />
           </Card>
 
-          {/* Form */}
           <Paper shadow="md" p={30} radius="md" withBorder>
             <form onSubmit={handleSubmit}>
               <Stack gap="lg">
-                {/* Basic Information Section */}
                 <div>
                   <Title order={3} mb="sm">Basic Information</Title>
                   <Text size="sm" c="dimmed" mb="lg">Required fields are marked with *</Text>
@@ -335,8 +419,8 @@ const CompleteProfilePage = () => {
                       <TextInput
                         label="Phone Number *"
                         placeholder="(555) 123-4567"
-                        value={formData.phoneNumber}
-                        onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                        value={formData.phoneNumber || ''}
+                        onChange={(e) => handlePhoneNumberChange(e.target.value)} // Use new handler
                         required
                       />
                     </Grid.Col>
@@ -345,7 +429,6 @@ const CompleteProfilePage = () => {
 
                 <Divider />
 
-                {/* Healthcare Preferences Section */}
                 <div>
                   <Title order={3} mb="sm">Healthcare Preferences</Title>
                   <Text size="sm" c="dimmed" mb="lg">Help us match you with the right providers</Text>
@@ -392,7 +475,7 @@ const CompleteProfilePage = () => {
                     
                     <Checkbox
                       label="I consent to be contacted directly by healthcare providers"
-                      checked={formData.preferences.optInContact}
+                      checked={formData.preferences.optInContact || false}
                       onChange={(e) => handleInputChange('preferences.optInContact', e.target.checked)}
                     />
                   </Stack>
@@ -400,7 +483,6 @@ const CompleteProfilePage = () => {
 
                 <Divider />
 
-                {/* Medical Information Section */}
                 <div>
                   <Title order={3} mb="sm">Medical Information</Title>
                   <Text size="sm" c="dimmed" mb="lg">Optional - Help us understand your health needs better</Text>
@@ -441,7 +523,7 @@ const CompleteProfilePage = () => {
                         label="Current Symptoms (if any)"
                         placeholder="Select any symptoms you're experiencing"
                         data={symptomOptions}
-                        value={formData.symptoms}
+                        value={formData.symptoms || []}
                         onChange={(value) => handleInputChange('symptoms', value)}
                         searchable
                       />
@@ -449,15 +531,20 @@ const CompleteProfilePage = () => {
                   </Grid>
                 </div>
 
-                {/* Form Actions */}
                 <Group justify="space-between" mt="xl">
                   <Button 
-                    component={Link}
-                    to="/dashboard"
                     variant="outline"
                     color="gray"
+                    onClick={() => {
+                      notifications.show({
+                        title: 'Profile Incomplete',
+                        message: 'You can complete your profile later from your dashboard.',
+                        color: 'blue',
+                      });
+                      navigate('/user-dashboard');
+                    }}
                   >
-                    Save as Draft
+                    Skip for now
                   </Button>
                   
                   <Button 
@@ -466,7 +553,7 @@ const CompleteProfilePage = () => {
                     loading={isLoading}
                     leftSection={<IconCheck size={16} />}
                   >
-                    Complete Profile
+                    {isUpdateMode ? 'Update Profile' : 'Complete Profile'}
                   </Button>
                 </Group>
               </Stack>

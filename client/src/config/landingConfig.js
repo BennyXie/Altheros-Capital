@@ -238,6 +238,7 @@ export const CTA_CONFIG = {
   benefits: [],
 };
 
+
 // Contact section content
 export const CONTACT_CONFIG = {
   title: "Any questions?",
@@ -258,13 +259,13 @@ export const NAVIGATION_CONFIG = {
   ctaButtons: [
     {
       label: "Login",
-      href: "/login",
+      href: "/prelogin",
       variant: "outline",
       color: "white",
     },
     {
       label: "Get Started ",
-      href: "/signup",
+      href: "/auth",
       variant: "filled",
       color: "green",
     },

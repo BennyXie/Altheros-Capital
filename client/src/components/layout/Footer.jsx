@@ -40,8 +40,8 @@ const Footer = () => {
 
   return (
     <footer id="contact" className={classes.footer}>
-      <Container size="xl" py={60}>
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+      <Container size="xl" py={60} className={classes.footerContainer}>
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" className={classes.footerGrid}>
           {/* Left Side - Quick Links and Company Info */}
           <Stack gap="xl">
             {/* Company Info */}
@@ -86,10 +86,10 @@ const Footer = () => {
                 <Text size="sm" fw={600} className={classes.sectionTitle}>
                   Services
                 </Text>
-                <Text size="xs" component="a" href="/signup" className={classes.footerLink}>
+                <Text size="xs" component="a" href="/auth" className={classes.footerLink}>
                   Get Started
                 </Text>
-                <Text size="xs" component="a" href="/login" className={classes.footerLink}>
+                <Text size="xs" component="a" href="/auth" className={classes.footerLink}>
                   Login
                 </Text>
                 <Text size="xs" component="a" href="/providers" className={classes.footerLink}>

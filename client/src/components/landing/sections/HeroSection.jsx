@@ -1,34 +1,14 @@
 import { Container, Title, Button, Group, Stack } from "@mantine/core";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { slideInLeft } from "../../../animations/variants";
 import { HERO_CONFIG } from "../../../config/landingConfig";
 import classes from "./HeroSection.module.css";
 import heroImage from "../../../assets/hero.png";
 
-/**
- * 🚀 Hero Section Component
- * =========================
- *
- * The hero section is the first thing users see on the landing page.
- *
- * 🎨 STYLING APPROACH:
- * - Colors controlled by colors.css variables
- * - Uses CSS variables for consistency
- * - Responsive design with Mantine breakpoints
- * - Green gradient overlay and highlighted text
- *
- * 📝 CONTENT:
- * - All text content comes from landingConfig.js
- * - Easy to update without touching component code
- * - Supports A/B testing different headlines
- *
- * @component
- * @example
- * return (
- *   <HeroSection />
- * )
- */
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className={classes.hero}>
       <div
@@ -66,6 +46,7 @@ const HeroSection = () => {
                   radius="xl"
                   variant="outline"
                   className={classes.secondaryButton}
+                  onClick={() => navigate("/provider-lookup")}
                 >
                   {HERO_CONFIG.secondaryCTA}
                 </Button>

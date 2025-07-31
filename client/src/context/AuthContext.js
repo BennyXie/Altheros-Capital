@@ -1,217 +1,95 @@
-/**
- * Authentication Context and Provider
- * 
- * Provides Amplify-based authentication state management throughout the application.
- * Handles OAuth login, logout, user session management, and automatic token handling.
- */
+import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
+import { Hub } from 'aws-amplify/utils';
+import { fetchAuthSession, signOut } from 'aws-amplify/auth';
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { fetchAuthSession, signOut, signInWithRedirect, getCurrentUser } from 'aws-amplify/auth';
 
-// Auth action types
-const AUTH_ACTIONS = {
-  SET_USER: 'SET_USER',
-  SET_LOADING: 'SET_LOADING',
-  LOGOUT: 'LOGOUT',
-  SET_ERROR: 'SET_ERROR',
-};
-
-// Initial auth state
-const initialState = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  error: null,
-};
-
-// Auth reducer
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case AUTH_ACTIONS.SET_USER:
-      return {
-        ...state,
-        user: action.payload,
-        isAuthenticated: !!action.payload,
-        isLoading: false,
-        error: null,
-      };
-    
-    case AUTH_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        isLoading: action.payload,
-      };
-    
-    case AUTH_ACTIONS.SET_ERROR:
-      return {
-        ...state,
-        error: action.payload,
-        isLoading: false,
-      };
-    
-    case AUTH_ACTIONS.LOGOUT:
-      return {
-        ...state,
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-      };
-    
-    default:
-      return state;
-  }
-};
-
-// Create auth context
 const AuthContext = createContext();
 
-// Auth provider component
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
 
-  // Check for existing session on app load
-  useEffect(() => {
-    checkAuthState();
-  }, []);
-
-  const checkAuthState = async () => {
+  const checkUser = async (options = {}) => {
     try {
-      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
-      
-      // Check if user is authenticated
-      const user = await getCurrentUser();
-      
-      dispatch({ type: AUTH_ACTIONS.SET_USER, payload: user });
-    } catch (error) {
-      console.log('No authenticated user found');
-      dispatch({ type: AUTH_ACTIONS.SET_USER, payload: null });
-    }
-  };
+      console.log(`AuthContext: Checking user session... (Force refresh: ${!!options.forceRefresh})`);
+      const { tokens } = await fetchAuthSession({ forceRefresh: options.forceRefresh || false });
+      console.log('AuthContext: Fetched tokens:', tokens);
+      if (tokens && tokens.idToken) {
+        const idTokenPayload = tokens.idToken.payload;
+        console.log('AuthContext: ID Token Payload:', idTokenPayload);
+        const roles = idTokenPayload['cognito:groups'] || [];
+        console.log('AuthContext: Roles from ID Token:', roles);
 
-  // Login function (redirect to Cognito Hosted UI)
-  const login = async () => {
-    try {
-      await signInWithRedirect();
-    } catch (error) {
-      console.error('Login error:', error);
-      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
-    }
-  };
-
-  // Signup function (redirect to Cognito Hosted UI)
-  const signup = async () => {
-    try {
-      await signInWithRedirect();
-    } catch (error) {
-      console.error('Signup error:', error);
-      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
-    }
-  };
-
-  // Logout function
-  const logout = async () => {
-    try {
-      await signOut();
-      dispatch({ type: AUTH_ACTIONS.LOGOUT });
-    } catch (error) {
-      console.error('Logout error:', error);
-      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
-    }
-  };
-
-  // Get current user's JWT token (for API calls)
-  const getAccessToken = async () => {
-    try {
-      const session = await fetchAuthSession();
-      return session.tokens?.accessToken?.toString();
-    } catch (error) {
-      console.error('Error getting access token:', error);
-      return null;
-    }
-  };
-
-  // Get current user's ID token (contains user attributes)
-  const getIdToken = async () => {
-    try {
-      const session = await fetchAuthSession();
-      return session.tokens?.idToken?.toString();
-    } catch (error) {
-      console.error('Error getting ID token:', error);
-      return null;
-    }
-  };
-
-  // Get user attributes (for display purposes)
-  const getUserAttributes = () => {
-    if (!state.user) return null;
-    
-    // In Amplify v6, attributes are nested under user.attributes
-    return {
-      email: state.user.attributes?.email || state.user.signInDetails?.loginId,
-      given_name: state.user.attributes?.given_name || state.user.attributes?.['custom:given_name'],
-      family_name: state.user.attributes?.family_name || state.user.attributes?.['custom:family_name'],
-      name: state.user.attributes?.name,
-      ...state.user.attributes
-    };
-  };
-
-  // Get user attributes from JWT ID token (alternative method)
-  const getUserAttributesFromToken = async () => {
-    try {
-      const session = await fetchAuthSession();
-      const idToken = session.tokens?.idToken;
-      
-      if (idToken) {
-        // Parse JWT payload to get user claims
-        const payload = idToken.payload;
-        console.log('JWT ID Token Payload:', payload); // Debug log
-        return {
-          email: payload.email,
-          given_name: payload.given_name,
-          family_name: payload.family_name,
-          name: payload.name,
-          sub: payload.sub,
-          ...payload
-        };
+        setUser({
+          ...idTokenPayload,
+          username: idTokenPayload['cognito:username'],
+          given_name: idTokenPayload.given_name,
+          family_name: idTokenPayload.family_name,
+          email: idTokenPayload.email,
+          role: roles[0] // Attach the first role to the user object
+        });
+        console.log('AuthContext: User set in state.');
+      } else {
+        console.log('AuthContext: No tokens found, user not authenticated.');
+        setUser(null); // Ensure user is null if not authenticated
       }
-      
-      return null;
+    } catch (e) {
+      console.error('AuthContext: Error checking user:', e);
+      setUser(null);
+    }
+    setLoading(false);
+    console.log('AuthContext: Loading complete.');
+  };
+
+  useEffect(() => {
+    const hubListener = (data) => {
+      switch (data.payload.event) {
+        case 'signedIn':
+          checkUser();
+          break;
+        case 'signedOut':
+          setUser(null);
+          break;
+        default:
+          break;
+      }
+    };
+
+    const unsubscribe = Hub.listen('auth', hubListener);
+    checkUser();
+
+    return () => {
+      unsubscribe();
+    };
+  }, []); // Removed needsTokenRefresh from dependency array
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ global: true });
     } catch (error) {
-      console.error('Error getting user attributes from token:', error);
-      return null;
+      console.error('Error signing out:', error);
     }
   };
 
-  const value = {
-    user: state.user,
-    isAuthenticated: state.isAuthenticated,
-    isLoading: state.isLoading,
-    error: state.error,
-    login,
-    signup,
-    logout,
-    getAccessToken,
-    getIdToken,
-    getUserAttributes,
-    getUserAttributesFromToken,
-    checkAuthState,
+  const getUserAttributes = () => {
+    return user ? user.attributes : null;
   };
+
+  const value = useMemo(() => ({
+    user,
+    isAuthenticated: !!user,
+    loading,
+    logout: handleLogout,
+    getUserAttributes,
+    checkUserSession: checkUser, // Expose checkUser function
+  }), [user, loading, getUserAttributes]);
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export default AuthContext;
+export const useAuth = () => useContext(AuthContext);

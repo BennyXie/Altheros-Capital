@@ -1,5 +1,6 @@
 const express = require('express')
-const router = express()
+const router = express.Router()
+const symptomsService = require('../services/symptomsService');
 
 router.get('/symptoms', async (req, res) => {
     try {
@@ -9,4 +10,5 @@ router.get('/symptoms', async (req, res) => {
         console.log(err);                      
       }
 });
-  
+
+module.exports = router;

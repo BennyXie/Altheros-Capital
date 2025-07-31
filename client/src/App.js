@@ -1,87 +1,110 @@
-import { MantineProvider, AppShell } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
 import amplifyConfig from './config/amplifyConfig';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import { theme } from './styles/theme';
-import { LandingPage } from './components/landing';
-import { AboutPage, LoginPage, SignupPage, DashboardPage, CompleteProfilePage, ProviderAccessPage, AppointmentsPage } from './pages';
-import { Header, Footer } from './components/layout';
-import ScrollToTop from './components/ScrollToTop';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import PreLoginPage from './pages/PreLoginPage.jsx';
+import PreSignUpPage from './pages/PreSignUpPage.jsx';
+import AuthCallback from './components/AuthCallback.jsx';
+import UserDashboard from './pages/UserDashboard.jsx';
+import ProviderDashboard from './pages/ProviderDashboard.jsx';
+import UserCompleteProfilePage from './pages/UserCompleteProfilePage.jsx';
+import ProviderCompleteProfilePage from './pages/ProviderCompleteProfilePage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import LandingPage from './components/landing/LandingPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+import ProviderAccessPage from './pages/ProviderAccessPage.jsx';
+import ProviderLookupPage from './pages/ProviderLookupPage.jsx';
+import ProviderProfilePage from './pages/ProviderProfilePage.jsx';
+import Layout from './components/layout';
 
-// Import Mantine core styles
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
-
-// Import global color system
-import './styles/colors.css';
-
-// Configure Amplify
 Amplify.configure(amplifyConfig);
 
-// Main UI component
+const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/prelogin" element={<Layout><PreLoginPage /></Layout>} />
+      <Route path="/presignup" element={<Layout><PreSignUpPage /></Layout>} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/" element={<Layout><LandingPage /></Layout>} />
+      <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+      <Route path="/providers" element={<Layout><ProviderAccessPage /></Layout>} />
+      <Route path="/provider-lookup" element={<Layout><ProviderLookupPage /></Layout>} />
+      <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
+      <Route
+        path="/user-dashboard"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="patient">
+              <UserDashboard />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/provider-dashboard"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderDashboard />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/complete-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="patient">
+              <UserCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/update-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="patient">
+              <UserCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/provider-complete-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/provider-update-profile"
+        element={
+          <Layout>
+            <ProtectedRoute requiredRole="provider">
+              <ProviderCompleteProfilePage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/user-dashboard' : '/'} />} />
+    </Routes>
+  );
+};
+
 function App() {
   return (
-    <MantineProvider theme={theme} forceColorScheme="light">
-      <Notifications />
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
-        <Router 
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-        >
-          <ScrollToTop />
-          <AppShell
-            header={{ height: 60 }}
-            padding={0}
-            style={{ 
-              minHeight: '100vh', 
-              display: 'flex', 
-              flexDirection: 'column'
-            }}
-          >
-            <AppShell.Header>
-              <Header />
-            </AppShell.Header>
-            
-            <AppShell.Main style={{ 
-              paddingTop: 60, 
-              flex: 1
-            }}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/providers" element={<ProviderAccessPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                
-                {/* Protected Routes */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/complete-profile" element={
-                  <ProtectedRoute>
-                    <CompleteProfilePage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/appointments" element={
-                  <ProtectedRoute>
-                    <AppointmentsPage />
-                  </ProtectedRoute>
-                } />
-              </Routes>
-            </AppShell.Main>
-            
-            <Footer />
-          </AppShell>
-        </Router>
+        <AppRoutes />
       </AuthProvider>
-    </MantineProvider>
+    </Router>
   );
 }
 

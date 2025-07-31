@@ -16,6 +16,7 @@ import { Link, useLocation } from "react-router-dom";
 import { IconMenu2, IconUser, IconLogout, IconDashboard } from "@tabler/icons-react";
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
 import { useAuth } from "../../context/AuthContext";
+import AuthService from "../../services/authService";
 import classes from "./Header.module.css";
 
 /**
@@ -41,8 +42,8 @@ const Header = () => {
     const [isLoaded, setLoaded] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px");
     const location = useLocation();
-    const { isAuthenticated, logout, getUserAttributes, getUserAttributesFromToken } = useAuth();
-    const [userDisplayName, setUserDisplayName] = useState('User');
+    const { user, isAuthenticated, logout } = useAuth();
+    const [userDisplayName, setUserDisplayName] = useState('');
 
     useEffect(() => {
         if (opened && isDesktop) {
@@ -50,36 +51,14 @@ const Header = () => {
         }
     }, [opened, isDesktop, close]);
 
-    // Get user attributes for display - try both methods
     useEffect(() => {
-        const fetchUserName = async () => {
-            if (isAuthenticated) {
-                // First try the direct user attributes
-                const userAttributes = getUserAttributes();
-                let displayName = userAttributes?.given_name || 
-                                userAttributes?.name || 
-                                userAttributes?.email?.split('@')[0];
-
-                // If we don't have a name, try getting it from the JWT token
-                if (!displayName || displayName === userAttributes?.email?.split('@')[0]) {
-                    try {
-                        const tokenAttributes = await getUserAttributesFromToken();
-                        displayName = tokenAttributes?.given_name || 
-                                    tokenAttributes?.name || 
-                                    tokenAttributes?.email?.split('@')[0] || 
-                                    'User';
-                    } catch (error) {
-                        console.error('Error getting user name from token:', error);
-                        displayName = displayName || 'User';
-                    }
-                }
-
-                setUserDisplayName(displayName || 'User');
-            }
-        };
-
-        fetchUserName();
-    }, [isAuthenticated, getUserAttributes, getUserAttributesFromToken]);
+        if (isAuthenticated && user) {
+            const displayName = user.given_name || user.name || user.email?.split('@')[0] || 'User';
+            setUserDisplayName(displayName);
+        } else {
+            setUserDisplayName(''); // Clear display name if not authenticated
+        }
+    }, [isAuthenticated, user]);
 
     const handleNavigation = (href) => {
         // Handle contact link - scroll to footer on any page
@@ -99,15 +78,19 @@ const Header = () => {
         close(); // Close dropdown after clicking
     };
 
-    const handleLogout = () => {
-        logout();
-        close();
+    const handleLogout = async () => {
+        try {
+            await logout();
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     };
 
     return (
         <header className={classes.header}>
-            <Container size="xl">
-                <Group justify="space-between" h={60}>
+            <Container size="xl" className={classes.headerContainer}>
+                <Group justify="space-between" h={60} className={classes.headerGroup}>
                     {/* Logo */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -187,7 +170,7 @@ const Header = () => {
                                 <Menu.Dropdown>
                                     <Menu.Item
                                         component={Link}
-                                        to="/dashboard"
+                                        to={user?.role ? AuthService.getRoleBasedRedirectPath(user.role) : '/'}
                                         leftSection={<IconDashboard size={16} />}
                                     >
                                         Dashboard

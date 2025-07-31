@@ -1,5 +1,5 @@
 const { CognitoIdentityProviderClient, SignUpCommand } = require("@aws-sdk/client-cognito-identity-provider");
-const { getSecretHash } = require("./utils/hashUtils");
+const { getSecretHash } = require("../utils/hashUtils");
 
 // Use the same configuration as the server
 const cognito = new CognitoIdentityProviderClient({

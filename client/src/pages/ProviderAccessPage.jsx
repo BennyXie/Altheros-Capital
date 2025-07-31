@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Container, 
@@ -292,8 +293,10 @@ const ProviderAccessPage = () => {
                   variant="white"
                   color="dark"
                   leftSection={<IconStethoscope size={20} />}
+                  component={Link}
+                  to="/provider-complete-profile"
                 >
-                  Apply Now
+                  Complete Provider Profile
                 </Button>
                 <Button 
                   size="xl" 

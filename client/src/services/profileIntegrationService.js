@@ -38,7 +38,6 @@ class ProfileIntegrationService {
           insurance: profileData.insurance || null,
           current_medication: profileData.currentMedication || null,
           health_provider_id: profileData.healthProviderId || null,
-          password: profileData.password, // This might be handled differently in production
           symptoms: profileData.symptoms || [],
           languages: profileData.languages || [],
           preferences: profileData.preferences || {
@@ -58,20 +57,18 @@ class ProfileIntegrationService {
         const completePayload = {
           role,
           user,
-          insurance_networks: profileData.insuranceNetworks || [],
+          insurance_networks: profileData.insurance_networks || [],
           location: profileData.location,
           specialty: profileData.specialty || [],
           gender: profileData.gender,
-          experience_years: profileData.experienceYears,
+          experience_years: profileData.experience_years,
           education: profileData.education,
-          focus_groups: profileData.focusGroups || [],
-          about_me: profileData.aboutMe,
+          focus_groups: profileData.focus_groups || [],
+          about_me: profileData.about_me,
           languages: profileData.languages || [],
           hobbies: profileData.hobbies,
           quote: profileData.quote,
-          calendly_url: profileData.calendlyUrl,
-          headshot_url: profileData.headshotUrl,
-          password: profileData.password,
+          headshot_url: profileData.headshot_url,
         };
 
         return await apiService.completeUserProfile(completePayload);
@@ -84,14 +81,34 @@ class ProfileIntegrationService {
     }
   }
 
+  async updateUserProfile(profileData, role) {
+    try {
+      const payload = { ...profileData, role };
+      return await apiService.updateUserProfile(payload);
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
+  }
+
   /**
    * Get current user profile from backend
    * Note: With OAuth, user data should be passed as parameters or retrieved from AuthContext
    * @returns {Promise} - Promise that resolves with user profile
    */
-  async getCurrentUserProfile() {
+  async getCurrentUserProfile(user) {
     try {
-      const backendProfile = await apiService.getUserProfile();
+      let backendProfile;
+      console.log('profileIntegrationService: User object in getCurrentUserProfile:', user);
+      console.log('profileIntegrationService: User role:', user?.role);
+      if (user && user.role === 'providers') {
+        backendProfile = await apiService.getProviderProfile();
+      } else if (user && user.role === 'patients') {
+        backendProfile = await apiService.getPatientProfile();
+      } else {
+        // Fallback or error if role is not determined
+        backendProfile = await apiService.getUserProfile();
+      }
       
       return {
         profile: backendProfile
@@ -108,8 +125,8 @@ class ProfileIntegrationService {
    */
   async isProfileComplete() {
     try {
-      const profile = await this.getCurrentUserProfile();
-      return profile.profile && profile.profile.is_active;
+      const { isProfileComplete } = await apiService.checkProfileStatus();
+      return isProfileComplete;
     } catch (error) {
       console.error('Error checking profile status:', error);
       return false;

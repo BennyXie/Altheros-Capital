@@ -5,6 +5,8 @@
  * for user registration and authentication-related operations.
  */
 
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 class ApiService {
@@ -12,12 +14,28 @@ class ApiService {
    * Get authorization headers with current user token
    * @returns {Object} - Headers object with authorization
    */
-  getAuthHeaders() {
-    const token = localStorage.getItem('accessToken');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
+  async getAuthHeaders() {
+    try {
+      let { tokens } = await fetchAuthSession();
+      let idToken = tokens?.idToken?.toString();
+
+      // If idToken is missing, force a refresh of the session
+      if (!idToken) {
+        console.log('ApiService: idToken missing, forcing session refresh.');
+        ({ tokens } = await fetchAuthSession({ forceRefresh: true }));
+        idToken = tokens?.idToken?.toString();
+      }
+
+      console.log('ApiService: Fetched tokens:', tokens);
+      console.log('ApiService: Extracted idToken:', idToken);
+      return {
+        'Content-Type': 'application/json',
+        ...(idToken && { 'Authorization': `Bearer ${idToken}` })
+      };
+    } catch (error) {
+      console.error('Error fetching auth session:', error);
+      return { 'Content-Type': 'application/json' };
+    }
   }
 
   /**
@@ -29,7 +47,7 @@ class ApiService {
   async makeRequest(endpoint, options = {}) {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: this.getAuthHeaders(),
+        headers: await this.getAuthHeaders(),
         ...options,
       });
 
@@ -64,10 +82,43 @@ class ApiService {
    * @returns {Promise} - Promise that resolves with response
    */
   async completeUserProfile(profileData) {
-    return this.makeRequest('/api/auth/signup', {
+    const { role, ...dataToSend } = profileData;
+    let endpoint = '';
+
+    if (role === 'patient') {
+      endpoint = '/api/profile/patient';
+    } else if (role === 'provider') {
+      endpoint = '/api/profile/provider';
+    } else {
+      throw new Error('Invalid role specified for profile completion');
+    }
+
+    return this.makeRequest(endpoint, {
       method: 'POST',
-      body: JSON.stringify(profileData),
+      body: JSON.stringify(dataToSend),
     });
+  }
+
+  async updateUserProfile(profileData) {
+    const { role, ...dataToSend } = profileData;
+    let endpoint = '';
+
+    if (role === 'patient') {
+      endpoint = '/api/profile/patient';
+    } else if (role === 'provider') {
+      endpoint = '/api/profile/provider';
+    } else {
+      throw new Error('Invalid role specified for profile update');
+    }
+
+    return this.makeRequest(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(dataToSend),
+    });
+  }
+
+  async checkProfileStatus() {
+    return this.makeRequest('/api/profile/status');
   }
 
   /**
@@ -78,6 +129,14 @@ class ApiService {
     return this.makeRequest('/api/auth/profile');
   }
 
+  async getProviderProfile() {
+    return this.makeRequest('/api/profile/provider');
+  }
+
+  async getPatientProfile() {
+    return this.makeRequest('/api/profile/patient');
+  }
+
   /**
    * Access protected route (example)
    * @returns {Promise} - Promise that resolves with protected data
@@ -86,15 +145,16 @@ class ApiService {
     return this.makeRequest('/api/auth/protected');
   }
 
-  /**
-   * Update user profile
-   * @param {Object} updates - Profile updates
-   * @returns {Promise} - Promise that resolves with updated profile
-   */
-  async updateUserProfile(updates) {
-    return this.makeRequest('/api/auth/profile', {
+  
+
+  async getSchedule(providerId) {
+    return this.makeRequest(`/api/schedule/${providerId}`);
+  }
+
+  async updateSchedule(providerId, scheduleData) {
+    return this.makeRequest(`/api/schedule/${providerId}`, {
       method: 'PUT',
-      body: JSON.stringify(updates),
+      body: JSON.stringify(scheduleData),
     });
   }
 }
