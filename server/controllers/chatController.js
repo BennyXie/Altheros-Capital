@@ -1,6 +1,7 @@
 const chatService = require("../services/chatService");
 const s3Service = require("../services/s3Service");
 const dbUtils = require("../utils/dbUtils");
+const path = require("path");
 require("dotenv").config({ path: "./.env" });
 
 /**
@@ -188,11 +189,14 @@ async function createMessage(req, res) {
   if (!file && !message) {
     return res.status(400).json({ error: "No file nor message provided" });
   } else if (file) {
-    await chatService.uploadFileToS3(req, res);
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
     req.textType = file.mimetype;
-    req.text = `${req.user.sub}/${req.params.chatId}/${file.originalname}.${
+    const key = `${req.user.sub}/${req.params.chatId}/${name}.${
       file.mimetype.split("/")[1]
     }`;
+    req.text = key;
+    await chatService.uploadFileToS3(req, res, key);
   } else {
     req.textType = "string";
     req.text = message;

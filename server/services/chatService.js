@@ -49,7 +49,7 @@ async function getMessagesByChatId(chat_id) {
   const query = `
     SELECT sender_id, sender_type, text, sent_at
     FROM messages
-    WHERE chat_id = $1
+    WHERE chat_id = $1 AND is_deleted = false
     ORDER BY sent_at ASC;
   `;
   const { rows } = await db.query(query, [chat_id]);
@@ -251,19 +251,13 @@ async function getChatIds(userDbId) {
 //   await db.query("UPDATE messages SET text = $1", [fileUrl]);
 // }
 
-async function uploadFileToS3(req, res) {
+async function uploadFileToS3(req, res, key) {
   try {
     const file = req.file;
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-
-    const key = `users/${req.user.sub}/chats/${req.params.chatId}/${name}.${
-      file.mimetype.split("/")[1]
-    }`;
     await uploadToS3({
       fileBuffer: file.buffer,
       key: key,
@@ -300,13 +294,13 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
 
 async function deleteMessageById({ deletedAt, messageId }) {
   await db.query(
-    "UPDATE messages SET is_deleted = true AND deletedAt = $1 WHERE id = $2",
+    "UPDATE messages SET is_deleted = true, deleted_at = $1 WHERE id = $2",
     [deletedAt, messageId]
   );
 }
 
 async function verifyMessageOwnership(req, res, next) {
-  const userId = await dbUtils.getUserDbId(res.user);
+  const userId = await dbUtils.getUserDbId(req.user);
   const query = `SELECT EXISTS (SELECT 1 FROM messages WHERE id = $1 AND sender_id = $2)`;
   const result = await db.query(query, [req.params.messageId, userId]);
   result.rows[0].exists
