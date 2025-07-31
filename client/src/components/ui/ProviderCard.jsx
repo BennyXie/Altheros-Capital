@@ -5,11 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { fadeInUp } from '../../animations/variants';
 
 const ProviderCard = ({ provider }) => {
-    const { name, qualifications, specialties, experience, headshot } = provider;
+    const { name, qualifications, specialties, experience, headshot, cal_username } = provider;
     const navigate = useNavigate();
 
     const handleViewProfile = () => {
         navigate(`/provider-profile/${name}`, { state: { provider } });
+    };
+
+    const handleSchedule = () => {
+        window.location.href = `http://localhost:3000/${cal_username}`;
     };
 
     return (
@@ -60,6 +64,9 @@ const ProviderCard = ({ provider }) => {
                     </div>
                     <Button variant="light" color="blue" mt="md" radius="md" onClick={handleViewProfile}>
                         View Profile
+                    </Button>
+                    <Button variant="light" color="blue" mt="md" radius="md" onClick={handleSchedule}>
+                        Schedule
                     </Button>
                 </Group>
             </Card>

@@ -44,7 +44,8 @@ const ProviderLookupPage = () => {
                         interests: p.hobbies,
                         location: p.location,
                         acceptedInsurance: p.insurance_networks || [],
-                        languages: p.languages || []
+                        languages: p.languages || [],
+                        cal_username: p.cal_username
                     };
                 });
                 setProviders(fetchedProviders);
