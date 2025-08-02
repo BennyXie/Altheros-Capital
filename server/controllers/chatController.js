@@ -172,8 +172,7 @@ async function getChatMessagesByChatId(req, res) {
 
 async function deleteChat(req, res) {
   const { chatId } = req.params;
-  const userDbId = await dbUtils.getUserDbId(req.user);
-  await chatService.removeChatMemberShip(chatId, [userDbId]);
+  await chatService.deleteChat(chatId);
   res.status(204).send();
 }
 
@@ -192,7 +191,7 @@ async function createMessage(req, res) {
     const ext = path.extname(file.originalname);
     const name = path.basename(file.originalname, ext);
     req.textType = file.mimetype;
-    const key = `${req.user.sub}/${req.params.chatId}/${name}.${
+    const key = `users/${req.user.sub}/chats/${req.params.chatId}/${name}.${
       file.mimetype.split("/")[1]
     }`;
     req.text = key;
@@ -214,11 +213,53 @@ async function createMessage(req, res) {
 
 async function deleteMessage(req, res) {
   const { messageId } = req.params;
-  const { deletedAt } = req.body;
   await chatService.deleteMessageById({
-    deletedAt: deletedAt,
     messageId: messageId,
   });
+  res.status(204).send();
+}
+
+async function updateParticipantState(req, res) {
+  const { chatId } = req.params;
+  const userId = await dbUtils.getUserDbId(req.user);
+  const { leftAt, isMuted } = req.body;
+
+  const allowedUpdates = {
+    left_at: leftAt,
+    is_muted: isMuted,
+  };
+
+  const updates = Object.fromEntries(
+    Object.entries(allowedUpdates).filter(([_, v]) => v !== undefined)
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update." });
+  }
+
+  await chatService.updateParticipantById({ chatId, userId, updates });
+
+  res.status(204).send();
+}
+
+async function updateMessage(req, res) {
+  const { messageId } = req.params;
+  const { deletedAt } = req.body;
+
+  const allowedUpdates = {
+    deleted_At: deletedAt,
+  };
+
+  const updates = Object.fromEntries(
+    Object.entries(allowedUpdates).filter(([_, v]) => v !== undefined)
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update." });
+  }
+
+  await chatService.updateMessageById({ messageId, updates });
+
   res.status(204).send();
 }
 
@@ -233,4 +274,6 @@ module.exports = {
   getChatIds,
   createMessage,
   deleteMessage,
+  updateMessage,
+  updateParticipantState,
 };

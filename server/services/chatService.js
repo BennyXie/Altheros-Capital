@@ -49,7 +49,7 @@ async function getMessagesByChatId(chat_id) {
   const query = `
     SELECT sender_id, sender_type, text, sent_at
     FROM messages
-    WHERE chat_id = $1 AND is_deleted = false
+    WHERE chat_id = $1 AND deleted_at IS NOT NULL
     ORDER BY sent_at ASC;
   `;
   const { rows } = await db.query(query, [chat_id]);
@@ -77,10 +77,28 @@ async function createOrGetChat(participantIds, order = "ASC") {
   );
 
   if (matchingChat.rows.length > 0) {
+<<<<<<< HEAD
     return matchingChat.rows[0].chat_id;
   } else {
     const chatInsert = await db.query(
       `INSERT INTO chats DEFAULT VALUES
+=======
+    const chatId = matchingChat.rows[0].chat_id;
+    db.query(
+      `
+    UPDATE chat_participant
+    SET left_at = NULL, is_muted = FALSE
+    WHERE chat_id = $1 AND participant_id = ANY ($2::uuid[]);
+    `,
+      [chatId, participantIds]
+    );
+
+    return chatId;
+  }
+
+  const chatInsert = await db.query(
+    `INSERT INTO chats DEFAULT VALUES
+>>>>>>> d72b35a (added soft delete)
     RETURNING id`
     );
 
@@ -101,6 +119,7 @@ async function createOrGetChat(participantIds, order = "ASC") {
   }
 }
 
+<<<<<<< HEAD
 async function removeChatMemberShip(chatId) {
   // Delete all messages for the given chatId
   await db.query(`DELETE FROM messages WHERE chat_id = $1`, [chatId]);
@@ -237,6 +256,14 @@ async function getChatDetails(chatId, userObject) {
     throw error;
   }
 }
+=======
+// async function removeChatMemberShip(chatId, participants) {
+//   await db.query(
+//     `DELETE FROM chat_participant WHERE chat_id = $1 AND participant_id = ANY ($2::uuid[])`,
+//     [chatId, participants]
+//   );
+// }
+>>>>>>> d72b35a (added soft delete)
 
 async function getChatIds(userDbId) {
   console.log("getChatIds: userDbId:", userDbId);
@@ -292,11 +319,12 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
   return result.rows[0];
 }
 
-async function deleteMessageById({ deletedAt, messageId }) {
-  await db.query(
-    "UPDATE messages SET is_deleted = true, deleted_at = $1 WHERE id = $2",
-    [deletedAt, messageId]
-  );
+async function deleteMessageById({ messageId }) {
+  await db.query("DELETE FROM messages WHERE id = $1", [messageId]);
+}
+
+async function deleteChat({ chatId }) {
+  await db.query("DELETE FROM chats WHERE id = $1", [chatId]);
 }
 
 async function verifyMessageOwnership(req, res, next) {
@@ -308,6 +336,43 @@ async function verifyMessageOwnership(req, res, next) {
     : res.status(404).json({ error: "Message not found or user not sender" });
 }
 
+async function leaveChat({ leftAt, chatId, participants }) {
+  await db.query(
+    `UPDATE chat_participant SET left_at = $1 WHERE chat_id = $2 AND participant_id = ANY ($2::uuid[])`,
+    [leftAt, chatId, participants]
+  );
+}
+
+async function updateParticipantById({ chatId, userId, updates }) {
+  const keys = Object.keys(updates);
+  const values = Object.values(updates);
+
+  const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
+
+  const query = `
+    UPDATE chat_participant
+    SET ${setClause}
+    WHERE chat_id = $${keys.length + 1} AND participant_id = $${keys.length + 2}
+  `;
+
+  await db.query(query, [...values, chatId, userId]);
+}
+
+async function updateMessageById({ messageId, updates }) {
+  const keys = Object.keys(updates);
+  const values = Object.values(updates);
+
+  const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
+
+  const query = `
+    UPDATE messages
+    SET ${setClause}
+    WHERE id = $${keys.length + 1}
+  `;
+
+  await db.query(query, [...values, messageId]);
+}
+
 module.exports = {
   uploadFileToS3,
   formatMessage,
@@ -315,8 +380,11 @@ module.exports = {
   verifyChatMembership,
   getMessagesByChatId,
   createOrGetChat,
-  removeChatMemberShip,
+  deleteChat,
   getChatIds,
   deleteMessageById,
   verifyMessageOwnership,
+  leaveChat,
+  updateParticipantById,
+  updateMessageById,
 };

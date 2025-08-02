@@ -40,8 +40,8 @@ const username = "john.doe@example.com";
 const newPassword = "Password1234!"; // new permanent password
 const localStorage = new LocalStorage("./test/storage");
 let authenticationResult;
-const chatId = "68a11051-fb0c-49c0-8d7c-5495f1deab8c";
-const messageId = "a27f0142-1959-48ff-8426-9810abccfb9c";
+const chatId = "5a36fccc-4c2a-4367-8455-682836bd9ad0";
+const messageId = "7f54ffd1-8c52-4a8c-9ac1-82714d6cea4e";
 
 async function deleteUserFromCognito() {
   const command = new AdminDeleteUserCommand({
@@ -177,36 +177,29 @@ async function completeMFA(authResp) {
   return final.AuthenticationResult;
 }
 
-function isTokenExpired(token) {
+async function isTokenExpired(token) {
   const currentTime = Math.floor(Date.now() / 1000); // Unix time in seconds
-  return verifyJwt(token).exp < currentTime;
+  return (await verifyJwt(token)).exp < currentTime;
 }
 
 beforeAll(async () => {
   //   await deleteUser();
   const authRes = await authenticateUser();
-  if (
-    localStorage.getItem("Current valid auth result") &&
-    !isTokenExpired(
-      JSON.parse(localStorage.getItem("Current valid auth result")).IdToken
-    )
-  ) {
-    authenticationResult = JSON.parse(
-      localStorage.getItem("Current valid auth result")
-    );
-    return;
-  }
+  //   if (
+  //     localStorage.getItem("Current valid auth result") &&
+  //     !(await isTokenExpired(
+  //       JSON.parse(localStorage.getItem("Current valid auth result")).IdToken
+  //     ))
+  //   ) {
+  //     authenticationResult = JSON.parse(
+  //       localStorage.getItem("Current valid auth result")
+  //     );
+  //     return;
+  //   }
   authenticationResult = await completeMFA(authRes);
 });
 
 describe("POST", () => {
-  //   test("should return 200 OK", async () => {
-  //     const response = await request(app)
-  //       .post("/chat/")
-  //       .send({ participants: ["2b4465d8-10b9-46db-b0b3-53cdefadec04"] });
-
-  //     expect(response.statusCode).toBe(200);
-  //   });
   const expectedStatus = 201;
 
   test("create chat", async () => {
@@ -217,31 +210,31 @@ describe("POST", () => {
     expect(response.statusCode).toBe(expectedStatus);
   });
 
+    test("create message", async () => {
+      const response = await request(app)
+        .post(`/chat/${chatId}/message`)
+        .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+        .attach(
+          `file`,
+          "./test/images/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.webp"
+        )
+        .field({
+          chatId: chatId,
+          sentAt: new Date().toISOString(),
+        });
+      expect(response.statusCode).toBe(expectedStatus);
+    });
+
   test("create message", async () => {
     const response = await request(app)
       .post(`/chat/${chatId}/message`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
-      .attach(
-        `file`,
-        "./test/images/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.webp"
-      )
       .field({
-        chatId: chatId,
+        message: "hi",
         sentAt: new Date().toISOString(),
       });
     expect(response.statusCode).toBe(expectedStatus);
   });
-
-  //   test("create message", async () => {
-  //     const response = await request(app)
-  //       .post(`/chat/${chatId}/message`)
-  //       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
-  //       .field({
-  //         message: "hi",
-  //         sentAt: new Date().toISOString(),
-  //       });
-  //     expect(response.statusCode).toBe(expectedStatus);
-  //   });
 });
 
 describe("GET", () => {
@@ -262,7 +255,7 @@ describe("GET", () => {
   });
 });
 
-describe("DELETE", () => {
+/* describe("DELETE", () => {
   const expectedStatus = 204;
 
   test("delete chat message", async () => {
@@ -275,13 +268,38 @@ describe("DELETE", () => {
     expect(response.statusCode).toBe(expectedStatus);
   });
 
-  //   test("delete chats", async () => {
-  //     const response = await request(app)
-  //       .delete(`/chat`)
-  //       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
-  //       .send({
-  //         sentAt: new Date().toISOString(),
-  //       });
-  //     expect(response.statusCode).toBe(expectedStatus);
-  //   });
+    test("delete chats", async () => {
+      const response = await request(app)
+        .delete(`/chat`)
+        .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+        .send({
+          sentAt: new Date().toISOString(),
+        });
+      expect(response.statusCode).toBe(expectedStatus);
+    });
+});
+ */
+
+describe("PATCH", () => {
+  const expectedStatus = 204;
+
+  test("soft delete chat message", async () => {
+    const response = await request(app)
+      .patch(`/chat/${chatId}/message/${messageId}`)
+      .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+      .send({
+        deletedAt: new Date().toISOString(),
+      });
+    expect(response.statusCode).toBe(expectedStatus);
+  });
+
+    test("leave chat", async () => {
+      const response = await request(app)
+        .patch(`/chat/${chatId}/participants/me`)
+        .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+        .send({
+          leftAt: new Date().toISOString(),
+        });
+      expect(response.statusCode).toBe(expectedStatus);
+    });
 });
