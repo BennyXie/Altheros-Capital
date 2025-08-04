@@ -71,7 +71,6 @@ async function handleMessage(socket, data, io) {
   const { text, timestamp } = data;
   const senderId = socket.user.sub;
   const senderType = socket.user.role;
-  const senderName = socket.user.name;
 
   if (!text || !senderId || !senderType) return;
 
@@ -214,6 +213,26 @@ async function getChatIds(req, res) {
   }
 }
 
+async function getChatDetails(req, res) {
+  try {
+    const { chatId } = req.params;
+    console.log("getChatDetails: req.user:", req.user);
+    console.log("getChatDetails: cognito:groups:", req.user['cognito:groups']);
+    
+    // Verify chat membership
+    const isMember = await chatService.verifyChatMembership(req.user, chatId);
+    if (!isMember) {
+      return res.status(403).json({ error: "Access denied. You are not a member of this chat." });
+    }
+    
+    const chatDetails = await chatService.getChatDetails(chatId, req.user);
+    res.json(chatDetails);
+  } catch (error) {
+    console.error("Error in getChatDetails (chatController):", error);
+    res.status(500).json({ error: "Failed to retrieve chat details." });
+  }
+}
+
 module.exports = {
   handleJoin,
   handleMessage,
@@ -223,4 +242,5 @@ module.exports = {
   getChatMessages,
   getChatMessagesByChatId,
   getChatIds,
+  getChatDetails,
 };

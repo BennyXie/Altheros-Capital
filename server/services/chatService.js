@@ -1,6 +1,16 @@
+require("dotenv").config();
 const db = require("../db/pool.js");
 const dbUtils = require("../utils/dbUtils.js");
-const parseUtils = require("../utils/parseUtils");
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 async function getSenderDetails(senderId, senderType) {
   let query;
@@ -171,6 +181,100 @@ async function getChatParticipants(chatId) {
   return result.rows.map(row => row.participant_id);
 }
 
+async function getChatDetails(chatId, userObject) {
+  try {
+    // Get participant IDs
+    const participantIds = await getChatParticipants(chatId);
+    console.log("getChatDetails: participantIds:", participantIds);
+    
+    // Get details for each participant
+    const participantDetails = [];
+    
+    for (const participantId of participantIds) {
+      console.log("getChatDetails: Processing participantId:", participantId);
+      // Check if participant is a patient
+      const patientQuery = `SELECT first_name, last_name, cognito_sub FROM patients WHERE cognito_sub = $1`;
+      const patientResult = await db.query(patientQuery, [participantId]);
+      console.log("getChatDetails: Patient query result:", patientResult.rows);
+      
+      if (patientResult.rows.length > 0) {
+        const patient = patientResult.rows[0];
+        participantDetails.push({
+          id: participantId,
+          cognito_sub: patient.cognito_sub,
+          name: `${patient.first_name} ${patient.last_name}`.trim(),
+          type: 'patient',
+          avatar: null
+        });
+        console.log("getChatDetails: Added patient participant");
+      } else {
+        // Check if participant is a provider
+        const providerQuery = `SELECT first_name, last_name, cognito_sub, headshot_url FROM providers WHERE cognito_sub = $1`;
+        const providerResult = await db.query(providerQuery, [participantId]);
+        console.log("getChatDetails: Provider query result:", providerResult.rows);
+        
+        if (providerResult.rows.length > 0) {
+          const provider = providerResult.rows[0];
+          let headshot_url = provider.headshot_url;
+          console.log("getChatDetails: Original provider headshot_url:", headshot_url);
+          
+          // Generate presigned URL for S3 headshots
+          if (headshot_url && (headshot_url.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && headshot_url.includes(process.env.S3_BUCKET_NAME)))) {
+            console.log("getChatDetails: Detected S3 URL, generating presigned URL");
+            try {
+              let key = headshot_url;
+              if (key.startsWith('http')) {
+                const urlParts = new URL(key);
+                key = urlParts.pathname.substring(1); // Remove leading slash
+              }
+              console.log("getChatDetails: S3 key:", key);
+
+              const command = new GetObjectCommand({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: key,
+              });
+              headshot_url = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
+              console.log("getChatDetails: Generated presigned URL:", headshot_url);
+            } catch (error) {
+              console.error(`Error generating presigned URL for provider headshot:`, error);
+              headshot_url = null; // Use null if error generating URL
+            }
+          } else {
+            console.log("getChatDetails: Not an S3 URL, using original URL");
+          }
+          
+          participantDetails.push({
+            id: participantId,
+            cognito_sub: provider.cognito_sub,
+            name: `${provider.first_name} ${provider.last_name}`.trim(),
+            type: 'provider',
+            avatar: headshot_url
+          });
+          console.log("getChatDetails: Added provider participant:", {
+            name: `${provider.first_name} ${provider.last_name}`.trim(),
+            avatar: headshot_url
+          });
+        }
+      }
+    }
+    
+    // Find the other participant (not the current user)
+    const currentUserDbId = await dbUtils.getUserDbId(userObject);
+    const otherParticipant = participantDetails.find(p => p.cognito_sub !== currentUserDbId);
+    
+    console.log("getChatDetails: Final result - otherParticipant:", otherParticipant);
+    
+    return {
+      chatId,
+      participants: participantDetails,
+      otherParticipant
+    };
+  } catch (error) {
+    console.error('Error getting chat details:', error);
+    throw error;
+  }
+}
+
 async function getChatIds(userDbId) {
   console.log("getChatIds: userDbId:", userDbId);
   const chatIdsResult = await db.query(
@@ -257,4 +361,5 @@ module.exports = {
   getChatIdByParticipants,
   getSenderDetails, // Export the new function
   getChatParticipants, // Export the getChatParticipants function
+  getChatDetails, // Export the new getChatDetails function
 };

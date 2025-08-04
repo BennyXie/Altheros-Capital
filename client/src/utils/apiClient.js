@@ -112,6 +112,35 @@ class ApiClient {
     }
     return null;
   }
+
+  async getChatDetails(chatId, options = {}, authRequired = true) {
+    // For chat details, we need to use idToken instead of accessToken to get cognito:groups
+    let finalOptions = { ...options };
+    let headers = finalOptions.headers || {};
+
+    if (authRequired) {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString(); // Use idToken instead of accessToken
+
+      if (!token) {
+        throw new Error('No ID token available');
+      }
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    finalOptions.headers = headers;
+    
+    const response = await fetch(`${API_BASE_URL}/api/chat/room/${chatId}/details`, {
+      method: 'GET',
+      ...finalOptions,
+    });
+
+    if (!response.ok) {
+      throw new Error(`GET chat details failed: ${response.status}`);
+    }
+
+    return response.json();
+  }
 }
 
 const apiClient = new ApiClient();
