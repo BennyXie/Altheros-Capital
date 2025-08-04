@@ -57,6 +57,8 @@ app.use("/api/webhooks", webhookRoutes);
 app.use("/calendly", calendlyRoutes);
 // Chat routes
 app.use("/chat", chatRoutes);
+// Notification routes
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 // Profile routes
 app.use("/api/profile", profileRoutes);
 // Schedule routes

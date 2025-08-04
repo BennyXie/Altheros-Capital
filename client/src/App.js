@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Amplify } from 'aws-amplify';
 import amplifyConfig from './config/amplifyConfig';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import PreLoginPage from './pages/PreLoginPage.jsx';
 import PreSignUpPage from './pages/PreSignUpPage.jsx';
 import AuthCallback from './components/AuthCallback.jsx';
@@ -10,6 +11,7 @@ import UserDashboard from './pages/UserDashboard.jsx';
 import ProviderDashboard from './pages/ProviderDashboard.jsx';
 import UserCompleteProfilePage from './pages/UserCompleteProfilePage.jsx';
 import ProviderCompleteProfilePage from './pages/ProviderCompleteProfilePage.jsx';
+import NotificationsPage from './pages/NotificationsPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LandingPage from './components/landing/LandingPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
@@ -37,6 +39,16 @@ const AppRoutes = () => {
       <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
       <Route path="/chats" element={<Layout><ChatSelectionPage /></Layout>} />
       <Route path="/chat/:providerId" element={<Layout><ChatRoomPage /></Layout>} />
+      <Route
+        path="/notifications"
+        element={
+          <Layout>
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
       <Route
         path="/user-dashboard"
         element={
@@ -106,7 +118,9 @@ function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
-        <AppRoutes />
+        <NotificationProvider>
+          <AppRoutes />
+        </NotificationProvider>
       </AuthProvider>
     </Router>
   );
