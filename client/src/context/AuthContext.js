@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
           email: idTokenPayload.email,
           role: roles[0], // Attach the first role to the user object
           accessToken: tokens.accessToken.toString(), // Store the access token
+          idToken: tokens.idToken.toString(), // Store the ID token for socket auth
         });
         console.log('AuthContext: User set in state.');
 

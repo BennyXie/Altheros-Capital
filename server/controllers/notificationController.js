@@ -28,6 +28,7 @@ async function getNotifications(req, res) {
 async function getUnreadCount(req, res) {
   try {
     const userId = await dbUtils.getUserDbId(req.user);
+    
     const count = await notificationService.getUnreadCount(userId);
     
     res.json({ count });

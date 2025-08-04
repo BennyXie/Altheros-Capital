@@ -38,7 +38,7 @@ const AppRoutes = () => {
       <Route path="/provider-lookup" element={<Layout><ProviderLookupPage /></Layout>} />
       <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
       <Route path="/chats" element={<Layout><ChatSelectionPage /></Layout>} />
-      <Route path="/chat/:providerId" element={<Layout><ChatRoomPage /></Layout>} />
+      <Route path="/chat/:chatId" element={<Layout><ChatRoomPage /></Layout>} />
       <Route
         path="/notifications"
         element={

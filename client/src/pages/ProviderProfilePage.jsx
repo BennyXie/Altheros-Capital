@@ -6,6 +6,7 @@ import { IconUserCircle, IconMessageCircle } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import { useAuth } from '../context/AuthContext';
+import apiService from '../services/apiService';
 
 const ProviderProfilePage = () => {
     const location = useLocation();
@@ -13,9 +14,11 @@ const ProviderProfilePage = () => {
     const { user, loading, profileStatus } = useAuth(); // Destructure profileStatus from useAuth()
     const navigate = useNavigate();
 
-    const handleChatButtonClick = useCallback(() => {
+    const handleChatButtonClick = useCallback(async () => {
         console.log('Chat button clicked!');
         console.log('User:', user);
+        console.log('User role:', user.role);
+        console.log('User sub:', user.sub);
         console.log('Profile Status:', JSON.stringify(profileStatus));
         console.log('Provider object in handleChatButtonClick:', provider);
         console.log('Provider Cognito ID in handleChatButtonClick:', provider?.cognito_id);
@@ -28,7 +31,7 @@ const ProviderProfilePage = () => {
             });
             // Optionally redirect to login page
             // navigate('/prelogin');
-        } else if (user.attributes && user.attributes['custom:role'] !== 'patient') {
+        } else if (user.role !== 'patients') {
             notifications.show({
                 title: 'Access Denied',
                 message: 'Only patients can initiate chats with providers.',
@@ -43,7 +46,27 @@ const ProviderProfilePage = () => {
             navigate('/complete-profile');
         } else {
             if (provider && provider.cognito_id) {
-                navigate(`/chat/${provider.cognito_id}`);
+                try {
+                    // Create or get existing chat between patient and provider
+                    // Access user ID from the correct path in user object
+                    const userId = user.sub || user.attributes?.sub || user.userId;
+                    console.log('User ID for chat creation:', userId);
+                    console.log('Provider ID for chat creation:', provider.cognito_id);
+                    
+                    const participants = [userId, provider.cognito_id];
+                    const chatResponse = await apiService.createOrGetChat(participants);
+                    console.log('Chat created/retrieved:', chatResponse);
+                    
+                    // Navigate to the chat room using the chat ID (chatResponse is the chat ID string)
+                    navigate(`/chat/${chatResponse}`);
+                } catch (error) {
+                    console.error('Error creating/getting chat:', error);
+                    notifications.show({
+                        title: 'Chat Error',
+                        message: 'Failed to start chat. Please try again.',
+                        color: 'red',
+                    });
+                }
             } else {
                 console.error("Error: Provider Cognito ID is missing. Cannot navigate to chat.", provider);
                 notifications.show({

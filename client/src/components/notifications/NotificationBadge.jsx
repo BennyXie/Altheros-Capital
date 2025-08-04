@@ -26,7 +26,7 @@ const NotificationBadge = () => {
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
   
   // Get latest 5 notifications for preview
-  const recentNotifications = notifications.slice(0, 5);
+  const recentNotifications = (notifications || []).slice(0, 5);
 
   const getNotificationColor = (type) => {
     switch (type) {
@@ -106,7 +106,7 @@ const NotificationBadge = () => {
           </Group>
         </div>
 
-        <ScrollArea.Autosize maxHeight={400} type="never">
+        <ScrollArea.Autosize mah={400} type="never">
           {recentNotifications.length === 0 ? (
             <div style={{ padding: '24px', textAlign: 'center' }}>
               <IconBell size={32} color="var(--mantine-color-gray-5)" />

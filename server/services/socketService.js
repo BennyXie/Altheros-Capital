@@ -39,7 +39,8 @@ function initializeSocket(server) {
         email: decoded.email,
         name: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim() || decoded.email,
         sub: decoded.sub, // Add sub to socket.user
-        role: decoded['cognito:groups'] && decoded['cognito:groups'][0] // Add role to socket.user
+        role: decoded['cognito:groups'] && decoded['cognito:groups'][0], // Add role to socket.user
+        'cognito:groups': decoded['cognito:groups'] // Keep original format for dbUtils
       };
 
       next(); // Go to connection
@@ -64,10 +65,11 @@ function initializeSocket(server) {
     /**
      * Code to Join a chat room
      * Front end needs to emit:
-     * socket.emit("join_chat, { chatId, timestamp }")
+     * socket.emit("join_chat", { chatId, timestamp }) or
+     * socket.emit("join_chat", { providerId, timestamp })
      */
-    socket.on("join_chat", ({ providerId, timestamp }) => {
-      chatController.handleJoin(socket, providerId, name, timestamp);
+    socket.on("join_chat", (data) => {
+      chatController.handleJoin(socket, data, data.timestamp);
     });
 
     /**

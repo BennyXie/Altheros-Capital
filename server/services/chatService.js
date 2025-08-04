@@ -101,14 +101,14 @@ async function createOrGetChat(participantIds) {
   const sortedParticipants = participantIds.sort();
   const numParticipants = sortedParticipants.length;
 
-  
+  console.log("createOrGetChat: Looking for chat with participants:", sortedParticipants);
 
   const matchingChat = await db.query(
     `
     SELECT chat_id, array_agg(participant_id ORDER BY participant_id ASC) AS participant_ids
     FROM chat_participant
     GROUP BY chat_id
-    HAVING COUNT(*) = $1 AND array_agg(participant_id ORDER BY participant_id ASC) @> $2::uuid[] AND array_agg(participant_id ORDER BY participant_id ASC) <@ $2::uuid[];
+    HAVING COUNT(*) = $1 AND array_agg(participant_id ORDER BY participant_id ASC) = $2::uuid[];
   `,
     [numParticipants, sortedParticipants]
   );
@@ -163,6 +163,12 @@ async function removeChatMemberShip(chatId) {
 
   // Delete the chat entry itself
   await db.query(`DELETE FROM chats WHERE id = $1`, [chatId]);
+}
+
+async function getChatParticipants(chatId) {
+  const query = `SELECT participant_id FROM chat_participant WHERE chat_id = $1`;
+  const result = await db.query(query, [chatId]);
+  return result.rows.map(row => row.participant_id);
 }
 
 async function getChatIds(userDbId) {
@@ -250,4 +256,5 @@ module.exports = {
   getChatIds,
   getChatIdByParticipants,
   getSenderDetails, // Export the new function
+  getChatParticipants, // Export the getChatParticipants function
 };

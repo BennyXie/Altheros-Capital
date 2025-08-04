@@ -157,6 +157,18 @@ class ApiService {
       body: JSON.stringify(scheduleData),
     });
   }
+
+  /**
+   * Create or get existing chat between participants
+   * @param {Array} participants - Array of participant IDs [patientId, providerId]
+   * @returns {Promise} - Promise that resolves with chat data
+   */
+  async createOrGetChat(participants) {
+    return this.makeRequest('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ participants }),
+    });
+  }
 }
 
 const apiService = new ApiService();

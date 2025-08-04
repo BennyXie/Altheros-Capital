@@ -10,6 +10,12 @@ router.get(
   asyncHandler(chatController.getChatMessages)
 );
 
+router.get(
+  "/room/:chatId/messages",
+  verifyToken,
+  asyncHandler(chatController.getChatMessagesByChatId)
+);
+
 router.post("/", verifyToken, asyncHandler(chatController.createOrGetChat));
 
 router.delete("/:chatId", verifyToken, asyncHandler(chatController.deleteChat));

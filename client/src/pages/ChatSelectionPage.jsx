@@ -11,7 +11,7 @@ const ChatSelectionPage = () => {
   useEffect(() => {
     const fetchChatRooms = async () => {
       try {
-        const response = await apiClient.get('/chat/rooms');
+        const response = await apiClient.get('/api/chat/rooms');
         setChatRooms(response);
       } catch (error) {
         console.error('Error fetching chat rooms:', error);

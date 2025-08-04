@@ -28,7 +28,7 @@ async function createNotification(notification) {
 }
 
 /**
- * Get notifications for a user
+ * Get notifications for a user (using messages as notifications)
  * @param {string} userId - User ID
  * @param {number} limit - Number of notifications to return
  * @param {number} offset - Offset for pagination
@@ -36,26 +36,51 @@ async function createNotification(notification) {
  */
 async function getUserNotifications(userId, limit = 20, offset = 0) {
   const query = `
-    SELECT * FROM notifications 
-    WHERE user_id = $1 
-    ORDER BY created_at DESC 
+    SELECT 
+      m.chat_id,
+      m.sender_id,
+      m.sender_type,
+      m.text,
+      m.sent_at,
+      cp.participant_id as recipient_id
+    FROM messages m
+    JOIN chat_participant cp ON m.chat_id = cp.chat_id
+    WHERE cp.participant_id = $1 
+      AND m.sender_id != $1
+    ORDER BY m.sent_at DESC 
     LIMIT $2 OFFSET $3
   `;
   
   const result = await db.query(query, [userId, limit, offset]);
-  return result.rows;
+  
+  // Format as notifications with chat room links
+  return result.rows.map(row => ({
+    id: `${row.chat_id}_${row.sent_at}`,
+    type: 'message',
+    title: 'New Message',
+    message: row.text.length > 50 ? row.text.substring(0, 50) + '...' : row.text,
+    chat_id: row.chat_id,
+    sender_id: row.sender_id,
+    sender_type: row.sender_type,
+    created_at: row.sent_at,
+    is_read: false, // We'll implement read tracking later if needed
+    link: `/chat/${row.chat_id}` // Link to the chat room using chat ID
+  }));
 }
 
 /**
- * Get unread notification count for a user
+ * Get unread notification count for a user (using messages as notifications)
  * @param {string} userId - User ID
  * @returns {number} Count of unread notifications
  */
 async function getUnreadCount(userId) {
   const query = `
     SELECT COUNT(*) as count 
-    FROM notifications 
-    WHERE user_id = $1 AND is_read = false
+    FROM messages m
+    JOIN chat_participant cp ON m.chat_id = cp.chat_id
+    WHERE cp.participant_id = $1 
+      AND m.sender_id != $1
+      AND m.sent_at > NOW() - INTERVAL '24 hours'
   `;
   
   const result = await db.query(query, [userId]);

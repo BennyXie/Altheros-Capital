@@ -34,7 +34,7 @@ export const NotificationProvider = ({ children }) => {
     // Create socket connection
     const newSocket = io(process.env.REACT_APP_API_URL || 'http://localhost:8080', {
       auth: {
-        token: user.accessToken
+        token: user.idToken
       }
     });
 
@@ -82,26 +82,37 @@ export const NotificationProvider = ({ children }) => {
   // Fetch initial unread count and notifications
   useEffect(() => {
     if (isAuthenticated && user) {
-      fetchUnreadCount();
-      fetchNotifications();
+      // Temporarily disable API calls to focus on chat functionality
+      // fetchUnreadCount();
+      // fetchNotifications();
+      
+      // Set default values for now
+      setUnreadCount(0);
+      setNotifications([]);
     }
   }, [isAuthenticated, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUnreadCount = async () => {
     try {
       const response = await apiClient.get('/api/notifications/unread-count');
-      setUnreadCount(response.data.count);
+      // Handle both success and error response formats
+      const count = response?.count ?? response?.data?.count ?? 0;
+      setUnreadCount(count);
     } catch (error) {
       console.error('Error fetching unread count:', error);
+      setUnreadCount(0); // Set to 0 on error
     }
   };
 
   const fetchNotifications = async (limit = 20, offset = 0) => {
     try {
       const response = await apiClient.get(`/api/notifications?limit=${limit}&offset=${offset}`);
-      setNotifications(response.data);
+      // Handle both success response formats
+      const notificationsData = response?.data ?? response ?? [];
+      setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]); // Set to empty array on error
     }
   };
 
@@ -190,6 +201,19 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    // If it's a message notification, navigate to the chat room
+    if (notification.type === 'message' && notification.sender_id) {
+      // Navigate to chat with the sender (provider)
+      window.location.href = `/chat/${notification.sender_id}`;
+    }
+    
+    // Mark as read when clicked
+    if (!notification.is_read) {
+      markAsRead(notification.id);
+    }
+  };
+
   const value = {
     socket,
     unreadCount,
@@ -199,7 +223,8 @@ export const NotificationProvider = ({ children }) => {
     deleteNotification,
     fetchNotifications,
     fetchUnreadCount,
-    createTestNotification
+    createTestNotification,
+    handleNotificationClick
   };
 
   return (
