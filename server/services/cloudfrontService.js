@@ -28,7 +28,7 @@ async function createInvalidation(objectName) {
   return await cloudfront.send(command);
 }
 
-async function getPrivateKeySignedUrl({ objectName }) {
+function getPrivateKeySignedUrl({ objectName }) {
   return getSignedUrl({
     url: `https://${process.env.S3_CHAT_BUCKET_CDN_DOMAIN}/${objectName}`,
     privateKey: process.env.CLOUDFRONT_CHAT_PRIVATE_KEY,
@@ -37,4 +37,4 @@ async function getPrivateKeySignedUrl({ objectName }) {
   });
 }
 
-module.exports = { createInvalidation, getPrivateKeySignedUrl};
+module.exports = { createInvalidation, getPrivateKeySignedUrl };

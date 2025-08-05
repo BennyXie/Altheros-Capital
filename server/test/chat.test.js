@@ -40,8 +40,8 @@ const username = "john.doe@example.com";
 const newPassword = "Password1234!"; // new permanent password
 const localStorage = new LocalStorage("./test/storage");
 let authenticationResult;
-const chatId = "5a36fccc-4c2a-4367-8455-682836bd9ad0";
-const messageId = "1ba0516e-bade-4302-af7f-481aa34ef1f5";
+const chatId = "ec7c62be-1317-4918-bdc4-62120fa7d2a3";
+const messageId = "18b618c5-0bdb-45a2-afd7-c72c0ae4a0c8";
 
 async function deleteUserFromCognito() {
   const command = new AdminDeleteUserCommand({
