@@ -14,9 +14,9 @@ async function completePatientProfile(req, res) {
       dob,
       gender,
       address,
-      phoneNumber, // Client sends phoneNumber
+      phone_number, // Client sends phone_number (with underscore)
       insurance = null,
-      currentMedication = null, // Client sends currentMedication
+      current_medication = null, // Client sends current_medication (with underscore)
       health_provider_id,
       symptoms = [],
       languages = [],
@@ -26,8 +26,8 @@ async function completePatientProfile(req, res) {
 
     console.log('completePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phoneNumber) { // Add phoneNumber to required fields
-      console.error("profileController: Missing required patient fields:", { dob, gender, address, phoneNumber });
+    if (!dob || !gender || !address || !phone_number) { // Check phone_number to match what frontend sends
+      console.error("profileController: Missing required patient fields:", { dob, gender, address, phone_number });
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -50,9 +50,9 @@ async function completePatientProfile(req, res) {
       dob,
       gender,
       address,
-      phoneNumber, // Map to phone_number
+      phone_number, // Use phone_number variable
       insurance,
-      currentMedication || '', // Map to current_medication
+      current_medication || '', // Use current_medication variable
       health_provider_id,
       true,
       now,
@@ -149,8 +149,8 @@ async function updatePatientProfile(req, res) {
       gender,
       address,
       insurance,
-      currentMedication, // Client sends currentMedication
-      phoneNumber, // Client sends phoneNumber
+      current_medication, // Client sends current_medication
+      phone_number, // Client sends phone_number
       symptoms,
       languages,
       preferences,
@@ -158,7 +158,7 @@ async function updatePatientProfile(req, res) {
 
     console.log('updatePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phoneNumber) { // Add phoneNumber to required fields
+    if (!dob || !gender || !address || !phone_number) { // Check phone_number to match what frontend sends
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -173,7 +173,7 @@ async function updatePatientProfile(req, res) {
     `;
 
     const values = [
-      dob, gender, address, insurance, currentMedication || '', phoneNumber, now, sub, email
+      dob, gender, address, insurance, current_medication || '', phone_number, now, sub, email
     ];
 
     console.log('updatePatientProfile: Patient UPDATE values:', values);
@@ -481,13 +481,23 @@ async function getProviderProfile(req, res) {
 async function checkProfileStatus(req, res) {
   console.log('profileController: checkProfileStatus called');
   try {
-    if (!req.user || !req.user.sub || !req.user['cognito:groups']) {
+    if (!req.user || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email, 'cognito:groups': groups } = req.user;
+    const { email, 'cognito:groups': groups = [] } = req.user;
     let isProfileComplete = false;
     let hasDatabaseEntry = false;
+
+    // If user has no groups/roles assigned yet, return default values
+    if (!groups || groups.length === 0) {
+      console.log(`profileController: checkProfileStatus - User has no roles assigned yet. Email: ${email}`);
+      return res.status(200).json({ 
+        isProfileComplete: false, 
+        hasDatabaseEntry: false,
+        needsRoleAssignment: true
+      });
+    }
 
     if (groups.includes('patients')) {
       console.log(`profileController: checkProfileStatus - User is patient. Email: ${email}`);

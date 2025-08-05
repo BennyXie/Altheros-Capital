@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
 import amplifyConfig from './config/amplifyConfig';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -20,17 +20,26 @@ import ProviderLookupPage from './pages/ProviderLookupPage.jsx';
 import ProviderProfilePage from './pages/ProviderProfilePage.jsx';
 import ChatSelectionPage from './pages/ChatSelectionPage.jsx';
 import ChatRoomPage from './pages/ChatRoomPage.jsx';
+import ClearAuthPage from './pages/ClearAuthPage.jsx';
 import Layout from './components/layout';
 
 Amplify.configure(amplifyConfig);
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, profileStatus } = useAuth();
+  const location = useLocation();
+
+  // If user is authenticated but needs role assignment, redirect to auth callback
+  // But don't redirect if they're already on the auth callback page
+  if (isAuthenticated && profileStatus?.needsRoleAssignment && location.pathname !== '/auth/callback') {
+    return <Navigate to="/auth/callback" replace />;
+  }
 
   return (
     <Routes>
       <Route path="/prelogin" element={<Layout><PreLoginPage /></Layout>} />
       <Route path="/presignup" element={<Layout><PreSignUpPage /></Layout>} />
+      <Route path="/clear-auth" element={<Layout><ClearAuthPage /></Layout>} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<Layout><LandingPage /></Layout>} />
       <Route path="/about" element={<Layout><AboutPage /></Layout>} />

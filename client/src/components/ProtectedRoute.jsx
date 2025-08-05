@@ -22,7 +22,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  const userRoleRaw = user?.attributes?.['custom:role'] || user?.role;
+  const userRoleRaw = user?.role || user?.['cognito:groups']?.[0];
+  console.log('ProtectedRoute: userRoleRaw:', userRoleRaw);
+  console.log('ProtectedRoute: user.role:', user?.role);
+  console.log('ProtectedRoute: user cognito:groups:', user?.['cognito:groups']);
+  
+  // If user is authenticated but has no role assigned, redirect to auth callback for role assignment
+  if (!userRoleRaw && profileStatus?.needsRoleAssignment) {
+    console.log('ProtectedRoute: User needs role assignment, redirecting to auth callback');
+    return <Navigate to="/auth/callback" replace />;
+  }
+  
   if (!userRoleRaw) {
     console.warn('ProtectedRoute: User or userRole not available yet. Waiting...');
     return (
@@ -39,8 +49,10 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     if (typeof role === 'string') {
       let r = role.trim().toLowerCase();
       if (r.endsWith('s')) r = r.slice(0, -1);
+      console.log('ProtectedRoute: normalizeRole input:', role, 'output:', r);
       return r;
     }
+    console.log('ProtectedRoute: normalizeRole non-string input:', role);
     return role;
   };
   const userRole = normalizeRole(userRoleRaw);
