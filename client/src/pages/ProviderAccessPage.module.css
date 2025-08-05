@@ -193,7 +193,7 @@
 }
 
 .ctaDescription {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-white-90);
   max-width: 600px;
   margin: 0 auto 2rem;
 }
@@ -223,7 +223,7 @@
 
 .ctaSecondary:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-white-10);
 }
 
 /* Responsive Design */

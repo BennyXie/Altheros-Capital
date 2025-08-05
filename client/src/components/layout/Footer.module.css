@@ -32,15 +32,15 @@
 }
 
 .contactForm {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-white-05);
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-white-10);
 }
 
 .formInput input,
 .formInput textarea {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: var(--bg-white-90) !important;
   border: 1px solid var(--mantine-color-gray-3) !important;
   color: var(--mantine-color-dark-7) !important;
 }
@@ -48,7 +48,7 @@
 .formInput input:focus,
 .formInput textarea:focus {
   border-color: var(--mantine-color-brand-6) !important;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+  box-shadow: 0 0 0 2px var(--border-mint-10) !important;
 }
 
 .formInput label {
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-white-10);
 }
 
 .socialLink:hover {
