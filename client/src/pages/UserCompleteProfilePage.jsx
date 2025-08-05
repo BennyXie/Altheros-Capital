@@ -287,8 +287,6 @@ const CompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
-      console.log('Submitting formData:', formData);
-      
       // Transform field names for backend compatibility
       const backendFormData = {
         ...formData,
@@ -299,8 +297,6 @@ const CompleteProfilePage = () => {
       // Remove the camelCase versions
       delete backendFormData.phoneNumber;
       delete backendFormData.currentMedication;
-      
-      console.log('Transformed backendFormData:', backendFormData);
 
       if (isUpdateMode) {
         await profileIntegrationService.updateUserProfile(backendFormData, 'patient');
@@ -320,10 +316,11 @@ const CompleteProfilePage = () => {
         });
       }
 
-      // Refresh profile status in AuthContext
-      await checkUserSession();
+      // Refresh profile status in AuthContext and wait for it to complete
+      await checkUserSession({ forceRefresh: true });
       
-      setTimeout(() => navigate('/user-dashboard'), 1500);
+      // Navigate immediately after profile status refresh
+      navigate('/user-dashboard');
 
     } catch (error) {
       console.error('Profile submission error:', error);

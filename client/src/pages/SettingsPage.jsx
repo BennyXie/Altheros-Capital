@@ -44,7 +44,7 @@ const SettingsPage = () => {
 
     setIsDeleting(true);
     try {
-      const result = await apiService.deleteUserProfile();
+      await apiService.deleteUserProfile();
       
       notifications.show({
         title: 'Profile Deleted',
@@ -54,7 +54,8 @@ const SettingsPage = () => {
       });
 
       // Refresh the auth context to update profile status
-      await checkUserSession();
+      // Force refresh the profile status after deletion
+      await checkUserSession({ forceRefresh: true });
       
     } catch (error) {
       console.error('Profile deletion error:', error);

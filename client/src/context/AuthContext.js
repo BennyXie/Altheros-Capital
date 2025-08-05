@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
             needsRoleAssignment: true 
           });
           setHasCheckedProfile(true);
-        } else if (!hasCheckedProfile) {
-          // Fetch profile status after user is set (only if user has roles and we haven't checked yet)
+        } else if (!hasCheckedProfile || options.forceRefresh) {
+          // Fetch profile status after user is set (only if user has roles and we haven't checked yet, or if force refresh)
           const status = await apiService.checkProfileStatus();
           setProfileStatus(status);
           setHasCheckedProfile(true);
