@@ -13,10 +13,11 @@ import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { IconMenu2, IconUser, IconLogout, IconDashboard } from "@tabler/icons-react";
+import { IconMenu2, IconUser, IconLogout, IconDashboard, IconBell, IconSettings } from "@tabler/icons-react";
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
 import { useAuth } from "../../context/AuthContext";
 import AuthService from "../../services/authService";
+import NotificationBadge from "../notifications/NotificationBadge";
 import classes from "./Header.module.css";
 
 /**
@@ -156,35 +157,52 @@ const Header = () => {
                         {/* CTA Buttons */}
                         {isAuthenticated ? (
                             // Authenticated user menu
-                            <Menu shadow="md" width={200}>
-                                <Menu.Target>
-                                    <Button
-                                        variant="subtle"
-                                        leftSection={<Avatar size="sm" radius="xl"><IconUser size={16} /></Avatar>}
-                                        style={{ color: 'var(--color-text-primary)' }}
-                                    >
-                                        {userDisplayName}
-                                    </Button>
-                                </Menu.Target>
+                            <Group gap="sm">
+                                <NotificationBadge />
+                                <Menu shadow="md" width={200}>
+                                    <Menu.Target>
+                                        <Button
+                                            variant="subtle"
+                                            leftSection={<Avatar size="sm" radius="xl"><IconUser size={16} /></Avatar>}
+                                            style={{ color: 'var(--color-text-primary)' }}
+                                        >
+                                            {userDisplayName}
+                                        </Button>
+                                    </Menu.Target>
 
-                                <Menu.Dropdown>
-                                    <Menu.Item
-                                        component={Link}
-                                        to={user?.role ? AuthService.getRoleBasedRedirectPath(user.role) : '/'}
-                                        leftSection={<IconDashboard size={16} />}
-                                    >
-                                        Dashboard
-                                    </Menu.Item>
-                                    <Menu.Divider />
-                                    <Menu.Item
-                                        leftSection={<IconLogout size={16} />}
-                                        onClick={handleLogout}
-                                        color="red"
-                                    >
-                                        Logout
-                                    </Menu.Item>
-                                </Menu.Dropdown>
-                            </Menu>
+                                    <Menu.Dropdown>
+                                        <Menu.Item
+                                            component={Link}
+                                            to={user?.role ? AuthService.getRoleBasedRedirectPath(user.role) : '/'}
+                                            leftSection={<IconDashboard size={16} />}
+                                        >
+                                            Dashboard
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            component={Link}
+                                            to="/settings"
+                                            leftSection={<IconSettings size={16} />}
+                                        >
+                                            Settings
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            component={Link}
+                                            to="/notifications"
+                                            leftSection={<IconBell size={16} />}
+                                        >
+                                            Notifications
+                                        </Menu.Item>
+                                        <Menu.Divider />
+                                        <Menu.Item
+                                            leftSection={<IconLogout size={16} />}
+                                            onClick={handleLogout}
+                                            color="red"
+                                        >
+                                            Logout
+                                        </Menu.Item>
+                                    </Menu.Dropdown>
+                                </Menu>
+                            </Group>
                         ) : (
                             // Non-authenticated CTA buttons
                             NAVIGATION_CONFIG.ctaButtons.map((button, index) => (

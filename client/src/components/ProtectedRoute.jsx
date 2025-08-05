@@ -1,37 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Container, Loader, Stack, Text } from '@mantine/core';
 import { useAuth } from '../context/AuthContext';
-import apiService from '../services/apiService';
 
-const ProtectedRoute = ({ children, requiredRole }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+const ProtectedRoute = ({ children, requiredRole, skipProfileCheck = false }) => {
+  const { isAuthenticated, isLoading, user, profileStatus } = useAuth();
   const location = useLocation();
-  const [profileStatus, setProfileStatus] = useState({ isProfileComplete: null, hasDatabaseEntry: null });
-  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
 
-  useEffect(() => {
-    const checkProfile = async () => {
-      if (user) {
-        try {
-          const { isProfileComplete, hasDatabaseEntry } = await apiService.checkProfileStatus();
-          setProfileStatus({ isProfileComplete, hasDatabaseEntry });
-          console.log('ProtectedRoute: Profile Status after API call:', { isProfileComplete, hasDatabaseEntry });
-        } catch (error) {
-          console.error("Error checking profile status:", error);
-          setProfileStatus({ isProfileComplete: false, hasDatabaseEntry: false }); // Assume profile is incomplete on error
-        } finally {
-          setIsCheckingProfile(false);
-        }
-      }
-    };
-
-    if (!isLoading) {
-      checkProfile();
-    }
-  }, [user, isLoading]);
-
-  if (isLoading || isCheckingProfile) {
+  if (isLoading) {
     return (
       <Container size="sm" py={100}>
         <Stack align="center" gap="lg">
@@ -46,7 +22,23 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  const userRoleRaw = user?.attributes?.['custom:role'] || user?.role;
+  const userRoleRaw = user?.role || user?.['cognito:groups']?.[0];
+  console.log('ProtectedRoute: userRoleRaw:', userRoleRaw);
+  console.log('ProtectedRoute: user.role:', user?.role);
+  console.log('ProtectedRoute: user cognito:groups:', user?.['cognito:groups']);
+  
+  // If user is authenticated but has no role assigned, redirect to auth callback for role assignment
+  // BUT skip this for settings page
+  if (!userRoleRaw && profileStatus?.needsRoleAssignment && !skipProfileCheck) {
+    console.log('ProtectedRoute: User needs role assignment, redirecting to auth callback');
+    return <Navigate to="/auth/callback" replace />;
+  }
+  
+  // For settings page, allow access even without complete role assignment
+  if (!userRoleRaw && skipProfileCheck) {
+    return children;
+  }
+  
   if (!userRoleRaw) {
     console.warn('ProtectedRoute: User or userRole not available yet. Waiting...');
     return (
@@ -63,8 +55,10 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     if (typeof role === 'string') {
       let r = role.trim().toLowerCase();
       if (r.endsWith('s')) r = r.slice(0, -1);
+      console.log('ProtectedRoute: normalizeRole input:', role, 'output:', r);
       return r;
     }
+    console.log('ProtectedRoute: normalizeRole non-string input:', role);
     return role;
   };
   const userRole = normalizeRole(userRoleRaw);
@@ -73,6 +67,11 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   if (required && userRole !== required) {
     const redirectPath = userRole === 'provider' ? '/provider-dashboard' : '/user-dashboard';
     return <Navigate to={redirectPath} replace />;
+  }
+
+  // Skip profile checks if skipProfileCheck is true (for settings page)
+  if (skipProfileCheck) {
+    return children;
   }
 
   // If profile is incomplete AND there is a database entry, redirect to update profile

@@ -27,7 +27,7 @@ import profileIntegrationService from '../services/profileIntegrationService';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+    const { user, checkUserSession } = useAuth();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -262,10 +262,6 @@ const CompleteProfilePage = () => {
            phoneNumberValid;
   };
 
-  
-
-  console.log('Submitting formData:', formData);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -291,8 +287,19 @@ const CompleteProfilePage = () => {
     setIsLoading(true);
 
     try {
+      // Transform field names for backend compatibility
+      const backendFormData = {
+        ...formData,
+        phone_number: formData.phoneNumber,
+        current_medication: formData.currentMedication
+      };
+      
+      // Remove the camelCase versions
+      delete backendFormData.phoneNumber;
+      delete backendFormData.currentMedication;
+
       if (isUpdateMode) {
-        await profileIntegrationService.updateUserProfile(formData, 'patient');
+        await profileIntegrationService.updateUserProfile(backendFormData, 'patient');
         notifications.show({
           title: 'Profile Updated!',
           message: 'Your profile has been successfully updated.',
@@ -300,7 +307,7 @@ const CompleteProfilePage = () => {
           icon: <IconCheck size={16} />
         });
       } else {
-        await profileIntegrationService.completeUserProfile(user, formData, 'patient');
+        await profileIntegrationService.completeUserProfile(user, backendFormData, 'patient');
         notifications.show({
           title: 'Profile Completed!',
           message: 'Your profile has been successfully saved.',
@@ -309,7 +316,11 @@ const CompleteProfilePage = () => {
         });
       }
 
-      setTimeout(() => navigate('/dashboard'), 1500);
+      // Refresh profile status in AuthContext and wait for it to complete
+      await checkUserSession({ forceRefresh: true });
+      
+      // Navigate immediately after profile status refresh
+      navigate('/user-dashboard');
 
     } catch (error) {
       console.error('Profile submission error:', error);
@@ -532,9 +543,13 @@ const CompleteProfilePage = () => {
 
                 <Group justify="space-between" mt="xl">
                   <Button 
+                    type="button"
                     variant="outline"
                     color="gray"
-                    onClick={() => {
+                    onClick={async () => {
+                      // Refresh profile status in AuthContext
+                      await checkUserSession();
+                      
                       notifications.show({
                         title: 'Profile Incomplete',
                         message: 'You can complete your profile later from your dashboard.',

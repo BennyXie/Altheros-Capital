@@ -121,6 +121,12 @@ class ApiService {
     return this.makeRequest('/api/profile/status');
   }
 
+  async deleteUserProfile() {
+    return this.makeRequest('/api/profile', {
+      method: 'DELETE',
+    });
+  }
+
   /**
    * Get user profile data
    * @returns {Promise} - Promise that resolves with user profile
@@ -155,6 +161,18 @@ class ApiService {
     return this.makeRequest(`/api/schedule/${providerId}`, {
       method: 'PUT',
       body: JSON.stringify(scheduleData),
+    });
+  }
+
+  /**
+   * Create or get existing chat between participants
+   * @param {Array} participants - Array of participant IDs [patientId, providerId]
+   * @returns {Promise} - Promise that resolves with chat data
+   */
+  async createOrGetChat(participants) {
+    return this.makeRequest('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ participants }),
     });
   }
 }

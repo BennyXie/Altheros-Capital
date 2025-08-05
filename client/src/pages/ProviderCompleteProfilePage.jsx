@@ -38,7 +38,7 @@ import apiClient from '../utils/apiClient';
 const ProviderCompleteProfilePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user, setAuthStatus } = useAuth();
+  const { isAuthenticated, user, checkUserSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // Renamed from 'file' to avoid confusion
   const [formData, setFormData] = useState({
@@ -366,17 +366,13 @@ const ProviderCompleteProfilePage = () => {
 
     setIsLoading(true);
 
-    
-
     try {
-      // Upload headshot first if a new file is selected
-      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
+      let headshotUrl = formData.headshot_url;
       if (selectedFile) {
-        newHeadshotUrl = await uploadHeadshot(selectedFile);
+        headshotUrl = await uploadHeadshot(selectedFile);
       }
 
-      // Update formData with the new headshot URL before submitting the profile
-      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+      const finalFormData = { ...formData, headshot_url: headshotUrl };
 
       if (isEditMode) {
         await profileIntegrationService.updateUserProfile(finalFormData, 'provider');
@@ -388,9 +384,9 @@ const ProviderCompleteProfilePage = () => {
         });
       } else {
         await profileIntegrationService.completeUserProfile(
-          user, // Cognito user data
+          user,
           finalFormData,
-          'provider' // Role
+          'provider'
         );
         notifications.show({
           title: 'Profile Created Successfully',
@@ -398,10 +394,9 @@ const ProviderCompleteProfilePage = () => {
           color: 'green',
           icon: <IconCheck size={16} />
         });
-        setAuthStatus('profile_complete'); // Update auth status
+        await checkUserSession({ forceRefresh: true });
       }
 
-      // Redirect to provider dashboard
       navigate('/provider-dashboard');
       
     } catch (error) {

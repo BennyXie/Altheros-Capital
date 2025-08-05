@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Title, Text, Stack, Card, Group, SimpleGrid, Button, Loader, Badge } from '@mantine/core';
-import { IconStethoscope, IconCalendar, IconUsers, IconChartLine } from '@tabler/icons-react';
+import { IconStethoscope, IconCalendar, IconUsers, IconChartLine, IconMessageCircle } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -186,6 +186,24 @@ const ProviderDashboard = () => {
                 Medical Records
               </Button>
             </SimpleGrid>
+          </Card>
+
+          {/* Chats Card */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Title order={3} mb="md">Chats</Title>
+            <Stack gap="sm">
+              <Text size="sm" c="dimmed">
+                You have 3 unread messages.
+              </Text>
+              <Button 
+                leftSection={<IconMessageCircle size={16} />}
+                variant="light"
+                component={Link}
+                to="/chats"
+              >
+                View Chats
+              </Button>
+            </Stack>
           </Card>
 
           {/* Recent Activity */}

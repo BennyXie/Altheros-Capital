@@ -8,15 +8,15 @@ async function completePatientProfile(req, res) {
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       dob,
       gender,
       address,
-      phoneNumber, // Client sends phoneNumber
+      phone_number, // Client sends phone_number (with underscore)
       insurance = null,
-      currentMedication = null, // Client sends currentMedication
+      current_medication = null, // Client sends current_medication (with underscore)
       health_provider_id,
       symptoms = [],
       languages = [],
@@ -26,8 +26,8 @@ async function completePatientProfile(req, res) {
 
     console.log('completePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phoneNumber) { // Add phoneNumber to required fields
-      console.error("profileController: Missing required patient fields:", { dob, gender, address, phoneNumber });
+    if (!dob || !gender || !address || !phone_number) { // Check phone_number to match what frontend sends
+      console.error("profileController: Missing required patient fields:", { dob, gender, address, phone_number });
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -35,23 +35,24 @@ async function completePatientProfile(req, res) {
 
     const query = `
       INSERT INTO patients (
-        email, first_name, last_name, dob, gender, address, phone_number,
+        email, cognito_sub, first_name, last_name, dob, gender, address, phone_number,
         insurance, current_medication, health_provider_id, is_active,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING id;
     `;
 
     const values = [
       email,
+      sub, // Add cognito_sub here
       first_name,
       last_name,
       dob,
       gender,
       address,
-      phoneNumber, // Map to phone_number
+      phone_number, // Use phone_number variable
       insurance,
-      currentMedication || '', // Map to current_medication
+      current_medication || '', // Use current_medication variable
       health_provider_id,
       true,
       now,
@@ -137,19 +138,19 @@ async function completePatientProfile(req, res) {
 async function updatePatientProfile(req, res) {
   console.log('profileController: updatePatientProfile called');
   try {
-    if (!req.user || !req.user.email) {
+    if (!req.user || !req.user.email || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       dob,
       gender,
       address,
       insurance,
-      currentMedication, // Client sends currentMedication
-      phoneNumber, // Client sends phoneNumber
+      current_medication, // Client sends current_medication
+      phone_number, // Client sends phone_number
       symptoms,
       languages,
       preferences,
@@ -157,7 +158,7 @@ async function updatePatientProfile(req, res) {
 
     console.log('updatePatientProfile: Received req.body:', req.body);
 
-    if (!dob || !gender || !address || !phoneNumber) { // Add phoneNumber to required fields
+    if (!dob || !gender || !address || !phone_number) { // Check phone_number to match what frontend sends
       return res.status(400).json({ error: "Missing required patient profile fields." });
     }
 
@@ -166,13 +167,13 @@ async function updatePatientProfile(req, res) {
     const query = `
       UPDATE patients SET
         dob = $1, gender = $2, address = $3, insurance = $4,
-        current_medication = $5, phone_number = $6, updated_at = $7
-      WHERE email = $8
+        current_medication = $5, phone_number = $6, updated_at = $7, cognito_sub = $8
+      WHERE email = $9
       RETURNING id;
     `;
 
     const values = [
-      dob, gender, address, insurance, currentMedication || '', phoneNumber, now, email
+      dob, gender, address, insurance, current_medication || '', phone_number, now, sub, email
     ];
 
     console.log('updatePatientProfile: Patient UPDATE values:', values);
@@ -299,7 +300,7 @@ async function completeProviderProfile(req, res) {
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { email } = req.user;
+    const { email, sub, first_name, last_name} = req.user;
 
     const {
       insurance_networks = [],
@@ -315,7 +316,6 @@ async function completeProviderProfile(req, res) {
       quote,
       meeting_url,
       headshot_url,
-      user: { first_name, last_name }
     } = req.body;
 
     if (!location || !gender || !experience_years || !education || !about_me) {
@@ -327,7 +327,7 @@ async function completeProviderProfile(req, res) {
 
     const query = `
       INSERT INTO providers (
-        email, first_name, last_name,
+        email, cognito_sub, first_name, last_name,
         insurance_networks, location, specialty, gender, experience_years,
         education, focus_groups, about_me, languages, hobbies, quote,
         meeting_url, headshot_url, created_at, updated_at
@@ -335,12 +335,13 @@ async function completeProviderProfile(req, res) {
         $1, $2, $3, $4,
         $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14,
-        $15, $16
+        $15, $16, $17, $18, $19
       )
     `;
 
     const values = [
       email,
+      sub,
       first_name,
       last_name,
       insurance_networks,
@@ -355,8 +356,7 @@ async function completeProviderProfile(req, res) {
       hobbies,
       quote,
       meeting_url,
-      headshot_url,
-      now,
+      headshot_url, // Use the headshot_url from the request body
       now,
     ];
 
@@ -373,11 +373,11 @@ async function completeProviderProfile(req, res) {
 async function updateProviderProfile(req, res) {
   console.log('profileController: updateProviderProfile called');
   try {
-    if (!req.user || !req.user.email) {
+    if (!req.user || !req.user.email || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email } = req.user;
+    const { email, sub } = req.user;
 
     const {
       insurance_networks = [],
@@ -406,8 +406,8 @@ async function updateProviderProfile(req, res) {
         insurance_networks = $1, location = $2, specialty = $3, gender = $4,
         experience_years = $5, education = $6, focus_groups = $7, about_me = $8,
         languages = $9, hobbies = $10, quote = $11, meeting_url = $12,
-        headshot_url = $13, updated_at = $14
-      WHERE email = $15
+        headshot_url = $13, updated_at = $14, cognito_sub = $15
+      WHERE email = $16
       RETURNING id;
     `;
 
@@ -426,6 +426,7 @@ async function updateProviderProfile(req, res) {
       meeting_url,
       headshot_url,
       now,
+      sub, // Add cognito_sub here
       email,
     ];
 
@@ -478,15 +479,17 @@ async function getProviderProfile(req, res) {
 async function checkProfileStatus(req, res) {
   console.log('profileController: checkProfileStatus called');
   try {
-    if (!req.user || !req.user.sub || !req.user['cognito:groups']) {
+    if (!req.user || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email, 'cognito:groups': groups } = req.user;
+    const { email, 'cognito:groups': groups = [] } = req.user;
     let isProfileComplete = false;
     let hasDatabaseEntry = false;
+    let role = null;
 
     if (groups.includes('patients')) {
+      role = 'patient';
       console.log(`profileController: checkProfileStatus - User is patient. Email: ${email}`);
       const result = await db.query('SELECT id FROM patients WHERE email = $1', [email]);
       console.log(`profileController: checkProfileStatus - Patient query result: ${JSON.stringify(result.rows)}`);
@@ -494,15 +497,146 @@ async function checkProfileStatus(req, res) {
       isProfileComplete = hasDatabaseEntry; // For patients, existence in DB means profile is complete
       console.log(`profileController: Patient profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
     } else if (groups.includes('providers')) {
+      role = 'provider';
+      console.log(`profileController: checkProfileStatus - User is provider. Email: ${email}`);
       const result = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
       hasDatabaseEntry = result.rows.length > 0;
       isProfileComplete = hasDatabaseEntry;
+      console.log(`profileController: Provider profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
+    } else {
+      console.log(`profileController: checkProfileStatus - User has no recognized roles. Email: ${email}`);
     }
 
-    res.status(200).json({ isProfileComplete, hasDatabaseEntry });
+    res.status(200).json({ role, isProfileComplete, hasDatabaseEntry });
   } catch (error) {
     console.error("profileController: Error checking profile status:", error);
     res.status(500).json({ error: "Internal server error checking profile status", details: error.message });
+  }
+}
+
+async function deleteUserProfile(req, res) {
+  console.log('profileController: deleteUserProfile called');
+  try {
+    if (!req.user || !req.user.email) {
+      return res.status(400).json({ error: "User email not found in token." });
+    }
+
+    const { email } = req.user;
+    console.log('deleteUserProfile: Deleting profile for email:', email);
+
+    // Check if user is a patient or provider by checking their group
+    const userGroups = req.user['cognito:groups'] || [];
+    const isPatient = userGroups.includes('patients');
+    const isProvider = userGroups.includes('providers');
+
+    if (!isPatient && !isProvider) {
+      return res.status(400).json({ error: "User role not found. Cannot determine profile type." });
+    }
+
+    let deletedRows = 0;
+
+    if (isPatient) {
+      // Delete patient profile and related data
+      
+      // First get the patient ID
+      const patientQuery = await db.query('SELECT id FROM patients WHERE email = $1', [email]);
+      
+      if (patientQuery.rows.length === 0) {
+        return res.status(404).json({ error: "No patient profile found in database." });
+      }
+      
+      const patientId = patientQuery.rows[0].id;
+      console.log('deleteUserProfile: Found patient ID:', patientId);
+
+      // Delete related data first (foreign key constraints)
+      await db.query('DELETE FROM symptoms WHERE patient_id = $1', [patientId]);
+      await db.query('DELETE FROM patient_language WHERE patient_id = $1', [patientId]);
+      await db.query('DELETE FROM patient_preferences WHERE patient_id = $1', [patientId]);
+      
+      // Delete chat participants and messages if they exist
+      const chatParticipants = await db.query('SELECT chat_id FROM chat_participant WHERE participant_id = $1', [patientId]);
+      for (const participant of chatParticipants.rows) {
+        await db.query('DELETE FROM messages WHERE chat_id = $1 AND sender_id = $2', [participant.chat_id, patientId]);
+      }
+      await db.query('DELETE FROM chat_participant WHERE participant_id = $1', [patientId]);
+      
+      // Delete notifications if table exists
+      try {
+        await db.query('DELETE FROM notifications WHERE user_id = $1', [patientId]);
+      } catch (notifError) {
+        console.log('deleteUserProfile: notifications table does not exist, skipping...');
+      }
+      
+      // Finally delete the patient record
+      const deleteResult = await db.query('DELETE FROM patients WHERE id = $1', [patientId]);
+      deletedRows = deleteResult.rowCount;
+      
+    } else if (isProvider) {
+      // Delete provider profile and related data
+      
+      // First get the provider ID
+      const providerQuery = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
+      
+      if (providerQuery.rows.length === 0) {
+        return res.status(404).json({ error: "No provider profile found in database." });
+      }
+      
+      const providerId = providerQuery.rows[0].id;
+      console.log('deleteUserProfile: Found provider ID:', providerId);
+
+      // Delete related data first
+      try {
+        await db.query('DELETE FROM provider_specializations WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_specializations table does not exist, skipping...');
+      }
+      
+      try {
+        await db.query('DELETE FROM provider_language WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_language table does not exist, skipping...');
+      }
+      
+      try {
+        await db.query('DELETE FROM provider_availability WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_availability table does not exist, skipping...');
+      }
+      
+      // Delete chat participants and messages if they exist
+      const chatParticipants = await db.query('SELECT chat_id FROM chat_participant WHERE participant_id = $1', [providerId]);
+      for (const participant of chatParticipants.rows) {
+        await db.query('DELETE FROM messages WHERE chat_id = $1 AND sender_id = $2', [participant.chat_id, providerId]);
+      }
+      await db.query('DELETE FROM chat_participant WHERE participant_id = $1', [providerId]);
+      
+      // Delete notifications if table exists
+      try {
+        await db.query('DELETE FROM notifications WHERE user_id = $1', [providerId]);
+      } catch (notifError) {
+        console.log('deleteUserProfile: notifications table does not exist, skipping...');
+      }
+      
+      // Finally delete the provider record
+      const deleteResult = await db.query('DELETE FROM providers WHERE id = $1', [providerId]);
+      deletedRows = deleteResult.rowCount;
+    }
+
+    console.log('deleteUserProfile: Deleted', deletedRows, 'profile record(s)');
+    
+    if (deletedRows === 0) {
+      return res.status(404).json({ error: "No profile found to delete." });
+    }
+
+    res.status(200).json({ 
+      message: "Profile data deleted successfully", 
+      deletedRecords: deletedRows,
+      profileType: isPatient ? 'patient' : 'provider'
+    });
+
+  } catch (error) {
+    console.error("profileController: Error deleting user profile:", error);
+    res.status(500).json({ error: "Internal server error during profile deletion", details: error.message });
   }
 }
 
@@ -514,4 +648,5 @@ module.exports = {
   checkProfileStatus,
   updateProviderProfile,
   getProviderProfile,
+  deleteUserProfile,
 };

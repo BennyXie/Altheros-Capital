@@ -28,13 +28,27 @@ const verifyToken = async (req, res, next) => {
 
   jwt.verify(token, getKey, { algorithms: ['RS256'] }, async (err, decoded) => {
     if (err) {
-      console.error('JWT verification error:', err);
-      return res.status(401).json({ error: 'Invalid token.' });
+      console.error("JWT verification error:", err);
+      return res.status(401).json({ error: "Invalid token." });
     }
-    
+
     // Attach the entire decoded token to the request for downstream use
     req.user = decoded;
-    
+    console.log("Decoded token:", decoded);
+
+    // Add name property to req.user
+    if (decoded.given_name && decoded.family_name) {
+      req.user.first_name = decoded.given_name || "John";
+      req.user.last_name = decoded.family_name || "D";
+    } else if (decoded.given_name) {
+      req.user.name = decoded.given_name;
+    } else if (decoded.family_name) {
+      req.user.name = decoded.family_name;
+    } else {
+      req.user.name = decoded.email || decoded.sub; // Fallback to email or sub
+    } // ← log this
+    console.log("req.user after setting:", req.user); // ← log this
+
     // Specifically extract the username and email for convenience
     req.user.username = decoded.sub;
 
@@ -44,14 +58,19 @@ const verifyToken = async (req, res, next) => {
       try {
         const getUserCommand = new GetUserCommand({ AccessToken: token });
         const userAttributes = await cognitoClient.send(getUserCommand);
-        const emailAttribute = userAttributes.UserAttributes.find(attr => attr.Name === 'email');
+        const emailAttribute = userAttributes.UserAttributes.find(
+          (attr) => attr.Name === "email"
+        );
         if (emailAttribute) {
           req.user.email = emailAttribute.Value;
         } else {
-          console.warn('Email attribute not found in Cognito user attributes.');
+          console.warn("Email attribute not found in Cognito user attributes.");
         }
       } catch (cognitoError) {
-        console.error('Error fetching user attributes from Cognito:', cognitoError);
+        console.error(
+          "Error fetching user attributes from Cognito:",
+          cognitoError
+        );
         // Optionally, handle this error more gracefully, e.g., by returning a 401
       }
     } else {

@@ -1,14 +1,93 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Container, Grid, Card, Image, Text, Badge, Group, Title, Paper, Center, Box } from '@mantine/core';
-import { IconUserCircle } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { notifications } from '@mantine/notifications';
+import { Container, Grid, Card, Image, Text, Badge, Group, Title, Paper, Center, Box, Button, Loader } from '@mantine/core';
+import { IconUserCircle, IconMessageCircle } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
+import { useAuth } from '../context/AuthContext';
+import apiService from '../services/apiService';
 
 const ProviderProfilePage = () => {
     const location = useLocation();
     const { provider } = location.state || {};
+    const { user, loading, profileStatus } = useAuth(); // Destructure profileStatus from useAuth()
+    const navigate = useNavigate();
 
+    const handleChatButtonClick = useCallback(async () => {
+        console.log('Chat button clicked!');
+        console.log('User:', user);
+        console.log('User role:', user.role);
+        console.log('User sub:', user.sub);
+        console.log('Profile Status:', JSON.stringify(profileStatus));
+        console.log('Provider object in handleChatButtonClick:', provider);
+        console.log('Provider Cognito ID in handleChatButtonClick:', provider?.cognito_id);
+
+        if (!user) {
+            notifications.show({
+                title: 'Sign In Required',
+                message: 'Please sign in to start a chat.',
+                color: 'blue',
+            });
+            // Optionally redirect to login page
+            // navigate('/prelogin');
+        } else if (user.role !== 'patients') {
+            notifications.show({
+                title: 'Access Denied',
+                message: 'Only patients can initiate chats with providers.',
+                color: 'red',
+            });
+        } else if (!profileStatus.isProfileComplete) {
+            notifications.show({
+                title: 'Profile Incomplete',
+                message: 'Please complete your patient profile to start a chat.',
+                color: 'orange',
+            });
+            navigate('/complete-profile');
+        } else {
+            if (provider && provider.cognito_id) {
+                try {
+                    // Create or get existing chat between patient and provider
+                    // Access user ID from the correct path in user object
+                    const userId = user.sub || user.attributes?.sub || user.userId;
+                    console.log('User ID for chat creation:', userId);
+                    console.log('Provider ID for chat creation:', provider.cognito_id);
+                    
+                    const participants = [userId, provider.cognito_id];
+                    const chatResponse = await apiService.createOrGetChat(participants);
+                    console.log('Chat created/retrieved:', chatResponse);
+                    
+                    // Navigate to the chat room using the chat ID (chatResponse is the chat ID string)
+                    navigate(`/chat/${chatResponse}`);
+                } catch (error) {
+                    console.error('Error creating/getting chat:', error);
+                    notifications.show({
+                        title: 'Chat Error',
+                        message: 'Failed to start chat. Please try again.',
+                        color: 'red',
+                    });
+                }
+            } else {
+                console.error("Error: Provider Cognito ID is missing. Cannot navigate to chat.", provider);
+                notifications.show({
+                    title: 'Chat Error',
+                    message: 'Provider ID is missing. Cannot start chat.',
+                    color: 'red',
+                });
+            }
+        }
+    }, [user, profileStatus, navigate, provider]);
+
+    // Display loading state for auth
+    if (loading) {
+        return (
+            <Container size="xl" py={40} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                <Loader size="xl" />
+            </Container>
+        );
+    }
+
+    // Handle case where provider data is not found
     if (!provider) {
         return <Container><Text>Provider not found.</Text></Container>;
     }
@@ -53,6 +132,16 @@ const ProviderProfilePage = () => {
                                                 </Badge>
                                             ))}
                                         </Group>
+                                        <Group mt="md">
+                                            <Button
+                                                leftSection={<IconMessageCircle size={16} />}
+                                                variant="filled"
+                                                color="teal"
+                                                onClick={handleChatButtonClick}
+                                            >
+                                                Chat with {name}
+                                            </Button>
+                                        </Group>
                                     </Grid.Col>
                                 </Grid>
 
@@ -63,14 +152,14 @@ const ProviderProfilePage = () => {
 
                                 <Paper withBorder p="md" mt="md">
                                     <Title order={4}>About Me</Title>
-                                    <Text mt="sm">
+                                    <div mt="sm">
                                         <ul>
                                             <li><strong>Location:</strong> {providerLocation}</li>
                                             <li><strong>Languages:</strong> {languages && languages.join(', ')}</li>
                                             <li><strong>Specialties:</strong> {specialties && specialties.join(', ')}</li>
                                             <li><strong>Years of Experience:</strong> {yearsOfExperience}</li>
                                         </ul>
-                                    </Text>
+                                    </div>
                                 </Paper>
 
                                 <Paper withBorder p="md" mt="md">
@@ -82,15 +171,6 @@ const ProviderProfilePage = () => {
                     </Grid.Col>
                     <Grid.Col span={{ base: 12, md: 4 }}>
                         <motion.div variants={fadeInUp}>
-                            <Paper shadow="sm" radius="md" withBorder>
-                                <iframe
-                                    src="https://cal.com/your-calendly-link"
-                                    width="100%"
-                                    height="400px"
-                                    frameBorder="0"
-                                    title="Cal Scheduling Widget"
-                                ></iframe>
-                            </Paper>
                             <Paper shadow="sm" radius="md" withBorder p="md" mt="xl">
                                 <Title order={4} ta="center">Next Available Appointments</Title>
                                 <Text ta="center" c="dimmed" mt="sm">Feature coming soon.</Text>
