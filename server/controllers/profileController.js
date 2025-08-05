@@ -488,18 +488,10 @@ async function checkProfileStatus(req, res) {
     const { email, 'cognito:groups': groups = [] } = req.user;
     let isProfileComplete = false;
     let hasDatabaseEntry = false;
-
-    // If user has no groups/roles assigned yet, return default values
-    if (!groups || groups.length === 0) {
-      console.log(`profileController: checkProfileStatus - User has no roles assigned yet. Email: ${email}`);
-      return res.status(200).json({ 
-        isProfileComplete: false, 
-        hasDatabaseEntry: false,
-        needsRoleAssignment: true
-      });
-    }
+    let role = null;
 
     if (groups.includes('patients')) {
+      role = 'patient';
       console.log(`profileController: checkProfileStatus - User is patient. Email: ${email}`);
       const result = await db.query('SELECT id FROM patients WHERE email = $1', [email]);
       console.log(`profileController: checkProfileStatus - Patient query result: ${JSON.stringify(result.rows)}`);
@@ -507,12 +499,17 @@ async function checkProfileStatus(req, res) {
       isProfileComplete = hasDatabaseEntry; // For patients, existence in DB means profile is complete
       console.log(`profileController: Patient profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
     } else if (groups.includes('providers')) {
+      role = 'provider';
+      console.log(`profileController: checkProfileStatus - User is provider. Email: ${email}`);
       const result = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
       hasDatabaseEntry = result.rows.length > 0;
       isProfileComplete = hasDatabaseEntry;
+      console.log(`profileController: Provider profile check - hasDatabaseEntry: ${hasDatabaseEntry}, isProfileComplete: ${isProfileComplete}`);
+    } else {
+      console.log(`profileController: checkProfileStatus - User has no recognized roles. Email: ${email}`);
     }
 
-    res.status(200).json({ isProfileComplete, hasDatabaseEntry });
+    res.status(200).json({ role, isProfileComplete, hasDatabaseEntry });
   } catch (error) {
     console.error("profileController: Error checking profile status:", error);
     res.status(500).json({ error: "Internal server error checking profile status", details: error.message });
