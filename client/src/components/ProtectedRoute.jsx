@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Container, Loader, Stack, Text } from '@mantine/core';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, requiredRole }) => {
+const ProtectedRoute = ({ children, requiredRole, skipProfileCheck = false }) => {
   const { isAuthenticated, isLoading, user, profileStatus } = useAuth();
   const location = useLocation();
 
@@ -28,9 +28,15 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   console.log('ProtectedRoute: user cognito:groups:', user?.['cognito:groups']);
   
   // If user is authenticated but has no role assigned, redirect to auth callback for role assignment
-  if (!userRoleRaw && profileStatus?.needsRoleAssignment) {
+  // BUT skip this for settings page
+  if (!userRoleRaw && profileStatus?.needsRoleAssignment && !skipProfileCheck) {
     console.log('ProtectedRoute: User needs role assignment, redirecting to auth callback');
     return <Navigate to="/auth/callback" replace />;
+  }
+  
+  // For settings page, allow access even without complete role assignment
+  if (!userRoleRaw && skipProfileCheck) {
+    return children;
   }
   
   if (!userRoleRaw) {
@@ -61,6 +67,11 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   if (required && userRole !== required) {
     const redirectPath = userRole === 'provider' ? '/provider-dashboard' : '/user-dashboard';
     return <Navigate to={redirectPath} replace />;
+  }
+
+  // Skip profile checks if skipProfileCheck is true (for settings page)
+  if (skipProfileCheck) {
+    return children;
   }
 
   // If profile is incomplete AND there is a database entry, redirect to update profile

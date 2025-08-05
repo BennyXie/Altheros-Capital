@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { completePatientProfile, updatePatientProfile, completeProviderProfile, updateProviderProfile, checkProfileStatus, getPatientProfile, getProviderProfile } = require("../controllers/profileController");
+const { completePatientProfile, updatePatientProfile, completeProviderProfile, updateProviderProfile, checkProfileStatus, getPatientProfile, getProviderProfile, deleteUserProfile } = require("../controllers/profileController");
 const verifyToken = require("../middleware/verifyToken");
 
 // Route to complete patient profile
@@ -23,5 +23,8 @@ router.get("/provider", verifyToken, getProviderProfile);
 
 // Route to check profile completion status
 router.get("/status", verifyToken, checkProfileStatus);
+
+// Route to delete user profile data
+router.delete("/", verifyToken, deleteUserProfile);
 
 module.exports = router;

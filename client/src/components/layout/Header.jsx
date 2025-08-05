@@ -13,7 +13,7 @@ import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { IconMenu2, IconUser, IconLogout, IconDashboard, IconBell } from "@tabler/icons-react";
+import { IconMenu2, IconUser, IconLogout, IconDashboard, IconBell, IconSettings } from "@tabler/icons-react";
 import { NAVIGATION_CONFIG, BRAND_CONFIG } from "../../config/landingConfig";
 import { useAuth } from "../../context/AuthContext";
 import AuthService from "../../services/authService";
@@ -177,6 +177,13 @@ const Header = () => {
                                             leftSection={<IconDashboard size={16} />}
                                         >
                                             Dashboard
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            component={Link}
+                                            to="/settings"
+                                            leftSection={<IconSettings size={16} />}
+                                        >
+                                            Settings
                                         </Menu.Item>
                                         <Menu.Item
                                             component={Link}

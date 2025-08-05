@@ -121,6 +121,12 @@ class ApiService {
     return this.makeRequest('/api/profile/status');
   }
 
+  async deleteUserProfile() {
+    return this.makeRequest('/api/profile', {
+      method: 'DELETE',
+    });
+  }
+
   /**
    * Get user profile data
    * @returns {Promise} - Promise that resolves with user profile

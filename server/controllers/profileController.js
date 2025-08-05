@@ -519,6 +519,132 @@ async function checkProfileStatus(req, res) {
   }
 }
 
+async function deleteUserProfile(req, res) {
+  console.log('profileController: deleteUserProfile called');
+  try {
+    if (!req.user || !req.user.email) {
+      return res.status(400).json({ error: "User email not found in token." });
+    }
+
+    const { email } = req.user;
+    console.log('deleteUserProfile: Deleting profile for email:', email);
+
+    // Check if user is a patient or provider by checking their group
+    const userGroups = req.user['cognito:groups'] || [];
+    const isPatient = userGroups.includes('patients');
+    const isProvider = userGroups.includes('providers');
+
+    if (!isPatient && !isProvider) {
+      return res.status(400).json({ error: "User role not found. Cannot determine profile type." });
+    }
+
+    let deletedRows = 0;
+
+    if (isPatient) {
+      // Delete patient profile and related data
+      
+      // First get the patient ID
+      const patientQuery = await db.query('SELECT id FROM patients WHERE email = $1', [email]);
+      
+      if (patientQuery.rows.length === 0) {
+        return res.status(404).json({ error: "No patient profile found in database." });
+      }
+      
+      const patientId = patientQuery.rows[0].id;
+      console.log('deleteUserProfile: Found patient ID:', patientId);
+
+      // Delete related data first (foreign key constraints)
+      await db.query('DELETE FROM symptoms WHERE patient_id = $1', [patientId]);
+      await db.query('DELETE FROM patient_language WHERE patient_id = $1', [patientId]);
+      await db.query('DELETE FROM patient_preferences WHERE patient_id = $1', [patientId]);
+      
+      // Delete chat participants and messages if they exist
+      const chatParticipants = await db.query('SELECT chat_id FROM chat_participant WHERE participant_id = $1', [patientId]);
+      for (const participant of chatParticipants.rows) {
+        await db.query('DELETE FROM messages WHERE chat_id = $1 AND sender_id = $2', [participant.chat_id, patientId]);
+      }
+      await db.query('DELETE FROM chat_participant WHERE participant_id = $1', [patientId]);
+      
+      // Delete notifications if table exists
+      try {
+        await db.query('DELETE FROM notifications WHERE user_id = $1', [patientId]);
+      } catch (notifError) {
+        console.log('deleteUserProfile: notifications table does not exist, skipping...');
+      }
+      
+      // Finally delete the patient record
+      const deleteResult = await db.query('DELETE FROM patients WHERE id = $1', [patientId]);
+      deletedRows = deleteResult.rowCount;
+      
+    } else if (isProvider) {
+      // Delete provider profile and related data
+      
+      // First get the provider ID
+      const providerQuery = await db.query('SELECT id FROM providers WHERE email = $1', [email]);
+      
+      if (providerQuery.rows.length === 0) {
+        return res.status(404).json({ error: "No provider profile found in database." });
+      }
+      
+      const providerId = providerQuery.rows[0].id;
+      console.log('deleteUserProfile: Found provider ID:', providerId);
+
+      // Delete related data first
+      try {
+        await db.query('DELETE FROM provider_specializations WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_specializations table does not exist, skipping...');
+      }
+      
+      try {
+        await db.query('DELETE FROM provider_language WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_language table does not exist, skipping...');
+      }
+      
+      try {
+        await db.query('DELETE FROM provider_availability WHERE provider_id = $1', [providerId]);
+      } catch (error) {
+        console.log('deleteUserProfile: provider_availability table does not exist, skipping...');
+      }
+      
+      // Delete chat participants and messages if they exist
+      const chatParticipants = await db.query('SELECT chat_id FROM chat_participant WHERE participant_id = $1', [providerId]);
+      for (const participant of chatParticipants.rows) {
+        await db.query('DELETE FROM messages WHERE chat_id = $1 AND sender_id = $2', [participant.chat_id, providerId]);
+      }
+      await db.query('DELETE FROM chat_participant WHERE participant_id = $1', [providerId]);
+      
+      // Delete notifications if table exists
+      try {
+        await db.query('DELETE FROM notifications WHERE user_id = $1', [providerId]);
+      } catch (notifError) {
+        console.log('deleteUserProfile: notifications table does not exist, skipping...');
+      }
+      
+      // Finally delete the provider record
+      const deleteResult = await db.query('DELETE FROM providers WHERE id = $1', [providerId]);
+      deletedRows = deleteResult.rowCount;
+    }
+
+    console.log('deleteUserProfile: Deleted', deletedRows, 'profile record(s)');
+    
+    if (deletedRows === 0) {
+      return res.status(404).json({ error: "No profile found to delete." });
+    }
+
+    res.status(200).json({ 
+      message: "Profile data deleted successfully", 
+      deletedRecords: deletedRows,
+      profileType: isPatient ? 'patient' : 'provider'
+    });
+
+  } catch (error) {
+    console.error("profileController: Error deleting user profile:", error);
+    res.status(500).json({ error: "Internal server error during profile deletion", details: error.message });
+  }
+}
+
 module.exports = {
   completePatientProfile,
   updatePatientProfile,
@@ -527,4 +653,5 @@ module.exports = {
   checkProfileStatus,
   updateProviderProfile,
   getProviderProfile,
+  deleteUserProfile,
 };

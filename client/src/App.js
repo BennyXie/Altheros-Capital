@@ -12,6 +12,7 @@ import ProviderDashboard from './pages/ProviderDashboard.jsx';
 import UserCompleteProfilePage from './pages/UserCompleteProfilePage.jsx';
 import ProviderCompleteProfilePage from './pages/ProviderCompleteProfilePage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LandingPage from './components/landing/LandingPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
@@ -54,6 +55,16 @@ const AppRoutes = () => {
           <Layout>
             <ProtectedRoute>
               <NotificationsPage />
+            </ProtectedRoute>
+          </Layout>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <Layout>
+            <ProtectedRoute skipProfileCheck={true}>
+              <SettingsPage />
             </ProtectedRoute>
           </Layout>
         }
