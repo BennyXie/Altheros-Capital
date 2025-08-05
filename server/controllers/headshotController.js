@@ -1,5 +1,4 @@
 const { uploadHeadshotToS3 } = require("../services/s3Uploader");
-const { updateProviderHeadshot } = require("../services/providerService");
 
 const uploadHeadshot = async (req, res) => {
   console.log("uploadHeadshot controller - req.file:", req.file);
@@ -13,7 +12,6 @@ const uploadHeadshot = async (req, res) => {
     }
 
     const imageUrl = await uploadHeadshotToS3(file.buffer, cognitoSub, file.mimetype);
-    await updateProviderHeadshot(cognitoSub, imageUrl);
 
     res.status(200).json({ imageUrl });
   } catch (err) {

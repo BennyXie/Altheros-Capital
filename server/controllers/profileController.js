@@ -315,7 +315,7 @@ async function completeProviderProfile(req, res) {
       hobbies,
       quote,
       meeting_url,
-      headshot_url,
+      headshot_url, // This will now be passed in the body
       user: { first_name, last_name }
     } = req.body;
 
@@ -333,16 +333,13 @@ async function completeProviderProfile(req, res) {
         education, focus_groups, about_me, languages, hobbies, quote,
         meeting_url, headshot_url, created_at, updated_at
       ) VALUES (
-        $1, $2, $3, $4,
-        $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14,
-        $15, $16, $17
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $18
       )
     `;
 
     const values = [
       email,
-      sub, // Add cognito_sub here
+      sub,
       first_name,
       last_name,
       insurance_networks,
@@ -357,8 +354,7 @@ async function completeProviderProfile(req, res) {
       hobbies,
       quote,
       meeting_url,
-      headshot_url,
-      now,
+      headshot_url, // Use the headshot_url from the request body
       now,
     ];
 
