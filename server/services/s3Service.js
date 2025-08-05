@@ -2,6 +2,7 @@ const {
   S3Client,
   PutObjectCommand,
   GetObjectAclCommand,
+  DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
 
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
@@ -38,4 +39,14 @@ const getFromS3 = async ({ key, bucketName }) => {
     expiresIn: 7 * 24 * 60 * 60, //7 days
   });
 };
-module.exports = { s3, uploadToS3, getFromS3 };
+
+const deleteFromS3 = async ({ key, bucketName }) => {
+  const deleteObjectCommand = new DeleteObjectCommand({
+    Bucket: bucketName,
+    key: key,
+  });
+
+  await s3.send(deleteObjectCommand);
+};
+
+module.exports = { s3, uploadToS3, getFromS3, deleteFromS3 };

@@ -41,7 +41,7 @@ const newPassword = "Password1234!"; // new permanent password
 const localStorage = new LocalStorage("./test/storage");
 let authenticationResult;
 const chatId = "5a36fccc-4c2a-4367-8455-682836bd9ad0";
-const messageId = "7f54ffd1-8c52-4a8c-9ac1-82714d6cea4e";
+const messageId = "1ba0516e-bade-4302-af7f-481aa34ef1f5";
 
 async function deleteUserFromCognito() {
   const command = new AdminDeleteUserCommand({
@@ -99,7 +99,6 @@ async function authenticateUser() {
 async function completeMFA(authResp) {
   const username = authResp.ChallengeParameters?.USER_ID_FOR_SRP;
   let final;
-
   if (authResp.ChallengeName === "MFA_SETUP") {
     const session = authResp.Session;
 
@@ -178,25 +177,37 @@ async function completeMFA(authResp) {
 }
 
 async function isTokenExpired(token) {
-  const currentTime = Math.floor(Date.now() / 1000); // Unix time in seconds
-  return (await verifyJwt(token)).exp < currentTime;
+  try {
+    await verifyJwt(token);
+  } catch (error) {
+    if (error.name == "TokenExpiredError") {
+      return true;
+    }
+  }
+  return false;
 }
 
 beforeAll(async () => {
   //   await deleteUser();
-  const authRes = await authenticateUser();
-  //   if (
-  //     localStorage.getItem("Current valid auth result") &&
-  //     !(await isTokenExpired(
-  //       JSON.parse(localStorage.getItem("Current valid auth result")).IdToken
-  //     ))
-  //   ) {
-  //     authenticationResult = JSON.parse(
-  //       localStorage.getItem("Current valid auth result")
-  //     );
-  //     return;
-  //   }
-  authenticationResult = await completeMFA(authRes);
+
+  authenticationResult = JSON.parse(
+    localStorage.getItem("Current valid auth result")
+  );
+
+  if (isTokenExpired(authenticationResult.IdToken)) {
+    const authRes = await authenticateUser();
+    // await completeMFA(authRes);
+    authenticationResult = authRes.AuthenticationResult;
+    localStorage.setItem(
+      "Current valid auth result",
+      JSON.stringify(authenticationResult)
+    );
+    return;
+  }
+
+  authenticationResult = JSON.parse(
+    localStorage.getItem("Current valid auth result")
+  );
 });
 
 describe("POST", () => {
@@ -210,20 +221,20 @@ describe("POST", () => {
     expect(response.statusCode).toBe(expectedStatus);
   });
 
-    test("create message", async () => {
-      const response = await request(app)
-        .post(`/chat/${chatId}/message`)
-        .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
-        .attach(
-          `file`,
-          "./test/images/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.webp"
-        )
-        .field({
-          chatId: chatId,
-          sentAt: new Date().toISOString(),
-        });
-      expect(response.statusCode).toBe(expectedStatus);
-    });
+  test("create message", async () => {
+    const response = await request(app)
+      .post(`/chat/${chatId}/message`)
+      .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+      .attach(
+        `file`,
+        "./test/images/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.webp"
+      )
+      .field({
+        chatId: chatId,
+        sentAt: new Date().toISOString(),
+      });
+    expect(response.statusCode).toBe(expectedStatus);
+  });
 
   test("create message", async () => {
     const response = await request(app)
@@ -244,6 +255,7 @@ describe("GET", () => {
     const response = await request(app)
       .get(`/chat/${chatId}/messages`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`);
+    console.log(response.body);
     expect(response.statusCode).toBe(expectedStatus);
   });
 
@@ -285,7 +297,7 @@ describe("PATCH", () => {
 
   test("soft delete chat message", async () => {
     const response = await request(app)
-      .patch(`/chat/${chatId}/message/${messageId}`)
+      .patch(`/chat/message/${messageId}`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .send({
         deletedAt: new Date().toISOString(),
@@ -293,13 +305,13 @@ describe("PATCH", () => {
     expect(response.statusCode).toBe(expectedStatus);
   });
 
-    test("leave chat", async () => {
-      const response = await request(app)
-        .patch(`/chat/${chatId}/participants/me`)
-        .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
-        .send({
-          leftAt: new Date().toISOString(),
-        });
-      expect(response.statusCode).toBe(expectedStatus);
-    });
+  test("leave chat", async () => {
+    const response = await request(app)
+      .patch(`/chat/${chatId}/participants/me`)
+      .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
+      .send({
+        leftAt: new Date().toISOString(),
+      });
+    expect(response.statusCode).toBe(expectedStatus);
+  });
 });

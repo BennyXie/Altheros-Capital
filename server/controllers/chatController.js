@@ -247,7 +247,7 @@ async function updateMessage(req, res) {
   const { deletedAt } = req.body;
 
   const allowedUpdates = {
-    deleted_At: deletedAt,
+    deleted_at: deletedAt,
   };
 
   const updates = Object.fromEntries(

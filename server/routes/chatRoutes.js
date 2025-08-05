@@ -47,7 +47,7 @@ router.get(
 
 // delete endpoints
 
-router.delete(
+/* router.delete(
   "/:chatId",
   verifyToken,
   chatService.verifyChatMembership,
@@ -60,7 +60,7 @@ router.delete(
   chatService.verifyChatMembership,
   chatService.verifyMessageOwnership,
   asyncHandler(chatController.deleteMessage)
-);
+); */
 
 <<<<<<< HEAD
 router.get(
@@ -89,10 +89,8 @@ router.delete(
   "/:chatId",
 =======
 router.patch(
-  "/:chatId/message/:messageId",
->>>>>>> d72b35a (added soft delete)
+  "/message/:messageId",
   verifyToken,
-  chatService.verifyChatMembership,
   chatService.verifyMessageOwnership,
   asyncHandler(chatController.updateMessage)
 );

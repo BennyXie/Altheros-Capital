@@ -1,12 +1,10 @@
 require("dotenv").config();
 const db = require("../db/pool.js");
 const dbUtils = require("../utils/dbUtils.js");
-const path = require("path");
 const s3Service = require("./s3Service.js");
 const { uploadToS3 } = require("./s3Service.js");
 require("dotenv").config({ path: "./.env" });
-
-const bucketName = process.env.S3_CHAT_BUCKET_NAME;
+const cloudfrontService = require("./cloudfrontService");
 
 function formatMessage(sender, text, timestamp) {
   return {
@@ -23,7 +21,7 @@ function formatMessage(sender, text, timestamp) {
 
 async function verifyChatMembership(req, res, next) {
   const userId = await dbUtils.getUserDbId(req.user);
-  const query = `SELECT EXISTS (SELECT 1 FROM chat_participant WHERE chat_id = $1 AND participant_id = $2)`;
+  const query = `SELECT EXISTS (SELECT 1 FROM chat_participant WHERE chat_id = $1 AND participant_id = $2 AND left_at IS NULL)`;
   const result = await db.query(query, [req.params.chatId, userId]);
   result.rows[0].exists
     ? next()
@@ -49,13 +47,15 @@ async function getMessagesByChatId(chat_id) {
   const query = `
     SELECT sender_id, sender_type, text, sent_at
     FROM messages
-    WHERE chat_id = $1 AND deleted_at IS NOT NULL
+    WHERE chat_id = $1 AND deleted_at IS NULL
     ORDER BY sent_at ASC;
   `;
   const { rows } = await db.query(query, [chat_id]);
   rows.forEach((text, i) => {
-    if (typeof text.text !== "string") {
-      text.text = s3Service.getFromS3(text.text, bucketName);
+    if (text.text_type !== "string") {
+      text.text = cloudfrontService.getPrivateKeySignedUrl({
+        objectName: text.text,
+      });
     }
   });
   return rows;
@@ -320,6 +320,16 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
 }
 
 async function deleteMessageById({ messageId }) {
+  const result = await db.query(`SELECT * FROM messages WHERE id = $1`, [
+    messageId,
+  ]);
+  if (result.rows[0].text_type !== "string") {
+    await s3Service.deleteFromS3({
+      key: result.rows[0].text,
+      bucketName: process.env.S3_CHAT_BUCKET_NAME,
+    });
+    await cloudfrontService.createInvalidation(result.rows[0].text);
+  }
   await db.query("DELETE FROM messages WHERE id = $1", [messageId]);
 }
 
@@ -329,7 +339,7 @@ async function deleteChat({ chatId }) {
 
 async function verifyMessageOwnership(req, res, next) {
   const userId = await dbUtils.getUserDbId(req.user);
-  const query = `SELECT EXISTS (SELECT 1 FROM messages WHERE id = $1 AND sender_id = $2)`;
+  const query = `SELECT EXISTS (SELECT 1 FROM messages WHERE id = $1 AND sender_id = $2 AND deleted_at IS NULL)`;
   const result = await db.query(query, [req.params.messageId, userId]);
   result.rows[0].exists
     ? next()
