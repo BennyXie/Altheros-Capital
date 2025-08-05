@@ -300,7 +300,7 @@ async function completeProviderProfile(req, res) {
       return res.status(400).json({ error: "Incomplete user information from authentication token." });
     }
 
-    const { email, sub } = req.user;
+    const { email, sub, first_name, last_name} = req.user;
 
     const {
       insurance_networks = [],
@@ -316,7 +316,6 @@ async function completeProviderProfile(req, res) {
       quote,
       meeting_url,
       headshot_url,
-      user: { first_name, last_name }
     } = req.body;
 
     if (!location || !gender || !experience_years || !education || !about_me) {
@@ -336,7 +335,7 @@ async function completeProviderProfile(req, res) {
         $1, $2, $3, $4,
         $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14,
-        $15, $16, $17
+        $15, $16, $17, $18, $19
       )
     `;
 
