@@ -341,7 +341,7 @@ async function completeProviderProfile(req, res) {
 
     const values = [
       email,
-      sub, // Add cognito_sub here
+      sub,
       first_name,
       last_name,
       insurance_networks,
@@ -356,8 +356,7 @@ async function completeProviderProfile(req, res) {
       hobbies,
       quote,
       meeting_url,
-      headshot_url,
-      now,
+      headshot_url, // Use the headshot_url from the request body
       now,
     ];
 
