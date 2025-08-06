@@ -17,35 +17,51 @@ async function handleJoin(socket, data, timestamp) {
   const patientId = socket.user.sub;
   const patientName = socket.user.name;
   const { providerId, chatId } = data;
-  
+
   try {
     let finalChatId;
-    
+
     if (chatId) {
       // Direct chat room join
-      console.log(`handleJoin: Patient ${patientId} trying to join chat room ${chatId}`);
+      console.log(
+        `handleJoin: Patient ${patientId} trying to join chat room ${chatId}`
+      );
       console.log(`handleJoin: socket.user:`, socket.user);
       finalChatId = chatId;
-      
+
       // Verify user is a member of this chat - pass socket.user directly
-      const isMember = await chatService.verifyChatMembership(socket.user, chatId);
+      const isMember = await chatService.verifyChatMembership(
+        socket.user,
+        chatId
+      );
       if (!isMember) {
-        console.error(`chatController: handleJoin - Patient ${patientId} is not a member of chat ${chatId}`);
+        console.error(
+          `chatController: handleJoin - Patient ${patientId} is not a member of chat ${chatId}`
+        );
         return;
       }
     } else if (providerId) {
       // Join/create chat with provider
-      console.log(`handleJoin: Patient ${patientId} trying to join chat with provider ${providerId}`);
-      finalChatId = await chatService.getChatIdByParticipants(patientId, providerId);
+      console.log(
+        `handleJoin: Patient ${patientId} trying to join chat with provider ${providerId}`
+      );
+      finalChatId = await chatService.getChatIdByParticipants(
+        patientId,
+        providerId
+      );
       if (!finalChatId) {
-        console.error(`chatController: handleJoin - Chat not found for patient ${patientId} and provider ${providerId}`);
+        console.error(
+          `chatController: handleJoin - Chat not found for patient ${patientId} and provider ${providerId}`
+        );
         return;
       }
     } else {
-      console.error('chatController: handleJoin - Neither chatId nor providerId provided');
+      console.error(
+        "chatController: handleJoin - Neither chatId nor providerId provided"
+      );
       return;
     }
-    
+
     socket.join(finalChatId);
 
     const message = await chatService.formatMessage(
@@ -88,19 +104,19 @@ async function handleMessage(socket, data, io) {
 
   // Emit notification to participants (except sender)
   const participants = await chatService.getChatParticipants(chatId);
-  participants.forEach(participantId => {
+  participants.forEach((participantId) => {
     if (participantId !== senderId) {
       io.to(participantId).emit("new_notification", {
         id: `${chatId}_${timestamp}`,
-        type: 'message',
-        title: 'New Message',
-        message: text.length > 50 ? text.substring(0, 50) + '...' : text,
+        type: "message",
+        title: "New Message",
+        message: text.length > 50 ? text.substring(0, 50) + "..." : text,
         chat_id: chatId,
         sender_id: senderId,
         sender_type: senderType,
         created_at: timestamp,
         is_read: false,
-        link: `/chat/${senderId}`
+        link: `/chat/${senderId}`,
       });
     }
   });
@@ -121,7 +137,12 @@ async function handleDisconnect(socket, io) {
   //     timestamp
   //   );
 
-  const message = await chatService.formatMessage(socket.user.sub, socket.user.role, `${name} has left the chat`, new Date().toISOString());
+  const message = await chatService.formatMessage(
+    socket.user.sub,
+    socket.user.role,
+    `${name} has left the chat`,
+    new Date().toISOString()
+  );
 
   for (const room of socket.rooms) {
     io.to(room).emit("receive_message", message);
@@ -140,29 +161,29 @@ async function createOrGetChat(req, res) {
   res.status(201).json(chat);
 }
 
-async function getChatMessages(req, res) {
-  const { providerId } = req.params;
-  const patientId = await dbUtils.getUserDbId(req.user);
-  console.log("chatController: getChatMessages - patientId:", patientId);
-  console.log("chatController: getChatMessages - providerId:", providerId);
+// async function getChatMessages(req, res) {
+//   const { providerId } = req.params;
+//   const patientId = await dbUtils.getUserDbId(req.user);
+//   console.log("chatController: getChatMessages - patientId:", patientId);
+//   console.log("chatController: getChatMessages - providerId:", providerId);
 
-  if (!patientId) {
-    return res.status(400).json({ error: "Patient ID not found or invalid." });
-  }
+//   if (!patientId) {
+//     return res.status(400).json({ error: "Patient ID not found or invalid." });
+//   }
 
-  try {
-    const chatId = await chatService.getChatIdByParticipants(patientId, providerId);
-    if (!chatId) {
-      return res.status(404).json({ error: "Chat not found for these participants." });
-    }
+//   try {
+//     const chatId = await chatService.getChatIdByParticipants(patientId, providerId);
+//     if (!chatId) {
+//       return res.status(404).json({ error: "Chat not found for these participants." });
+//     }
 
-    const messages = await chatService.getMessagesByChatId(chatId);
-    res.json(messages);
-  } catch (error) {
-    console.error("Error in getChatMessages:", error);
-    res.status(500).json({ error: "Failed to retrieve chat messages." });
-  }
-}
+//     const messages = await chatService.getMessagesByChatId(chatId);
+//     res.json(messages);
+//   } catch (error) {
+//     console.error("Error in getChatMessages:", error);
+//     res.status(500).json({ error: "Failed to retrieve chat messages." });
+//   }
+// }
 
 async function getChatMessagesByChatId(req, res) {
   const { chatId } = req.params;
@@ -269,7 +290,7 @@ module.exports = {
   handleDisconnect,
   createOrGetChat,
   deleteChat,
-  getChatMessages,
+  // getChatMessages,
   getChatMessagesByChatId,
   getChatIds,
   createMessage,

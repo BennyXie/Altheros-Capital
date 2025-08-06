@@ -7,7 +7,6 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const jwkToPem = require("jwk-to-pem");
 const authRoutes = require("./routes/authRoutes");
-const appointmentRoutes = require("./routes/appointments");
 const providersRoutes = require("./routes/providerRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const chatRoutes = require("./routes/chatRoutes");
@@ -43,27 +42,19 @@ app.use(cors());
 app.use("/api/headshot", headshotRoutes);
 
 // Body parsing middleware - apply after headshotRoutes to avoid interference
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
-=======
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
->>>>>>> Stashed changes
-=======
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
->>>>>>> Stashed changes
-=======
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
->>>>>>> Stashed changes
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Auth routes
 app.use("/api/auth", authRoutes);
-app.use("/api/appointments", appointmentRoutes);
 app.use("/api/providers", providersRoutes);
 
 // AI routes
