@@ -175,6 +175,73 @@ class ApiService {
       body: JSON.stringify({ participants }),
     });
   }
+
+  /**
+   * Get all chat IDs for the current user
+   * @returns {Promise} - Promise that resolves with array of chat IDs
+   */
+  async getChatIds() {
+    return this.makeRequest('/api/chat');
+  }
+
+  /**
+   * Get messages for a specific chat
+   * @param {string} chatId - The chat ID
+   * @returns {Promise} - Promise that resolves with array of messages
+   */
+  async getChatMessages(chatId) {
+    return this.makeRequest(`/api/chat/${chatId}/messages`);
+  }
+
+  /**
+   * Send a message in a chat
+   * @param {string} chatId - The chat ID
+   * @param {FormData} messageData - Message data including text and optional file
+   * @returns {Promise} - Promise that resolves with created message
+   */
+  async sendMessage(chatId, messageData) {
+    const headers = await this.getAuthHeaders();
+    // Remove Content-Type for FormData
+    delete headers['Content-Type'];
+    
+    return fetch(`${API_BASE_URL}/api/chat/${chatId}/message`, {
+      method: 'POST',
+      headers: headers,
+      body: messageData,
+    }).then(async response => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Failed to send message');
+      }
+      return data;
+    });
+  }
+
+  /**
+   * Update participant state (e.g., leave chat)
+   * @param {string} chatId - The chat ID
+   * @param {Object} stateData - State update data
+   * @returns {Promise} - Promise that resolves with updated state
+   */
+  async updateParticipantState(chatId, stateData) {
+    return this.makeRequest(`/api/chat/${chatId}/participants/me`, {
+      method: 'PATCH',
+      body: JSON.stringify(stateData),
+    });
+  }
+
+  /**
+   * Delete (soft delete) a message
+   * @param {string} messageId - The message ID
+   * @param {Object} deleteData - Delete data (e.g., deleted_at timestamp)
+   * @returns {Promise} - Promise that resolves with deletion confirmation
+   */
+  async deleteMessage(messageId, deleteData) {
+    return this.makeRequest(`/api/chat/message/${messageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(deleteData),
+    });
+  }
 }
 
 const apiService = new ApiService();
