@@ -42,7 +42,7 @@ router.get(
   "/:chatId/messages",
   verifyToken,
   chatService.verifyChatMembership,
-  asyncHandler(chatController.getChatMessages)
+  asyncHandler(chatController.getChatMessagesByChatId)
 );
 
 // delete endpoints
@@ -62,32 +62,15 @@ router.delete(
   asyncHandler(chatController.deleteMessage)
 ); */
 
-<<<<<<< HEAD
-router.get(
-  "/messages/:providerId",
-=======
 // patch endpoints
 
 router.patch(
   "/:chatId/participants/me",
->>>>>>> d72b35a (added soft delete)
   verifyToken,
   chatService.verifyChatMembership,
   asyncHandler(chatController.updateParticipantState)
 );
 
-<<<<<<< HEAD
-router.get(
-  "/room/:chatId/messages",
-  verifyToken,
-  asyncHandler(chatController.getChatMessagesByChatId)
-);
-
-router.post("/", verifyToken, asyncHandler(chatController.createOrGetChat));
-
-router.delete(
-  "/:chatId",
-=======
 router.patch(
   "/message/:messageId",
   verifyToken,
@@ -95,11 +78,4 @@ router.patch(
   asyncHandler(chatController.updateMessage)
 );
 
-<<<<<<< HEAD
-router.get("/rooms", verifyToken, asyncHandler(chatController.getChatIds));
-
-router.get("/room/:chatId/details", verifyToken, asyncHandler(chatController.getChatDetails));
-
-=======
->>>>>>> d72b35a (added soft delete)
 module.exports = router;

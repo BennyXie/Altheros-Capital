@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 // jest.mock("../middleware/verifyToken", () => {
 //   return jest.fn((req, res, next) => next());
 // });
@@ -41,7 +44,7 @@ const newPassword = "Password1234!"; // new permanent password
 const localStorage = new LocalStorage("./test/storage");
 let authenticationResult;
 const chatId = "ec7c62be-1317-4918-bdc4-62120fa7d2a3";
-const messageId = "18b618c5-0bdb-45a2-afd7-c72c0ae4a0c8";
+const messageId = "01b05b0c-c35f-4329-8e7b-16f150da2ba5";
 
 async function deleteUserFromCognito() {
   const command = new AdminDeleteUserCommand({
@@ -215,7 +218,7 @@ describe("POST", () => {
 
   test("create chat", async () => {
     const response = await request(app)
-      .post("/chat/")
+      .post("/api/chat/")
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .send({ participants: ["4e288b22-76c3-46fc-a6e2-b2dc1d095bf7"] });
     expect(response.statusCode).toBe(expectedStatus);
@@ -223,7 +226,7 @@ describe("POST", () => {
 
   test("create message", async () => {
     const response = await request(app)
-      .post(`/chat/${chatId}/message`)
+      .post(`/api/chat/${chatId}/message`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .attach(
         `file`,
@@ -238,7 +241,7 @@ describe("POST", () => {
 
   test("create message", async () => {
     const response = await request(app)
-      .post(`/chat/${chatId}/message`)
+      .post(`/api/chat/${chatId}/message`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .field({
         message: "hi",
@@ -253,15 +256,16 @@ describe("GET", () => {
 
   test("get chat messages", async () => {
     const response = await request(app)
-      .get(`/chat/${chatId}/messages`)
+      .get(`/api/chat/${chatId}/messages`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`);
-    console.log(response.body);
+    console.log(response.body); // or response.text
+
     expect(response.statusCode).toBe(expectedStatus);
   });
 
   test("get chats", async () => {
     const response = await request(app)
-      .get(`/chat`)
+      .get(`/api/chat`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`);
     expect(response.statusCode).toBe(expectedStatus);
   });
@@ -272,7 +276,7 @@ describe("GET", () => {
 
   test("delete chat message", async () => {
     const response = await request(app)
-      .delete(`/chat/${chatId}/message/${messageId}`)
+      .delete(`/api/chat/${chatId}/message/${messageId}`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .send({
         deletedAt: new Date().toISOString(),
@@ -282,7 +286,7 @@ describe("GET", () => {
 
     test("delete chats", async () => {
       const response = await request(app)
-        .delete(`/chat`)
+        .delete(`/api/chat`)
         .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
         .send({
           sentAt: new Date().toISOString(),
@@ -297,7 +301,7 @@ describe("PATCH", () => {
 
   test("soft delete chat message", async () => {
     const response = await request(app)
-      .patch(`/chat/message/${messageId}`)
+      .patch(`/api/chat/message/${messageId}`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .send({
         deletedAt: new Date().toISOString(),
@@ -307,7 +311,7 @@ describe("PATCH", () => {
 
   test("leave chat", async () => {
     const response = await request(app)
-      .patch(`/chat/${chatId}/participants/me`)
+      .patch(`/api/chat/${chatId}/participants/me`)
       .set("Authorization", `Bearer ${authenticationResult.IdToken}`)
       .send({
         leftAt: new Date().toISOString(),
