@@ -178,8 +178,26 @@ const ProviderCompleteProfilePage = () => {
               const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
               setSelectedFile(fileFromBlob);
               setCapturedImageBlob(blob);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
               setPreviewHeadshotUrl(URL.createObjectURL(blob)); // Update preview URL
               stopCamera(); // Stop camera after taking photo
+=======
+              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+              stopCamera(); // Stop camera after taking photo
+              
+>>>>>>> Stashed changes
+=======
+              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+              stopCamera(); // Stop camera after taking photo
+              
+>>>>>>> Stashed changes
+=======
+              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
+              stopCamera(); // Stop camera after taking photo
+              
+>>>>>>> Stashed changes
             }
           }, 'image/png');
     }
@@ -366,13 +384,48 @@ const ProviderCompleteProfilePage = () => {
 
     setIsLoading(true);
 
+    
+
     try {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       let headshotUrl = formData.headshot_url;
       if (selectedFile) {
         headshotUrl = await uploadHeadshot(selectedFile);
       }
 
       const finalFormData = { ...formData, headshot_url: headshotUrl };
+=======
+      // Upload headshot first if a new file is selected
+      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
+      if (selectedFile) {
+        newHeadshotUrl = await uploadHeadshot(selectedFile);
+      }
+
+      // Update formData with the new headshot URL before submitting the profile
+      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+>>>>>>> Stashed changes
+=======
+      // Upload headshot first if a new file is selected
+      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
+      if (selectedFile) {
+        newHeadshotUrl = await uploadHeadshot(selectedFile);
+      }
+
+      // Update formData with the new headshot URL before submitting the profile
+      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+>>>>>>> Stashed changes
+=======
+      // Upload headshot first if a new file is selected
+      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
+      if (selectedFile) {
+        newHeadshotUrl = await uploadHeadshot(selectedFile);
+      }
+
+      // Update formData with the new headshot URL before submitting the profile
+      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+>>>>>>> Stashed changes
 
       if (isEditMode) {
         await profileIntegrationService.updateUserProfile(finalFormData, 'provider');
@@ -384,9 +437,15 @@ const ProviderCompleteProfilePage = () => {
         });
       } else {
         await profileIntegrationService.completeUserProfile(
+<<<<<<< Updated upstream
           user,
           finalFormData,
           'provider'
+=======
+          user, // Cognito user data
+          finalFormData,
+          'provider' // Role
+>>>>>>> Stashed changes
         );
         notifications.show({
           title: 'Profile Created Successfully',

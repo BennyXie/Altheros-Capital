@@ -1,15 +1,5 @@
-const pool = require("../db/pool");
-const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-require("dotenv").config();
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+const { db } = require("../db/pool");
+require("dotenv").config({ path: "./.env" });
 
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   const result = await pool.query(
@@ -29,37 +19,76 @@ const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
   );
 };
 
-async function listProviders(queryParams) {
-  const data = await pool.query(`SELECT * FROM providers`);
+async function listProviders() {
+  // GET /providers?page=1&limit=10&gender=male&sort_by=last_name&order=desc
+  const fields = [
+    "provider_id",
+    "first_name",
+    "last_name",
+    "email",
+    "phone_number",
+    "address",
+    "gender",
+    "bio",
+  ];
+  const sortable_fields = ["first_name", "last_name", "provider_id"];
+  const { language, specialty, gender } = req.query;
+  const field_list = fields.join(", ");
+  const sort_by = req.query.sort_by;
+  const order = (req.query.order || "asc").toUpperCase();
 
-  const providersWithSignedUrls = await Promise.all(data.rows.map(async (provider) => {
-    if (provider.headshot_url) {
-      // Check if the URL looks like an S3 URL
-      if (provider.headshot_url.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && provider.headshot_url.includes(process.env.S3_BUCKET_NAME))) {
-        try {
-          let key = provider.headshot_url;
-          if (key.startsWith('http')) {
-            const urlParts = new URL(key);
-            key = urlParts.pathname.substring(1); // Remove leading slash
-          }
+  // pagination, defaults to first page with 10 showing on each page
+  // offset is determined by the page and limit
+  // i.e. if on page 1 -> skips 0
+  // i.e. if on page 3 -> skips 20 items
+  const page_num = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page_num - 1) * limit;
 
-          const command = new GetObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: key,
-          });
-          const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
-          return { ...provider, headshot_url: presignedUrl };
-        } catch (error) {
-          console.error(`Error generating presigned URL for ${provider.id}:`, error);
-          return { ...provider, headshot_url: null }; // Return null or original if error
-        }
-      } else {
-        // If it's not an S3 URL, return it as is (frontend will handle fallback)
-        return provider;
-      }
-    }
-    return provider;
-  }));
+  const filters = ["is_active = true"];
+  const values = [];
+
+  if (language) {
+    filters.push(`language = $${values.length + 1}`);
+    values.push(language);
+  }
+
+  if (specialty) {
+    filters.push(`specialty = $${values.length + 1}`);
+    values.push(specialty);
+  }
+
+  if (gender) {
+    filters.push(`gender = $${values.length + 1}`);
+    values.push(gender);
+  }
+
+  const where_clause =
+    filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
+
+  let order_by_clause = "";
+  if (sort_by && sortable_fields.includes(sort_by)) {
+    order_by_clause = `ORDER BY ${sort_by} ${
+      order === "DESC" ? "DESC" : "ASC"
+    }`;
+  } else {
+    // defaults sort order if not specified or not valid field to sort by
+    order_by_clause = "ORDER BY provider_id ASC";
+  }
+
+  const count_query = `SELECT COUNT(*) FROM providers ${where_clause}`;
+  const count_result = await db.query(count_query, values); // produces [{ count: '10' }]
+  const total_records = parseInt(count_result.rows[0].count);
+
+  const sql_query = `SELECT ${field_list} FROM providers ${where_clause} ${order_by_clause} LIMIT $${
+    values.length + 1
+  } OFFSET $${values.length + 2}`;
+  values.push(offset);
+  values.push(limit);
+  const data = await db.query(sql_query, values);
+
+  const has_next_page = page_num * limit < total_records;
+  const has_prev_page = page_num > 1;
 
   return {
     providers: providersWithSignedUrls,

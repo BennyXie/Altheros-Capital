@@ -1,5 +1,8 @@
 const chatService = require("../services/chatService");
-const dbUtils = require("../utils/dbUtils.js");
+const s3Service = require("../services/s3Service");
+const dbUtils = require("../utils/dbUtils");
+const path = require("path");
+require("dotenv").config({ path: "./.env" });
 
 /**
  * Called when frontend emits join_chat event
@@ -68,31 +71,17 @@ async function handleJoin(socket, data, timestamp) {
  * });
  */
 async function handleMessage(socket, data, io) {
-  const { text, timestamp } = data;
-  const senderId = socket.user.sub;
-  const senderType = socket.user.role;
+  const { chatId, textType, text, timestamp } = data;
+  const sender = socket.user.name;
 
-  if (!text || !senderId || !senderType) return;
-
-  // Get the chatId from the rooms the socket is in
-  // Assuming the socket joins only one chat room at a time
-  const chatId = Array.from(socket.rooms).find(room => room !== socket.id);
-
-  if (!chatId) {
-    console.error("chatController: handleMessage - No chat room found for socket.");
-    return;
-  }
-
-  chatService.saveMessageToDb({
-    chat_id: chatId,
-    sender_id: senderId,
-    sender_type: senderType,
-    text: text,
-    text_type: 'text', // Assuming text type for now
-    sent_at: timestamp,
-  });
-
-  const message = await chatService.formatMessage(senderId, senderType, text, timestamp);
+  const message =
+    textType != "string"
+      ? chatService.formatMessage(
+          sender,
+          await s3Service.getFromS3(text, process.env.S3_CHAT_BUCKET_NAME),
+          timestamp
+        )
+      : chatService.formatMessage(sender, text, timestamp);
 
   // Send message to recipient
   io.to(chatId).emit("receive_message", message);
@@ -143,8 +132,12 @@ async function handleDisconnect(socket, io) {
 
 async function createOrGetChat(req, res) {
   const { participants } = req.body;
-  const chat = await chatService.createOrGetChat(participants);
-  res.json(chat);
+  if (!participants || participants.length === 0) {
+    res.status(400).json({ error: "No participants provided" });
+  }
+  participants.push(await dbUtils.getUserDbId(req.user));
+  const chat = await chatService.createOrGetChat([...new Set(participants)]);
+  res.status(201).json(chat);
 }
 
 async function getChatMessages(req, res) {
@@ -173,64 +166,101 @@ async function getChatMessages(req, res) {
 
 async function getChatMessagesByChatId(req, res) {
   const { chatId } = req.params;
-  console.log("getChatMessagesByChatId: req.user:", req.user);
-  const userDbId = await dbUtils.getUserDbId(req.user);
-  
-  if (!userDbId) {
-    return res.status(400).json({ error: "User ID not found or invalid." });
-  }
-
-  try {
-    // Verify user is a participant in this chat - pass req.user directly
-    const isMember = await chatService.verifyChatMembership(req.user, chatId);
-    if (!isMember) {
-      return res.status(403).json({ error: "You are not a member of this chat." });
-    }
-
-    const messages = await chatService.getMessagesByChatId(chatId);
-    res.json(messages);
-  } catch (error) {
-    console.error("Error in getChatMessagesByChatId:", error);
-    res.status(500).json({ error: "Failed to retrieve chat messages." });
-  }
+  const messages = await chatService.getMessagesByChatId(chatId);
+  res.status(200).json(messages);
 }
 
 async function deleteChat(req, res) {
   const { chatId } = req.params;
-  const userDbId = await dbUtils.getUserDbId(req.user);
-  await chatService.removeChatMemberShip(chatId, [userDbId]);
+  await chatService.deleteChat(chatId);
   res.status(204).send();
 }
 
 async function getChatIds(req, res) {
   const userDbId = await dbUtils.getUserDbId(req.user);
-  try {
-    const chatIds = await chatService.getChatIds(userDbId);
-    res.json(chatIds);
-  } catch (error) {
-    console.error("Error in getChatIds (chatController):", error);
-    res.status(500).json({ error: "Failed to retrieve chat rooms." });
-  }
+  const chatIds = await chatService.getChatIds(userDbId);
+  res.status(200).json(chatIds);
 }
 
-async function getChatDetails(req, res) {
-  try {
-    const { chatId } = req.params;
-    console.log("getChatDetails: req.user:", req.user);
-    console.log("getChatDetails: cognito:groups:", req.user['cognito:groups']);
-    
-    // Verify chat membership
-    const isMember = await chatService.verifyChatMembership(req.user, chatId);
-    if (!isMember) {
-      return res.status(403).json({ error: "Access denied. You are not a member of this chat." });
-    }
-    
-    const chatDetails = await chatService.getChatDetails(chatId, req.user);
-    res.json(chatDetails);
-  } catch (error) {
-    console.error("Error in getChatDetails (chatController):", error);
-    res.status(500).json({ error: "Failed to retrieve chat details." });
+async function createMessage(req, res) {
+  const { message } = req.body;
+  const file = req.file;
+  if (!file && !message) {
+    return res.status(400).json({ error: "No file nor message provided" });
+  } else if (file) {
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+    req.textType = file.mimetype;
+    const key = `users/${req.user.sub}/chats/${req.params.chatId}/${name}.${
+      file.mimetype.split("/")[1]
+    }`;
+    req.text = key;
+    await chatService.uploadFileToS3(req, res, key);
+  } else {
+    req.textType = "string";
+    req.text = message;
   }
+
+  const messageObj = await chatService.saveMessageToDb(req, {
+    chatId: req.params.chatId,
+    textType: req.textType,
+    text: req.text,
+    sentAt: req.body.sentAt,
+  });
+
+  res.status(201).json(messageObj);
+}
+
+async function deleteMessage(req, res) {
+  const { messageId } = req.params;
+  await chatService.deleteMessageById({
+    messageId: messageId,
+  });
+  res.status(204).send();
+}
+
+async function updateParticipantState(req, res) {
+  const { chatId } = req.params;
+  const userId = await dbUtils.getUserDbId(req.user);
+  const { leftAt, isMuted } = req.body;
+
+  const allowedUpdates = {
+    left_at: leftAt,
+    is_muted: isMuted,
+  };
+
+  const updates = Object.fromEntries(
+    Object.entries(allowedUpdates).filter(([_, v]) => v !== undefined)
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update." });
+  }
+
+  await chatService.updateParticipantById({ chatId, userId, updates });
+
+  res.status(204).send();
+}
+
+async function updateMessage(req, res) {
+  const { messageId } = req.params;
+  const { deletedAt } = req.body;
+
+  const allowedUpdates = {
+    deleted_at: deletedAt,
+  };
+
+  const updates = Object.fromEntries(
+    Object.entries(allowedUpdates).filter(([_, v]) => v !== undefined)
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update." });
+  }
+
+  await chatService.updateMessageById({ messageId, updates });
+
+  res.status(204).send();
 }
 
 module.exports = {
@@ -242,5 +272,8 @@ module.exports = {
   getChatMessages,
   getChatMessagesByChatId,
   getChatIds,
-  getChatDetails,
+  createMessage,
+  deleteMessage,
+  updateMessage,
+  updateParticipantState,
 };

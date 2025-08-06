@@ -2,7 +2,11 @@ node_modules/
 
 *.env
 
+server/test/storage
+
 client/build/
+
+.DS_Store
 
 # Cal.com Docker setup
 calcom-docker/
@@ -27,3 +31,8 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+
+*.pem
+
+.DS_Store

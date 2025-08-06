@@ -1,4 +1,5 @@
-const { uploadHeadshotToS3 } = require("../services/s3Uploader");
+const { uploadToS3 } = require("../services/s3Service");
+const { updateProviderHeadshot } = require("../services/providerService");
 
 const uploadHeadshot = async (req, res) => {
   console.log("uploadHeadshot controller - req.file:", req.file);
@@ -11,7 +12,16 @@ const uploadHeadshot = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const imageUrl = await uploadHeadshotToS3(file.buffer, cognitoSub, file.mimetype);
+    const extension = file.mimetype.split("/")[1];
+    const key = `headshots/${cognitoSub}.${extension}`;
+
+    const imageUrl = await uploadToS3({
+      fileBuffer: file.buffer,
+      key: key,
+      mimeType: file.mimetype,
+      bucketName: process.env.AWS_S3_BUCKET_NAME,
+    });
+    await updateProviderHeadshot(cognitoSub, imageUrl);
 
     res.status(200).json({ imageUrl });
   } catch (err) {
