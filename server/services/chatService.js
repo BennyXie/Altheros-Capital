@@ -6,17 +6,36 @@ const { uploadToS3 } = require("./s3Service.js");
 require("dotenv").config({ path: "./.env" });
 const cloudfrontService = require("./cloudfrontService");
 
-function formatMessage(sender, text, timestamp) {
-  return {
-    sender: {
-      id: senderId,
-      type: senderType,
-      name: name,
-      avatar: avatar,
-    },
-    text,
-    timestamp,
-  };
+function formatMessage(senderIdOrName, senderTypeOrText, textOrTimestamp, timestamp) {
+  // Handle different calling patterns:
+  // 1. formatMessage(senderId, senderType, text, timestamp) - 4 params
+  // 2. formatMessage(senderName, text, timestamp) - 3 params
+  
+  if (arguments.length === 4) {
+    // 4-parameter version: formatMessage(senderId, senderType, text, timestamp)
+    return {
+      sender: {
+        id: senderIdOrName,
+        type: senderTypeOrText,
+        name: senderIdOrName, // For now, use ID as name
+        avatar: null,
+      },
+      text: textOrTimestamp,
+      timestamp: timestamp,
+    };
+  } else {
+    // 3-parameter version: formatMessage(senderName, text, timestamp)
+    return {
+      sender: {
+        id: senderIdOrName,
+        type: 'user',
+        name: senderIdOrName,
+        avatar: null,
+      },
+      text: senderTypeOrText,
+      timestamp: textOrTimestamp,
+    };
+  }
 }
 
 async function verifyChatMembership(req, res, next) {
@@ -117,11 +136,28 @@ async function createOrGetChat(participantIds) {
 
 async function getChatIds(userDbId) {
   console.log("getChatIds: userDbId:", userDbId);
+  
+  // Get all chats where the user is a participant and hasn't left
   const result = await db.query(
-    `SELECT chat_id FROM chat_participant WHERE participant_id = $1`,
+    `SELECT 
+       cp.chat_id,
+       cp.left_at,
+       (SELECT text FROM messages WHERE chat_id = cp.chat_id ORDER BY sent_at DESC LIMIT 1) as last_message_text,
+       (SELECT sent_at FROM messages WHERE chat_id = cp.chat_id ORDER BY sent_at DESC LIMIT 1) as last_message_time
+     FROM chat_participant cp 
+     WHERE cp.participant_id = $1 
+     AND cp.left_at IS NULL
+     ORDER BY last_message_time DESC NULLS LAST`,
     [userDbId]
   );
-  return result.rows;
+  
+  return result.rows.map(row => ({
+    chat_id: row.chat_id,
+    lastMessage: row.last_message_text ? {
+      text: row.last_message_text,
+      timestamp: row.last_message_time
+    } : null
+  }));
 }
 
 // async function updateChatMessageFiles(fileUrl) {

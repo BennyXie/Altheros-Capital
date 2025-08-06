@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
-import apiClient from '../utils/apiClient';
+import apiService from '../services/apiService';
 import styles from './ChatRoomPage.module.css';
 import { IconTrash } from '@tabler/icons-react';
 
@@ -22,7 +22,8 @@ const ChatRoomPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const messagesResponse = await apiClient.get(`/api/chat/${chatId}/messages`);
+        // Use the new apiService method to get messages
+        const messagesResponse = await apiService.getChatMessages(chatId);
         setMessages(messagesResponse.filter(msg => !msg.deleted_at));
       } catch (error) {
         console.error('Error fetching chat data:', error);
@@ -33,17 +34,20 @@ const ChatRoomPage = () => {
 
     fetchData();
 
+    // Connect to websocket for real-time updates
     socketRef.current = io(process.env.REACT_APP_API_URL, {
       auth: {
         token: user.idToken,
       },
     });
 
+    // Join the chat room via websocket
     socketRef.current.emit('join_chat', { 
       chatId,
       timestamp: new Date().toISOString()
     });
 
+    // Listen for new messages
     socketRef.current.on('receive_message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
@@ -63,9 +67,11 @@ const ChatRoomPage = () => {
       }
 
       try {
-        const response = await apiClient.post(`/api/chat/${chatId}/message`, formData);
+        // Use the new apiService method to send message
+        const response = await apiService.sendMessage(chatId, formData);
+        
         // Add the newly sent message to the local state immediately
-        setMessages((prevMessages) => [...prevMessages, response]); // Assuming the API returns the created message object
+        setMessages((prevMessages) => [...prevMessages, response]);
         setNewMessage('');
         setFile(null);
       } catch (error) {
@@ -76,7 +82,8 @@ const ChatRoomPage = () => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await apiClient.patch(`/api/chat/message/${messageId}`, { deleted_at: new Date().toISOString() });
+      // Use the new apiService method to delete message (soft delete)
+      await apiService.deleteMessage(messageId, { deleted_at: new Date().toISOString() });
       setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== messageId));
     } catch (error) {
       console.error('Error deleting message:', error);

@@ -24,22 +24,9 @@ async function listProviders(req, res) {
       limit: limit
     } = req.query;
 
-    const result = await providerService.listProviders(req.query);
+    const result = await providerService.listProviders(req);
 
-    res.json({
-      providers: result.providers,
-      ...result.pagination_details
-      // ... will include the following
-      //   page_num,
-      //   limit,
-      //   totalPages: Math.ceil(total / limit),
-      //   totalRecords: total_records,
-      //   hasNextPage: has_next_page,
-      //   hasPrevPage: has_prev_page,
-      //   nextRoute: has_next_page ? `/providers?page=${page_num + 1}&limit=${limit}` : null,
-      //   prevRoute: has_prev_page ? `/providers?page=${page_num - 1}&limit=${limit}` : null
-    });
-
+    res.json(result);
 
   } catch (err) {
     console.error('DB error:', err);

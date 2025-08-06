@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, Card, Text, Group, Avatar, Button } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import apiClient from '../utils/apiClient';
+import apiService from '../services/apiService';
 import styles from './ChatSelectionPage.module.css';
 
 const ChatSelectionPage = () => {
@@ -11,8 +11,20 @@ const ChatSelectionPage = () => {
   useEffect(() => {
     const fetchChatRooms = async () => {
       try {
-        const response = await apiClient.get('/api/chat');
-        setChatRooms(response.filter(room => !room.left_at));
+        // Use the new apiService method to get chat IDs
+        const response = await apiService.getChatIds();
+        
+        // The response now includes more detailed information
+        const chatRooms = response.map(chat => ({
+          id: chat.chat_id,
+          otherUser: {
+            name: 'Chat Participant', // Default name since we don't have participant details yet
+            avatar: null
+          },
+          lastMessage: chat.lastMessage
+        }));
+        
+        setChatRooms(chatRooms);
       } catch (error) {
         console.error('Error fetching chat rooms:', error);
       }
@@ -23,7 +35,8 @@ const ChatSelectionPage = () => {
 
   const handleLeaveChat = async (chatId) => {
     try {
-      await apiClient.patch(`/api/chat/${chatId}/participants/me`, { left_at: new Date().toISOString() });
+      // Use the new apiService method to update participant state (leave chat)
+      await apiService.updateParticipantState(chatId, { left_at: new Date().toISOString() });
       setChatRooms((prevChatRooms) => prevChatRooms.filter((room) => room.id !== chatId));
     } catch (error) {
       console.error('Error leaving chat:', error);
@@ -49,7 +62,13 @@ const ChatSelectionPage = () => {
                     <div style={{ marginLeft: '1rem' }}>
                       <Text weight={500}>{room.otherUser.name}</Text>
                       <Text size="sm" color="dimmed">
-                        {room.lastMessage ? room.lastMessage.text : 'No messages yet'}
+                        {room.lastMessage ? 
+                          (room.lastMessage.text.length > 50 ? 
+                            room.lastMessage.text.substring(0, 50) + '...' : 
+                            room.lastMessage.text
+                          ) : 
+                          'No messages yet'
+                        }
                       </Text>
                     </div>
                   </Link>
