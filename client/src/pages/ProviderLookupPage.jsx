@@ -28,11 +28,16 @@ const ProviderLookupPage = () => {
                     // Check if the URL is a valid image URL
                     // Allow all HTTPS URLs for now since we're having S3 permission issues
                     const isValidImageUrl = headshotUrl && (
-                        headshotUrl.startsWith('https://') && (
+                        headshotUrl.startsWith('https://') && 
+                        // Exclude example/fake domains
+                        !headshotUrl.includes('example.com') &&
+                        !headshotUrl.includes('mycdn.com') &&
+                        !headshotUrl.includes('cdn.example.com') &&
+                        (
                             headshotUrl.includes('amazonaws.com') || // AWS S3 URLs
                             headshotUrl.includes('cloudfront.net') || // CloudFront URLs
                             headshotUrl.includes('.s3.') || // S3 bucket URLs
-                            headshotUrl.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i) // Image file extensions
+                            /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(headshotUrl) // Image file extensions
                         )
                     );
 

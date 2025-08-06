@@ -208,7 +208,39 @@ async function getProviderProfileByCognitoSub(cognitoSub) {
     `SELECT * FROM providers WHERE cognito_sub = $1`,
     [cognitoSub]
   );
-  return result.rows[0];
+  
+  if (result.rows.length === 0) {
+    return null;
+  }
+  
+  const provider = result.rows[0];
+  
+  // Generate presigned URL for headshot if it exists
+  if (provider.headshot_url) {
+    // Check if the URL looks like an S3 URL
+    if (provider.headshot_url.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && provider.headshot_url.includes(process.env.S3_BUCKET_NAME))) {
+      try {
+        let key = provider.headshot_url;
+        if (key.startsWith('http')) {
+          const urlParts = new URL(key);
+          key = urlParts.pathname.substring(1); // Remove leading slash
+        }
+
+        const command = new GetObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: key,
+        });
+        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
+        provider.headshot_url = presignedUrl;
+      } catch (error) {
+        console.error(`Error generating presigned URL for provider ${provider.id}:`, error);
+        provider.headshot_url = null; // Return null if error
+      }
+    }
+    // If it's not an S3 URL, return it as is (frontend will handle fallback)
+  }
+  
+  return provider;
 }
 
 module.exports = {

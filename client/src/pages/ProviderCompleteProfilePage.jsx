@@ -278,7 +278,7 @@ const ProviderCompleteProfilePage = () => {
 
     setIsLoading(true);
     const formDataPayload = new FormData();
-    formDataPayload.append('bucketName', 'midwest-health-providers-headshots');
+    formDataPayload.append('headshot', fileToUpload);
 
     try {
       const response = await apiClient.post('/api/headshot/headshot', formDataPayload, {}, true);
@@ -598,8 +598,12 @@ const ProviderCompleteProfilePage = () => {
                       src={previewHeadshotUrl}
                       alt="Headshot Preview"
                       radius="md"
-                      h={200}
-                      w={200}
+                      style={{ 
+                        maxWidth: '400px', 
+                        width: '100%',
+                        height: 'auto',
+                        aspectRatio: '1'
+                      }}
                       fit="cover"
                     />
                   ) : (
@@ -633,14 +637,15 @@ const ProviderCompleteProfilePage = () => {
                 )}
 
                 {captureMode === 'camera' && (
-                  <Box>
+                  <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <video 
                       ref={videoRef} 
                       style={{
                         width: '100%', 
-                        maxWidth: '300px', 
+                        maxWidth: '400px', 
                         borderRadius: '8px',
-                        display: stream && !capturedImageBlob ? 'block' : 'none' 
+                        display: stream && !capturedImageBlob ? 'block' : 'none',
+                        margin: '0 auto'
                       }} 
                       autoPlay 
                       playsInline 
@@ -670,8 +675,12 @@ const ProviderCompleteProfilePage = () => {
                           src={URL.createObjectURL(capturedImageBlob)}
                           alt="Captured Headshot Preview"
                           radius="md"
-                          h={200}
-                          w={200}
+                          style={{ 
+                            maxWidth: '400px', 
+                            width: '100%',
+                            height: 'auto',
+                            aspectRatio: '1'
+                          }}
                           fit="cover"
                         />
                         <Button onClick={() => {
