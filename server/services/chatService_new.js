@@ -21,15 +21,7 @@ async function verifyChatMembership(req, res, next) {
     const userDbId = await dbUtils.getUserDbId(req.user);
     const { chatId } = req.params;
     
-    // For participant state updates, allow access even if user has left (for rejoining)
-    const isParticipantUpdate = req.route.path.includes('/participants/me');
-    
-    const query = isParticipantUpdate ? `
-      SELECT EXISTS (
-        SELECT 1 FROM chat_participant 
-        WHERE chat_id = $1 AND participant_id = $2
-      )
-    ` : `
+    const query = `
       SELECT EXISTS (
         SELECT 1 FROM chat_participant 
         WHERE chat_id = $1 AND participant_id = $2 AND left_at IS NULL
@@ -183,9 +175,9 @@ async function getChatIds(userDbId) {
         (SELECT sent_at FROM messages 
          WHERE chat_id = cp.chat_id AND deleted_at IS NULL 
          ORDER BY sent_at DESC LIMIT 1) as last_message_time,
-        COALESCE(array_agg(DISTINCT other_cp.participant_id) FILTER (
+        array_agg(DISTINCT other_cp.participant_id) FILTER (
           WHERE other_cp.participant_id != cp.participant_id AND other_cp.left_at IS NULL
-        ), ARRAY[]::uuid[]) as other_participants
+        ) as other_participants
       FROM chat_participant cp 
       LEFT JOIN chat_participant other_cp ON cp.chat_id = other_cp.chat_id
       WHERE cp.participant_id = $1 AND cp.left_at IS NULL
@@ -200,7 +192,7 @@ async function getChatIds(userDbId) {
       result.rows.map(async (row) => {
         const cognitoIds = [];
         
-        if (row.other_participants && row.other_participants.length > 0) {
+        if (row.other_participants) {
           for (const participantDbId of row.other_participants) {
             // Try to find in providers first
             let cognitoResult = await db.query('SELECT cognito_sub FROM providers WHERE id = $1', [participantDbId]);
@@ -219,11 +211,11 @@ async function getChatIds(userDbId) {
         return {
           chat_id: row.chat_id,
           left_at: row.left_at,
-          lastMessage: row.last_message_text ? {
+          lastMessage: {
             text: row.last_message_text,
             timestamp: row.last_message_time
-          } : null,
-          otherParticipants: cognitoIds || []
+          },
+          otherParticipants: cognitoIds
         };
       })
     );
@@ -259,12 +251,7 @@ async function getMessagesByChatId(chatId) {
           WHEN m.sender_type = 'provider' THEN p.first_name || ' ' || p.last_name
           WHEN m.sender_type = 'patient' THEN pt.first_name || ' ' || pt.last_name
           ELSE 'Unknown User'
-        END as sender_name,
-        CASE 
-          WHEN m.sender_type = 'provider' THEN p.cognito_sub
-          WHEN m.sender_type = 'patient' THEN pt.cognito_sub
-          ELSE NULL
-        END as sender_cognito_id
+        END as sender_name
       FROM messages m
       LEFT JOIN providers p ON m.sender_id = p.id AND m.sender_type = 'provider'
       LEFT JOIN patients pt ON m.sender_id = pt.id AND m.sender_type = 'patient'
@@ -321,11 +308,7 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
       sentAt,
     ]);
     
-    // Add the sender's Cognito ID to the response for frontend compatibility
-    const message = result.rows[0];
-    message.sender_cognito_id = req.user.sub;
-    
-    return message;
+    return result.rows[0];
     
   } catch (error) {
     console.error('Error in saveMessageToDb:', error);

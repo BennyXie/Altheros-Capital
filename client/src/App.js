@@ -47,8 +47,26 @@ const AppRoutes = () => {
       <Route path="/providers" element={<Layout><ProviderAccessPage /></Layout>} />
       <Route path="/provider-lookup" element={<Layout><ProviderLookupPage /></Layout>} />
       <Route path="/provider-profile/:id" element={<Layout><ProviderProfilePage /></Layout>} />
-      <Route path="/chats" element={<Layout><ChatSelectionPage /></Layout>} />
-      <Route path="/chat/:chatId" element={<Layout><ChatRoomPage /></Layout>} />
+      <Route 
+        path="/chats" 
+        element={
+          <Layout>
+            <ProtectedRoute skipProfileCheck={true}>
+              <ChatSelectionPage />
+            </ProtectedRoute>
+          </Layout>
+        } 
+      />
+      <Route 
+        path="/chat/:chatId" 
+        element={
+          <Layout>
+            <ProtectedRoute skipProfileCheck={true}>
+              <ChatRoomPage />
+            </ProtectedRoute>
+          </Layout>
+        } 
+      />
       <Route
         path="/notifications"
         element={

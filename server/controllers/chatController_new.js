@@ -67,8 +67,7 @@ async function createOrGetChat(req, res) {
     
     const chat = await chatService.createOrGetChat(uniqueParticipantIds);
     
-    // Return just the chatId string for client compatibility
-    res.status(201).json(chat.chatId);
+    res.status(201).json(chat);
     
   } catch (error) {
     console.error('Error in createOrGetChat:', error);
@@ -288,26 +287,7 @@ async function handleJoin(socket, data, timestamp) {
   try {
     const patientId = socket.user.sub;
     const patientName = socket.user.name;
-    
-    console.log('handleJoin: Received data:', JSON.stringify(data));
-    
-    let { providerId, chatId } = data;
-    
-    // Handle case where chatId might be an object with chatId property
-    if (chatId && typeof chatId === 'object') {
-      if (chatId.chatId) {
-        chatId = chatId.chatId;
-      } else {
-        console.error('handleJoin: chatId is an object but no chatId property found:', chatId);
-        return;
-      }
-    }
-    
-    // Ensure chatId is a string if provided
-    if (chatId && typeof chatId !== 'string') {
-      console.error('handleJoin: chatId is not a string:', typeof chatId, chatId);
-      return;
-    }
+    const { providerId, chatId } = data;
 
     let finalChatId;
 
@@ -334,7 +314,7 @@ async function handleJoin(socket, data, timestamp) {
         return;
       }
     } else {
-      console.error("handleJoin: Neither chatId nor providerId provided. Data received:", JSON.stringify(data));
+      console.error("handleJoin: Neither chatId nor providerId provided");
       return;
     }
 

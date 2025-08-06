@@ -51,10 +51,19 @@ class ApiService {
         ...options,
       });
 
-      const data = await response.json();
+      // Check if response has content to parse
+      let data = null;
+      if (response.status !== 204 && response.headers.get('content-length') !== '0') {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'API request failed');
+        throw new Error(data?.error || data?.message || data || 'API request failed');
       }
 
       return data;

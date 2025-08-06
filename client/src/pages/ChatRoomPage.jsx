@@ -81,6 +81,13 @@ const ChatRoomPage = () => {
   };
 
   const handleDeleteMessage = async (messageId) => {
+    console.log('handleDeleteMessage called with messageId:', messageId);
+    
+    if (!messageId) {
+      console.error('Cannot delete message: messageId is undefined');
+      return;
+    }
+    
     try {
       // Use the new apiService method to delete message (soft delete)
       await apiService.deleteMessage(messageId, { deleted_at: new Date().toISOString() });
@@ -155,7 +162,7 @@ const ChatRoomPage = () => {
         <ScrollArea style={{ height: '100%' }} className={styles.messagesContainer}>
           <div className={styles.messagesWrapper}>
             {messages.map((msg, index) => {
-              const messageSenderId = msg.sender_id || msg.senderId || msg.sender?.id || msg.sender?.sub;
+              const messageSenderId = msg.sender_cognito_id || msg.senderId || msg.sender?.id || msg.sender?.sub;
               const currentUserId = user.sub;
               const isOwnMessage = messageSenderId === currentUserId;
               
