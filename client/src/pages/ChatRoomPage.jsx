@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Paper, TextInput, Button, Group, Text, ScrollArea, Avatar } from '@mantine/core';
+import { Paper, TextInput, Button, Group, Text, ScrollArea, Avatar, ActionIcon } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/apiClient';
 import styles from './ChatRoomPage.module.css';
+import { IconTrash } from '@tabler/icons-react';
 
 const ChatRoomPage = () => {
   const { chatId } = useParams();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [chatDetails, setChatDetails] = useState(null);
+  const [file, setFile] = useState(null);
+  const otherParticipant = messages.length > 0 ? messages.find(m => m.sender_id !== user.sub)?.sender : null;
   const [loading, setLoading] = useState(true);
   const socketRef = useRef(null);
 
@@ -20,19 +22,8 @@ const ChatRoomPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Fetch messages
-        console.log("ChatRoomPage: chatId before API call:", chatId);
-        const messagesResponse = await apiClient.get(`/api/chat/room/${chatId}/messages`);
-        setMessages(messagesResponse);
-
-        // Fetch chat details (includes provider info)
-        const chatDetailsResponse = await apiClient.getChatDetails(chatId);
-        setChatDetails(chatDetailsResponse);
-        console.log("ChatRoomPage: Chat details fetched:", chatDetailsResponse);
-        console.log("ChatRoomPage: Other participant:", chatDetailsResponse?.otherParticipant);
-        console.log("ChatRoomPage: Other participant avatar:", chatDetailsResponse?.otherParticipant?.avatar);
-        
+        const messagesResponse = await apiClient.get(`/api/chat/${chatId}/messages`);
+        setMessages(messagesResponse.filter(msg => !msg.deleted_at));
       } catch (error) {
         console.error('Error fetching chat data:', error);
       } finally {
@@ -62,21 +53,40 @@ const ChatRoomPage = () => {
     };
   }, [chatId, user.idToken, user.sub]);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = {
-        chatId,
-        text: newMessage,
-        senderId: user.sub,
-        senderType: user.role,
-        timestamp: new Date().toISOString(),
-      };
-      socketRef.current.emit('send_message', messageData);
-      setNewMessage('');
+  const handleSendMessage = async () => {
+    if (newMessage.trim() || file) {
+      const formData = new FormData();
+      formData.append('message', newMessage);
+      formData.append('sentAt', new Date().toISOString());
+      if (file) {
+        formData.append('file', file);
+      }
+
+      try {
+        const response = await apiClient.post(`/api/chat/${chatId}/message`, formData);
+        // Add the newly sent message to the local state immediately
+        setMessages((prevMessages) => [...prevMessages, response]); // Assuming the API returns the created message object
+        setNewMessage('');
+        setFile(null);
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
   };
 
-  // Show loading state while fetching data
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      await apiClient.patch(`/api/chat/message/${messageId}`, { deleted_at: new Date().toISOString() });
+      setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== messageId));
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   if (loading) {
     return (
       <motion.div 
@@ -98,7 +108,6 @@ const ChatRoomPage = () => {
       transition={{ duration: 0.3 }}
       className={styles.container}
     >
-      {/* Chat Header with Provider Info */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,18 +118,18 @@ const ChatRoomPage = () => {
             <Avatar 
               size="lg" 
               radius="xl" 
-              src={chatDetails?.otherParticipant?.avatar || null}
+              src={otherParticipant?.avatar || null}
               className={styles.providerAvatar}
             />
             <div>
               <Text weight={600} size="lg" className={styles.providerName}>
-                {chatDetails?.otherParticipant ? 
-                  `Chat with ${chatDetails.otherParticipant.name}` : 
+                {otherParticipant ? 
+                  `Chat with ${otherParticipant.name}` : 
                   'Chat with Provider'
                 }
               </Text>
               <Text size="sm" className={styles.providerStatus}>
-                {chatDetails?.otherParticipant?.type === 'provider' ? 
+                {otherParticipant?.type === 'provider' ? 
                   'Healthcare Provider' : 
                   'Online'
                 }
@@ -130,7 +139,6 @@ const ChatRoomPage = () => {
         </Paper>
       </motion.div>
 
-      {/* Messages Area */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -140,15 +148,9 @@ const ChatRoomPage = () => {
         <ScrollArea style={{ height: '100%' }} className={styles.messagesContainer}>
           <div className={styles.messagesWrapper}>
             {messages.map((msg, index) => {
-              // Check various possible sender ID properties and compare with current user
               const messageSenderId = msg.sender_id || msg.senderId || msg.sender?.id || msg.sender?.sub;
               const currentUserId = user.sub;
               const isOwnMessage = messageSenderId === currentUserId;
-              
-              console.log('Message sender ID:', messageSenderId);
-              console.log('Current user ID:', currentUserId);
-              console.log('Is own message:', isOwnMessage);
-              console.log('Full message object:', msg);
               
               return (
                 <motion.div
@@ -159,13 +161,22 @@ const ChatRoomPage = () => {
                   className={`${styles.messageRow} ${isOwnMessage ? styles.ownMessage : styles.otherMessage}`}
                 >
                   <div className={styles.messageBubble}>
-                    <Text size="sm" className={styles.messageText}>
-                      {msg.text}
-                    </Text>
+                    {msg.text_type === 'string' ? (
+                      <Text size="sm" className={styles.messageText}>
+                        {msg.text}
+                      </Text>
+                    ) : (
+                      <img src={msg.text} alt="uploaded content" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                    )}
                     <Text size="xs" className={styles.messageTime}>
                       {new Date(msg.sent_at || msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </Text>
                   </div>
+                  {isOwnMessage && (
+                    <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDeleteMessage(msg.id)}>
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  )}
                 </motion.div>
               );
             })}
@@ -173,7 +184,6 @@ const ChatRoomPage = () => {
         </ScrollArea>
       </motion.div>
 
-      {/* Input Area */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -189,6 +199,7 @@ const ChatRoomPage = () => {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               size="md"
             />
+            <input type="file" onChange={handleFileChange} />
             <Button 
               onClick={handleSendMessage}
               className={styles.sendButton}

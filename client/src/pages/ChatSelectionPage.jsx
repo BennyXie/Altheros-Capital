@@ -11,8 +11,8 @@ const ChatSelectionPage = () => {
   useEffect(() => {
     const fetchChatRooms = async () => {
       try {
-        const response = await apiClient.get('/api/chat/rooms');
-        setChatRooms(response);
+        const response = await apiClient.get('/api/chat');
+        setChatRooms(response.filter(room => !room.left_at));
       } catch (error) {
         console.error('Error fetching chat rooms:', error);
       }
@@ -21,12 +21,12 @@ const ChatSelectionPage = () => {
     fetchChatRooms();
   }, []);
 
-  const handleDeleteChat = async (chatId) => {
+  const handleLeaveChat = async (chatId) => {
     try {
-      await apiClient.delete(`/chat/${chatId}`);
+      await apiClient.patch(`/api/chat/${chatId}/participants/me`, { left_at: new Date().toISOString() });
       setChatRooms((prevChatRooms) => prevChatRooms.filter((room) => room.id !== chatId));
     } catch (error) {
-      console.error('Error deleting chat:', error);
+      console.error('Error leaving chat:', error);
     }
   };
 
@@ -42,21 +42,18 @@ const ChatSelectionPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card withBorder radius="md" p="lg" className={styles.chatCard} component={Link} to={`/chat/${room.id}`}>
+              <Card withBorder radius="md" p="lg" className={styles.chatCard}>
                 <Group position="apart">
-                  <Group>
+                  <Link to={`/chat/${room.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                     <Avatar src={room.otherUser.avatar} radius="xl" />
-                    <div>
+                    <div style={{ marginLeft: '1rem' }}>
                       <Text weight={500}>{room.otherUser.name}</Text>
                       <Text size="sm" color="dimmed">
                         {room.lastMessage ? room.lastMessage.text : 'No messages yet'}
                       </Text>
                     </div>
-                  </Group>
-                  <Button color="red" onClick={(e) => {
-                    e.preventDefault(); // Prevent Link navigation
-                    handleDeleteChat(room.id);
-                  }}>Delete</Button>
+                  </Link>
+                  <Button color="red" onClick={() => handleLeaveChat(room.id)}>Leave</Button>
                 </Group>
               </Card>
             </motion.div>
