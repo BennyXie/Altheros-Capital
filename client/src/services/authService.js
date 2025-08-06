@@ -104,7 +104,8 @@ class AuthService {
         throw new Error('No access token available');
       }
 
-      const response = await fetch('/api/auth/add-to-group', {
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/auth/add-to-group`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

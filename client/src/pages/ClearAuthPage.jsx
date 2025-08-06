@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Container, Title, Button, Text, Stack } from '@mantine/core';
 import AuthService from '../services/authService';
 
