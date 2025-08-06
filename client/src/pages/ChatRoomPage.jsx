@@ -14,8 +14,9 @@ const ChatRoomPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [file, setFile] = useState(null);
-  const otherParticipant = messages.length > 0 ? messages.find(m => m.sender_id !== user.sub)?.sender : null;
+  const [otherParticipant, setOtherParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deletingMessages, setDeletingMessages] = useState(new Set());
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -24,7 +25,23 @@ const ChatRoomPage = () => {
         setLoading(true);
         // Use the new apiService method to get messages
         const messagesResponse = await apiService.getChatMessages(chatId);
-        setMessages(messagesResponse.filter(msg => !msg.deleted_at));
+        const validMessages = messagesResponse.filter(msg => !msg.deleted_at);
+        setMessages(validMessages);
+        
+        // Find the other participant from the messages
+        const otherParticipantMessage = validMessages.find(m => {
+          const senderId = m.sender_cognito_id || m.senderId || m.sender?.id || m.sender?.sub;
+          return senderId !== user.sub;
+        });
+        
+        if (otherParticipantMessage) {
+          setOtherParticipant({
+            id: otherParticipantMessage.sender_cognito_id,
+            name: otherParticipantMessage.sender_name || 'Unknown User',
+            type: otherParticipantMessage.sender_type === 'provider' ? 'provider' : 'patient'
+          });
+        }
+        
       } catch (error) {
         console.error('Error fetching chat data:', error);
       } finally {
@@ -88,12 +105,52 @@ const ChatRoomPage = () => {
       return;
     }
     
+    // Prevent multiple simultaneous delete attempts for the same message
+    if (deletingMessages.has(messageId)) {
+      console.log('Delete already in progress for message:', messageId);
+      return;
+    }
+    
     try {
+      // Add to deleting set
+      setDeletingMessages(prev => new Set(prev).add(messageId));
+      
       // Use the new apiService method to delete message (soft delete)
       await apiService.deleteMessage(messageId, { deleted_at: new Date().toISOString() });
-      setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== messageId));
+      
+      // Remove the message from local state
+      setMessages((prevMessages) => 
+        prevMessages.filter((msg) => {
+          const msgId = msg.id || msg.messageId;
+          return msgId !== messageId;
+        })
+      );
+      
+      console.log('Message deleted successfully:', messageId);
     } catch (error) {
       console.error('Error deleting message:', error);
+      
+      // Show user-friendly error message based on error type
+      if (error.message?.includes('Message not found')) {
+        console.log('Message was already deleted or does not exist');
+        // Remove from local state anyway since it doesn't exist on server
+        setMessages((prevMessages) => 
+          prevMessages.filter((msg) => {
+            const msgId = msg.id || msg.messageId;
+            return msgId !== messageId;
+          })
+        );
+      } else {
+        // For other errors, you might want to show a toast notification
+        console.log('Failed to delete message. Please try again.');
+      }
+    } finally {
+      // Remove from deleting set
+      setDeletingMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
     }
   };
 
@@ -166,34 +223,128 @@ const ChatRoomPage = () => {
               const currentUserId = user.sub;
               const isOwnMessage = messageSenderId === currentUserId;
               
+              // Get consistent message ID
+              const messageId = msg.id || msg.messageId;
+              
+              // Check if this is a valid message with required data
+              if (!msg.text && !msg.text_type) {
+                console.warn('Invalid message data:', msg);
+                return null;
+              }
+              
+              // Handle messages with missing or invalid text_type
+              const textType = msg.text_type || 'string';
+              
               return (
                 <motion.div
-                  key={index}
+                  key={messageId || `msg-${index}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.2 }}
                   className={`${styles.messageRow} ${isOwnMessage ? styles.ownMessage : styles.otherMessage}`}
                 >
                   <div className={styles.messageBubble}>
-                    {msg.text_type === 'string' ? (
+                    {textType === 'string' ? (
                       <Text size="sm" className={styles.messageText}>
-                        {msg.text}
+                        {msg.text || '[Empty message]'}
                       </Text>
+                    ) : textType === 'image' ? (
+                      <div>
+                        <img 
+                          src={msg.text} 
+                          alt="Shared image" 
+                          style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '300px',
+                            borderRadius: '8px',
+                            objectFit: 'cover'
+                          }}
+                          onError={(e) => {
+                            console.error('Image failed to load:', msg.text);
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                        <Text 
+                          size="sm" 
+                          className={styles.messageText}
+                          style={{ display: 'none', fontStyle: 'italic' }}
+                        >
+                          📷 Image (unable to display)
+                        </Text>
+                      </div>
+                    ) : textType === 'document' || textType === 'pdf' ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Text size="sm" className={styles.messageText}>
+                          📄 Document shared
+                        </Text>
+                        {msg.text && (
+                          <a 
+                            href={msg.text} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                              color: isOwnMessage ? 'white' : 'var(--mint-primary)',
+                              textDecoration: 'underline'
+                            }}
+                          >
+                            View
+                          </a>
+                        )}
+                      </div>
+                    ) : textType === 'video' ? (
+                      <div>
+                        <video 
+                          src={msg.text}
+                          controls
+                          style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '300px',
+                            borderRadius: '8px'
+                          }}
+                          onError={(e) => {
+                            console.error('Video failed to load:', msg.text);
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        >
+                          Your browser does not support video playback.
+                        </video>
+                        <Text 
+                          size="sm" 
+                          className={styles.messageText}
+                          style={{ display: 'none', fontStyle: 'italic' }}
+                        >
+                          🎥 Video (unable to display)
+                        </Text>
+                      </div>
                     ) : (
-                      <img src={msg.text} alt="uploaded content" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                      <Text size="sm" className={styles.messageText} style={{ fontStyle: 'italic' }}>
+                        📎 File shared (type: {textType})
+                        {!msg.text && ' - File unavailable'}
+                      </Text>
                     )}
                     <Text size="xs" className={styles.messageTime}>
                       {new Date(msg.sent_at || msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </Text>
                   </div>
-                  {isOwnMessage && (
-                    <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDeleteMessage(msg.id)}>
+                  {isOwnMessage && messageId && (
+                    <ActionIcon 
+                      size="sm" 
+                      variant="subtle" 
+                      color="red" 
+                      onClick={() => handleDeleteMessage(messageId)}
+                      style={{ marginLeft: '8px' }}
+                      title="Delete message"
+                      disabled={deletingMessages.has(messageId)}
+                      loading={deletingMessages.has(messageId)}
+                    >
                       <IconTrash size={16} />
                     </ActionIcon>
                   )}
                 </motion.div>
               );
-            })}
+            }).filter(Boolean)}
           </div>
         </ScrollArea>
       </motion.div>

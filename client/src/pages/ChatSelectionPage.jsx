@@ -19,71 +19,45 @@ const ChatSelectionPage = () => {
       const response = await apiService.getChatIds();
       console.log('ChatSelectionPage: Raw chat response:', response);
       
-      // Process chat rooms and fetch participant details
+      // Process chat rooms and get participant details from recent messages
       const chatRoomsWithDetails = await Promise.all(
         response.map(async (chat) => {
           try {
-            // For each other participant, fetch their profile information
-            const participantDetails = await Promise.all(
-              (chat.otherParticipants || []).map(async (participantId) => {
-                  try {
-                    // Try to fetch provider profile first, then patient profile
-                    let profile = null;
-                    let userType = 'user';
-                    
-                    try {
-                      const headers = await apiService.getAuthHeaders();
-                      const providerResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/public/provider/${participantId}`, {
-                        headers
-                      });
-                      if (providerResponse.ok) {
-                        profile = await providerResponse.json();
-                        userType = 'provider';
-                      }
-                    } catch (err) {
-                      // Silently continue to patient lookup
-                    }                    if (!profile) {
-                      try {
-                        const headers = await apiService.getAuthHeaders();
-                        const patientResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/public/patient/${participantId}`, {
-                          headers
-                        });
-                        if (patientResponse.ok) {
-                          profile = await patientResponse.json();
-                          userType = 'patient';
-                        }
-                      } catch (err) {
-                        // Silently continue to fallback
-                      }
-                    }
-                    
-                    // If still no profile found, return a fallback user
-                    if (!profile) {
-                      return {
-                        id: participantId,
-                        name: `Unknown User`,
-                        avatar: null,
-                        type: 'user',
-                        profile: null
-                      };
-                    }                  return {
-                    id: participantId,
-                    name: profile ? `${profile.first_name} ${profile.last_name}` : `User ${participantId.substring(0, 8)}`,
-                    avatar: profile?.headshot_url || null,
-                    type: userType,
-                    profile
-                  };
-                } catch (error) {
-                  console.error('Error fetching participant details:', participantId, error);
-                  return {
-                    id: participantId,
-                    name: `User ${participantId.substring(0, 8)}`,
-                    avatar: null,
-                    type: 'user'
-                  };
+            // Get recent messages to find participant information
+            let participantDetails = [];
+            
+            try {
+              const messages = await apiService.getChatMessages(chat.chat_id);
+              const currentUserId = user.sub;
+              
+              // Find unique participants from messages (excluding current user)
+              const participantMap = new Map();
+              
+              messages.forEach(msg => {
+                const senderId = msg.sender_cognito_id || msg.senderId;
+                if (senderId && senderId !== currentUserId && !participantMap.has(senderId)) {
+                  participantMap.set(senderId, {
+                    id: senderId,
+                    name: msg.sender_name || `User ${senderId.substring(0, 8)}`,
+                    avatar: null, // We could add avatar support later
+                    type: msg.sender_type === 'provider' ? 'provider' : 'patient',
+                    profile: null
+                  });
                 }
-              })
-            );
+              });
+              
+              participantDetails = Array.from(participantMap.values());
+            } catch (messageError) {
+              console.error('Error fetching messages for chat:', chat.chat_id, messageError);
+              // Fallback to using otherParticipants from chat response
+              participantDetails = (chat.otherParticipants || []).map(participantId => ({
+                id: participantId,
+                name: `User ${participantId.substring(0, 8)}`,
+                avatar: null,
+                type: 'user',
+                profile: null
+              }));
+            }
             
             return {
               id: chat.chat_id,

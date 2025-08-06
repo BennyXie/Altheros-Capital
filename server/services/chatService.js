@@ -78,18 +78,24 @@ async function verifyMessageOwnership(req, res, next) {
     const userDbId = await dbUtils.getUserDbId(req.user);
     const { messageId } = req.params;
     
+    console.log('verifyMessageOwnership: messageId:', messageId);
+    console.log('verifyMessageOwnership: userDbId:', userDbId);
+    
     const query = `
       SELECT EXISTS (
         SELECT 1 FROM messages 
-        WHERE id = $1 AND sender_id = $2 AND deleted_at IS NULL
+        WHERE id = $1 AND sender_id = $2
       )
     `;
     
     const result = await db.query(query, [messageId, userDbId]);
     
+    console.log('verifyMessageOwnership: query result:', result.rows[0]);
+    
     if (result.rows[0].exists) {
       next();
     } else {
+      console.log('verifyMessageOwnership: Message not found or user not sender');
       res.status(404).json({ error: "Message not found or user not sender" });
     }
   } catch (error) {

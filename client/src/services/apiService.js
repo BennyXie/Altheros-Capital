@@ -248,7 +248,7 @@ class ApiService {
   async deleteMessage(messageId, deleteData) {
     return this.makeRequest(`/api/chat/message/${messageId}`, {
       method: 'PATCH',
-      body: JSON.stringify(deleteData),
+      body: JSON.stringify({ deletedAt: deleteData.deleted_at || new Date().toISOString() }),
     });
   }
 }
