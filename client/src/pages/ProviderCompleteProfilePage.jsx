@@ -369,16 +369,17 @@ const ProviderCompleteProfilePage = () => {
     
 
     try {
-      // Upload headshot first if a new file is selected
       let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
-      if (selectedFile) {
-        newHeadshotUrl = await uploadHeadshot(selectedFile);
-      }
-
-      // Update formData with the new headshot URL before submitting the profile
-      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
 
       if (isEditMode) {
+        // For edit mode, upload headshot first if a new file is selected
+        if (selectedFile) {
+          newHeadshotUrl = await uploadHeadshot(selectedFile);
+        }
+        
+        // Update formData with the new headshot URL before submitting the profile
+        const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+        
         await profileIntegrationService.updateUserProfile(finalFormData, 'provider');
         notifications.show({
           title: 'Profile Updated Successfully',
@@ -387,11 +388,20 @@ const ProviderCompleteProfilePage = () => {
           icon: <IconCheck size={16} />
         });
       } else {
+        // For new profile creation, create the profile first WITHOUT headshot
+        const profileDataWithoutHeadshot = { ...formData, headshot_url: null };
+        
         await profileIntegrationService.completeUserProfile(
           user, // Cognito user data
-          finalFormData,
+          profileDataWithoutHeadshot,
           'provider' // Role
         );
+
+        // Then upload headshot if a new file is selected
+        if (selectedFile) {
+          newHeadshotUrl = await uploadHeadshot(selectedFile);
+        }
+        
         notifications.show({
           title: 'Profile Created Successfully',
           message: 'Your provider profile has been completed!',

@@ -359,6 +359,7 @@ async function completeProviderProfile(req, res) {
       meeting_url,
       headshot_url, // Use the headshot_url from the request body
       now,
+      now, // Add the second 'now' for updated_at
     ];
 
     await db.query(query, values);
