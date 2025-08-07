@@ -150,7 +150,7 @@ const DashboardPage = () => {
                       >
                         View Health Data
                       </Button>
-                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                      <Text size="xs" c="dimmed">Coming soon</Text>
                     </Stack>
                   </Stack>
                 </Card>
@@ -222,7 +222,7 @@ const DashboardPage = () => {
                       >
                         View Records
                       </Button>
-                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                      <Text size="xs" c="dimmed">Coming soon</Text>
                     </Stack>
                   </Stack>
                 </Card>
@@ -258,7 +258,7 @@ const DashboardPage = () => {
                       >
                         View Notifications
                       </Button>
-                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                      <Text size="xs" c="dimmed">Coming soon</Text>
                     </Stack>
                   </Stack>
                 </Card>
@@ -330,7 +330,7 @@ const DashboardPage = () => {
                       >
                         View Settings
                       </Button>
-                      <Text size="xs" c="dimmed">Complete profile to unlock</Text>
+                      <Text size="xs" c="dimmed">Coming soon</Text>
                     </Stack>
                   </Stack>
                 </Card>
