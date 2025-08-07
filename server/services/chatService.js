@@ -242,6 +242,107 @@ async function getChatIds(userDbId) {
   }
 }
 
+/**
+ * Get chat details including participants with their full information
+ */
+async function getChatDetails(chatId, currentUserDbId) {
+  try {
+    console.log("getChatDetails: chatId:", chatId);
+    console.log("getChatDetails: currentUserDbId:", currentUserDbId);
+    
+    const query = `
+      SELECT 
+        cp.participant_id,
+        cp.left_at,
+        cp.is_muted,
+        CASE 
+          WHEN p.id IS NOT NULL THEN 'provider'
+          WHEN pt.id IS NOT NULL THEN 'patient'
+          ELSE 'unknown'
+        END as participant_type,
+        CASE 
+          WHEN p.id IS NOT NULL THEN p.first_name || ' ' || p.last_name
+          WHEN pt.id IS NOT NULL THEN pt.first_name || ' ' || pt.last_name
+          ELSE 'Unknown User'
+        END as participant_name,
+        CASE 
+          WHEN p.id IS NOT NULL THEN p.cognito_sub
+          WHEN pt.id IS NOT NULL THEN pt.cognito_sub
+          ELSE NULL
+        END as participant_cognito_id,
+        p.headshot_url as provider_headshot,
+        p.specialty as provider_specialty,
+        p.location as provider_location,
+        p.experience_years as provider_experience
+      FROM chat_participant cp
+      LEFT JOIN providers p ON cp.participant_id = p.id
+      LEFT JOIN patients pt ON cp.participant_id = pt.id
+      WHERE cp.chat_id = $1 AND cp.left_at IS NULL
+      ORDER BY cp.participant_id
+    `;
+    
+    const result = await db.query(query, [chatId]);
+    
+    // Find the other participant (not the current user)
+    const otherParticipant = result.rows.find(row => row.participant_id !== currentUserDbId);
+    
+    if (!otherParticipant) {
+      return {
+        chatId,
+        participants: result.rows,
+        otherParticipant: null
+      };
+    }
+    
+    // If the other participant is a provider, generate presigned URL for headshot
+    if (otherParticipant.participant_type === 'provider' && otherParticipant.provider_headshot) {
+      try {
+        // Use the same headshot URL validation logic as in providerService
+        let headshotUrl = otherParticipant.provider_headshot;
+        
+        if (headshotUrl && (headshotUrl.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && headshotUrl.includes(process.env.S3_BUCKET_NAME)))) {
+          const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+          const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+          
+          const s3 = new S3Client({
+            region: process.env.AWS_REGION,
+            credentials: {
+              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            },
+          });
+          
+          let key = headshotUrl;
+          if (key.startsWith('http')) {
+            const urlParts = new URL(key);
+            key = urlParts.pathname.substring(1); // Remove leading slash
+          }
+
+          const command = new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: key,
+          });
+          const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
+          otherParticipant.provider_headshot = presignedUrl;
+        }
+      } catch (error) {
+        console.error('Error generating presigned URL for chat participant headshot:', error);
+        otherParticipant.provider_headshot = null;
+      }
+    }
+    
+    return {
+      chatId,
+      participants: result.rows,
+      otherParticipant
+    };
+    
+  } catch (error) {
+    console.error('Error in getChatDetails:', error);
+    throw error;
+  }
+}
+
 // ============================================
 // MESSAGE FUNCTIONS
 // ============================================
@@ -316,7 +417,8 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
     `;
     
     const senderDbId = await dbUtils.getUserDbId(req.user);
-    const senderType = req.user["cognito:groups"][0]; // Keep original format: 'providers' or 'patients'
+    // Convert plural form to singular for consistency
+    const senderType = req.user["cognito:groups"][0] === 'providers' ? 'provider' : 'patient';
     
     const result = await db.query(query, [
       chatId,
@@ -529,6 +631,7 @@ module.exports = {
   
   // Chat Management
   createOrGetChat,
+  getChatDetails,
   getChatIds,
   deleteChat,
   getChatIdByParticipants, // Legacy support

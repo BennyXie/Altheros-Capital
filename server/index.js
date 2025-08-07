@@ -102,7 +102,8 @@ app.use((err, req, res, next) => {
 module.exports = app;
 
 // WebSocket installation
-initializeSocket(server); // Initialize socket.io after app is created
+const io = initializeSocket(server); // Initialize socket.io after app is created
+app.set('socketio', io); // Make socket.io instance available to routes
 
 // Start server after fetching JWKS
 if (typeof setUp === "function" && require.main === module) {

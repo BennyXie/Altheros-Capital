@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../services/apiService';
 import styles from './ChatRoomPage.module.css';
-import { IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconUserCircle } from '@tabler/icons-react';
 
 const ChatRoomPage = () => {
   const { chatId } = useParams();
@@ -17,30 +17,69 @@ const ChatRoomPage = () => {
   const [otherParticipant, setOtherParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deletingMessages, setDeletingMessages] = useState(new Set());
+  const [imageError, setImageError] = useState(false);
   const socketRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Use the new apiService method to get messages
+        
+        // Get chat details including participants
+        const chatDetails = await apiService.getChatDetails(chatId);
+        console.log('ChatRoomPage: Fetched chat details:', chatDetails);
+        
+        if (chatDetails.otherParticipant) {
+          const participant = chatDetails.otherParticipant;
+          
+          // Validate headshot URL if it's a provider
+          let headshotUrl = null;
+          if (participant.participant_type === 'provider' && participant.provider_headshot) {
+            const isValidImageUrl = participant.provider_headshot && (
+              participant.provider_headshot.startsWith('https://') && 
+              !participant.provider_headshot.includes('example.com') &&
+              !participant.provider_headshot.includes('mycdn.com') &&
+              !participant.provider_headshot.includes('cdn.example.com') &&
+              (
+                participant.provider_headshot.includes('amazonaws.com') || 
+                participant.provider_headshot.includes('cloudfront.net') || 
+                participant.provider_headshot.includes('.s3.') || 
+                /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(participant.provider_headshot)
+              )
+            );
+            
+            if (isValidImageUrl) {
+              headshotUrl = participant.provider_headshot;
+            }
+          }
+          
+          setOtherParticipant({
+            id: participant.participant_cognito_id,
+            name: participant.participant_name,
+            type: participant.participant_type,
+            headshot: headshotUrl,
+            title: participant.participant_type === 'provider' ? 
+              (participant.provider_specialty ? 
+                (Array.isArray(participant.provider_specialty) ? participant.provider_specialty.join(', ') : participant.provider_specialty) : 
+                'Healthcare Provider'
+              ) : 'Patient'
+          });
+        }
+        
+        // Get messages
         const messagesResponse = await apiService.getChatMessages(chatId);
         const validMessages = messagesResponse.filter(msg => !msg.deleted_at);
         setMessages(validMessages);
-        
-        // Find the other participant from the messages
-        const otherParticipantMessage = validMessages.find(m => {
-          const senderId = m.sender_cognito_id || m.senderId || m.sender?.id || m.sender?.sub;
-          return senderId !== user.sub;
-        });
-        
-        if (otherParticipantMessage) {
-          setOtherParticipant({
-            id: otherParticipantMessage.sender_cognito_id,
-            name: otherParticipantMessage.sender_name || 'Unknown User',
-            type: otherParticipantMessage.sender_type === 'provider' ? 'provider' : 'patient'
-          });
-        }
         
       } catch (error) {
         console.error('Error fetching chat data:', error);
@@ -58,15 +97,42 @@ const ChatRoomPage = () => {
       },
     });
 
+    socketRef.current.on('connect', () => {
+      console.log('WebSocket connected');
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('WebSocket disconnected');
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('WebSocket connection error:', error);
+    });
+
     // Join the chat room via websocket
     socketRef.current.emit('join_chat', { 
       chatId,
       timestamp: new Date().toISOString()
     });
 
+    console.log('Emitted join_chat for chatId:', chatId);
+
     // Listen for new messages
     socketRef.current.on('receive_message', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      console.log('Received websocket message:', message);
+      
+      // Only add the message if it doesn't already exist (prevent duplicates)
+      setMessages((prevMessages) => {
+        const messageId = message.id || message.messageId;
+        const exists = prevMessages.some(msg => 
+          (msg.id || msg.messageId) === messageId
+        );
+        
+        if (!exists) {
+          return [...prevMessages, message];
+        }
+        return prevMessages;
+      });
     });
 
     return () => {
@@ -85,12 +151,16 @@ const ChatRoomPage = () => {
 
       try {
         // Use the new apiService method to send message
-        const response = await apiService.sendMessage(chatId, formData);
+        await apiService.sendMessage(chatId, formData);
         
-        // Add the newly sent message to the local state immediately
-        setMessages((prevMessages) => [...prevMessages, response]);
+        // Clear the input immediately - the message will appear via websocket
         setNewMessage('');
         setFile(null);
+        
+        // Reset file input
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) fileInput.value = '';
+        
       } catch (error) {
         console.error('Error sending message:', error);
       }
@@ -155,7 +225,9 @@ const ChatRoomPage = () => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    console.log('File selected:', selectedFile?.name);
   };
 
   if (loading) {
@@ -186,13 +258,24 @@ const ChatRoomPage = () => {
       >
         <Paper shadow="sm" p="lg" mb="lg" className={styles.chatHeader}>
           <Group>
-            <Avatar 
-              size="lg" 
-              radius="xl" 
-              src={otherParticipant?.avatar || null}
-              className={styles.providerAvatar}
-            />
-            <div>
+            {otherParticipant?.headshot && !imageError ? (
+              <Avatar 
+                size="lg" 
+                radius="xl" 
+                src={otherParticipant.headshot}
+                className={styles.providerAvatar}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <Avatar 
+                size="lg" 
+                radius="xl" 
+                className={styles.providerAvatar}
+              >
+                <IconUserCircle size={32} />
+              </Avatar>
+            )}
+            <div style={{ flex: 1 }}>
               <Text weight={600} size="lg" className={styles.providerName}>
                 {otherParticipant ? 
                   `Chat with ${otherParticipant.name}` : 
@@ -201,7 +284,7 @@ const ChatRoomPage = () => {
               </Text>
               <Text size="sm" className={styles.providerStatus}>
                 {otherParticipant?.type === 'provider' ? 
-                  'Healthcare Provider' : 
+                  (otherParticipant.title || 'Healthcare Provider') : 
                   'Online'
                 }
               </Text>
@@ -214,9 +297,9 @@ const ChatRoomPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.3 }}
-        style={{ flexGrow: 1 }}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
-        <ScrollArea style={{ height: '100%' }} className={styles.messagesContainer}>
+        <ScrollArea className={styles.messagesContainer}>
           <div className={styles.messagesWrapper}>
             {messages.map((msg, index) => {
               const messageSenderId = msg.sender_cognito_id || msg.senderId || msg.sender?.id || msg.sender?.sub;
@@ -345,6 +428,8 @@ const ChatRoomPage = () => {
                 </motion.div>
               );
             }).filter(Boolean)}
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </motion.div>
@@ -364,11 +449,38 @@ const ChatRoomPage = () => {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               size="md"
             />
-            <input type="file" onChange={handleFileChange} />
+            <input 
+              type="file" 
+              onChange={handleFileChange}
+              accept="image/*,video/*,application/pdf,.doc,.docx"
+              style={{ display: 'none' }}
+              id="file-input"
+            />
+            <Button 
+              variant="light"
+              size="md"
+              onClick={() => document.getElementById('file-input').click()}
+            >
+              📎 {file ? file.name : 'Attach'}
+            </Button>
+            {file && (
+              <Button 
+                variant="subtle"
+                size="sm"
+                color="red"
+                onClick={() => {
+                  setFile(null);
+                  document.getElementById('file-input').value = '';
+                }}
+              >
+                ✕ Remove
+              </Button>
+            )}
             <Button 
               onClick={handleSendMessage}
               className={styles.sendButton}
               size="md"
+              disabled={!newMessage.trim() && !file}
             >
               Send
             </Button>

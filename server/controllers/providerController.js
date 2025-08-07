@@ -36,6 +36,22 @@ async function listProviders(req, res) {
 
 
 
+async function getProviderByCognitoId(req, res) {
+  const cognitoId = req.params.cognitoId;
+  try {
+    const result = await providerService.getProviderProfileByCognitoSub(cognitoId);
+
+    if (!result) {
+      return res.status(404).json({ error: "Provider not found" });
+    }
+    res.json(result);
+
+  } catch (err) {
+    console.error('DB error:', err);
+    res.status(500).json({ error: 'Provider lookup failed', details: err.message });
+  }
+}
+
 async function getProvider(req, res) {
   const providerId = req.params.id;
   try {
@@ -99,6 +115,7 @@ async function getAuthenticatedProviderProfile(req, res) {
 module.exports = {
   listProviders,
   getProvider,
+  getProviderByCognitoId,
   getProviderHeadshot,
   getAuthenticatedProviderProfile,
 };

@@ -194,6 +194,15 @@ class ApiService {
   }
 
   /**
+   * Get chat details including participants
+   * @param {string} chatId - The chat ID
+   * @returns {Promise} - Promise that resolves with chat details
+   */
+  async getChatDetails(chatId) {
+    return this.makeRequest(`/api/chat/${chatId}`);
+  }
+
+  /**
    * Get messages for a specific chat
    * @param {string} chatId - The chat ID
    * @returns {Promise} - Promise that resolves with array of messages
@@ -250,6 +259,24 @@ class ApiService {
       method: 'PATCH',
       body: JSON.stringify({ deletedAt: deleteData.deleted_at || new Date().toISOString() }),
     });
+  }
+
+  /**
+   * Get provider details by Cognito ID
+   * @param {string} cognitoId - The provider's Cognito ID
+   * @returns {Promise} - Promise that resolves with provider details
+   */
+  async getProviderByCognitoId(cognitoId) {
+    return this.makeRequest(`/api/providers/cognito/${cognitoId}`);
+  }
+
+  /**
+   * Get provider headshot URL by provider ID
+   * @param {string} providerId - The provider's ID
+   * @returns {Promise} - Promise that resolves with headshot presigned URL
+   */
+  async getProviderHeadshot(providerId) {
+    return this.makeRequest(`/api/providers/${providerId}/headshot`);
   }
 }
 

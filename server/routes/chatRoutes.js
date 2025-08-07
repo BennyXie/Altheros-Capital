@@ -39,6 +39,13 @@ router.post("/", verifyToken, asyncHandler(chatController.createOrGetChat));
 router.get("/", verifyToken, asyncHandler(chatController.getChatIds));
 
 router.get(
+  "/:chatId",
+  verifyToken,
+  chatService.verifyChatMembership,
+  asyncHandler(chatController.getChatDetails)
+);
+
+router.get(
   "/:chatId/messages",
   verifyToken,
   chatService.verifyChatMembership,
