@@ -51,10 +51,19 @@ class ApiService {
         ...options,
       });
 
-      const data = await response.json();
+      // Check if response has content to parse
+      let data = null;
+      if (response.status !== 204 && response.headers.get('content-length') !== '0') {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'API request failed');
+        throw new Error(data?.error || data?.message || data || 'API request failed');
       }
 
       return data;
@@ -174,6 +183,100 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ participants }),
     });
+  }
+
+  /**
+   * Get all chat IDs for the current user
+   * @returns {Promise} - Promise that resolves with array of chat IDs
+   */
+  async getChatIds() {
+    return this.makeRequest('/api/chat');
+  }
+
+  /**
+   * Get chat details including participants
+   * @param {string} chatId - The chat ID
+   * @returns {Promise} - Promise that resolves with chat details
+   */
+  async getChatDetails(chatId) {
+    return this.makeRequest(`/api/chat/${chatId}`);
+  }
+
+  /**
+   * Get messages for a specific chat
+   * @param {string} chatId - The chat ID
+   * @returns {Promise} - Promise that resolves with array of messages
+   */
+  async getChatMessages(chatId) {
+    return this.makeRequest(`/api/chat/${chatId}/messages`);
+  }
+
+  /**
+   * Send a message in a chat
+   * @param {string} chatId - The chat ID
+   * @param {FormData} messageData - Message data including text and optional file
+   * @returns {Promise} - Promise that resolves with created message
+   */
+  async sendMessage(chatId, messageData) {
+    const headers = await this.getAuthHeaders();
+    // Remove Content-Type for FormData
+    delete headers['Content-Type'];
+    
+    return fetch(`${API_BASE_URL}/api/chat/${chatId}/message`, {
+      method: 'POST',
+      headers: headers,
+      body: messageData,
+    }).then(async response => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Failed to send message');
+      }
+      return data;
+    });
+  }
+
+  /**
+   * Update participant state (e.g., leave chat)
+   * @param {string} chatId - The chat ID
+   * @param {Object} stateData - State update data
+   * @returns {Promise} - Promise that resolves with updated state
+   */
+  async updateParticipantState(chatId, stateData) {
+    return this.makeRequest(`/api/chat/${chatId}/participants/me`, {
+      method: 'PATCH',
+      body: JSON.stringify(stateData),
+    });
+  }
+
+  /**
+   * Delete (soft delete) a message
+   * @param {string} messageId - The message ID
+   * @param {Object} deleteData - Delete data (e.g., deleted_at timestamp)
+   * @returns {Promise} - Promise that resolves with deletion confirmation
+   */
+  async deleteMessage(messageId, deleteData) {
+    return this.makeRequest(`/api/chat/message/${messageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ deletedAt: deleteData.deleted_at || new Date().toISOString() }),
+    });
+  }
+
+  /**
+   * Get provider details by Cognito ID
+   * @param {string} cognitoId - The provider's Cognito ID
+   * @returns {Promise} - Promise that resolves with provider details
+   */
+  async getProviderByCognitoId(cognitoId) {
+    return this.makeRequest(`/api/providers/cognito/${cognitoId}`);
+  }
+
+  /**
+   * Get provider headshot URL by provider ID
+   * @param {string} providerId - The provider's ID
+   * @returns {Promise} - Promise that resolves with headshot presigned URL
+   */
+  async getProviderHeadshot(providerId) {
+    return this.makeRequest(`/api/providers/${providerId}/headshot`);
   }
 }
 

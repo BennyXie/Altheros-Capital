@@ -1,4 +1,5 @@
 const db = require("../db/pool");
+const { getProviderProfileByCognitoSub } = require("../services/providerService");
 
 async function completePatientProfile(req, res) {
   console.log('profileController: completePatientProfile called');
@@ -358,6 +359,7 @@ async function completeProviderProfile(req, res) {
       meeting_url,
       headshot_url, // Use the headshot_url from the request body
       now,
+      now, // Add the second 'now' for updated_at
     ];
 
     await db.query(query, values);
@@ -443,20 +445,20 @@ async function updateProviderProfile(req, res) {
 async function getProviderProfile(req, res) {
   console.log('profileController: getProviderProfile called');
   try {
-    if (!req.user || !req.user.email) {
+    if (!req.user || !req.user.sub) {
       return res.status(400).json({ error: "Incomplete user information from token." });
     }
 
-    const { email } = req.user;
-    console.log(`profileController: getProviderProfile - Fetching profile for email: ${email}`);
+    const { sub: cognitoSub } = req.user;
+    console.log(`profileController: getProviderProfile - Fetching profile for cognito_sub: ${cognitoSub}`);
 
-    const providerResult = await db.query('SELECT * FROM providers WHERE email = $1', [email]);
-    console.log(`profileController: getProviderProfile - Provider query result: ${JSON.stringify(providerResult.rows)}`);
+    // Use the provider service which includes presigned URL generation
+    const provider = await getProviderProfileByCognitoSub(cognitoSub);
+    console.log(`profileController: getProviderProfile - Provider query result: ${JSON.stringify(provider)}`);
 
-    if (providerResult.rows.length === 0) {
+    if (!provider) {
       return res.status(404).json({ error: "Provider profile not found." });
     }
-    const provider = providerResult.rows[0];
 
     const profile = {
       ...provider,

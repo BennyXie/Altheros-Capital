@@ -1,8 +1,19 @@
-const { db } = require("../db/pool");
+const db = require("../db/pool");
+const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 require("dotenv").config({ path: "./.env" });
 
+// Initialize S3 client
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
 const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
-  const result = await pool.query(
+  const result = await db.query(
     "SELECT id FROM providers WHERE cognito_sub = $1",
     [cognitoSub]
   );
@@ -13,39 +24,53 @@ const updateProviderHeadshot = async (cognitoSub, imageUrl) => {
 
   const providerId = result.rows[0].id;
 
-  await pool.query(
+  await db.query(
     "UPDATE providers SET headshot_url = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
     [imageUrl, providerId]
   );
 };
 
-async function listProviders() {
+async function listProviders(reqObj) {
+  console.log('providerService: listProviders called');
+  console.log('providerService: reqObj parameter:', !!reqObj);
+  console.log('providerService: reqObj type:', typeof reqObj);
+  
+  // Safely extract query parameters
+  const query = (reqObj && reqObj.query) ? reqObj.query : {};
+  console.log('providerService: extracted query:', query);
+  
   // GET /providers?page=1&limit=10&gender=male&sort_by=last_name&order=desc
   const fields = [
-    "provider_id",
+    "id",
     "first_name",
     "last_name",
     "email",
-    "phone_number",
-    "address",
     "gender",
-    "bio",
+    "specialty",
+    "education",
+    "experience_years",
+    "about_me",
+    "location",
+    "headshot_url",
+    "cognito_sub",
+    "hobbies",
+    "languages",
+    "insurance_networks"
   ];
-  const sortable_fields = ["first_name", "last_name", "provider_id"];
-  const { language, specialty, gender } = req.query;
+  const sortable_fields = ["first_name", "last_name", "id"];
+  
+  const { language, specialty, gender } = query;
   const field_list = fields.join(", ");
-  const sort_by = req.query.sort_by;
-  const order = (req.query.order || "asc").toUpperCase();
+  
+  const sort_by = query.sort_by;
+  const order = (query.order || "asc").toUpperCase();
 
   // pagination, defaults to first page with 10 showing on each page
-  // offset is determined by the page and limit
-  // i.e. if on page 1 -> skips 0
-  // i.e. if on page 3 -> skips 20 items
-  const page_num = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page_num = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
   const offset = (page_num - 1) * limit;
 
-  const filters = ["is_active = true"];
+  const filters = [];
   const values = [];
 
   if (language) {
@@ -73,7 +98,7 @@ async function listProviders() {
     }`;
   } else {
     // defaults sort order if not specified or not valid field to sort by
-    order_by_clause = "ORDER BY provider_id ASC";
+    order_by_clause = "ORDER BY id ASC";
   }
 
   const count_query = `SELECT COUNT(*) FROM providers ${where_clause}`;
@@ -83,28 +108,59 @@ async function listProviders() {
   const sql_query = `SELECT ${field_list} FROM providers ${where_clause} ${order_by_clause} LIMIT $${
     values.length + 1
   } OFFSET $${values.length + 2}`;
-  values.push(offset);
   values.push(limit);
+  values.push(offset);
   const data = await db.query(sql_query, values);
+
+  // Process providers to generate presigned URLs for S3 headshots
+  const providersWithSignedUrls = await Promise.all(data.rows.map(async (provider) => {
+    if (provider.headshot_url) {
+      // Check if the URL looks like an S3 URL
+      if (provider.headshot_url.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && provider.headshot_url.includes(process.env.S3_BUCKET_NAME))) {
+        try {
+          let key = provider.headshot_url;
+          if (key.startsWith('http')) {
+            const urlParts = new URL(key);
+            key = urlParts.pathname.substring(1); // Remove leading slash
+          }
+
+          const command = new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: key,
+          });
+          const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
+          return { ...provider, headshot_url: presignedUrl };
+        } catch (error) {
+          console.error(`Error generating presigned URL for ${provider.id}:`, error);
+          return { ...provider, headshot_url: null }; // Return null if error
+        }
+      } else {
+        // If it's not an S3 URL, return it as is (frontend will handle fallback)
+        return provider;
+      }
+    }
+    return provider;
+  }));
 
   const has_next_page = page_num * limit < total_records;
   const has_prev_page = page_num > 1;
+  const total_pages = Math.ceil(total_records / limit);
 
   return {
     providers: providersWithSignedUrls,
-    page_num: 1,
-    limit: providersWithSignedUrls.length,
-    totalPages: 1,
-    totalRecords: providersWithSignedUrls.length,
-    hasNextPage: false,
-    hasPrevPage: false,
-    nextRoute: null,
-    prevRoute: null,
+    page_num: page_num,
+    limit: limit,
+    totalPages: total_pages,
+    totalRecords: total_records,
+    hasNextPage: has_next_page,
+    hasPrevPage: has_prev_page,
+    nextRoute: has_next_page ? `/api/providers?page=${page_num + 1}&limit=${limit}` : null,
+    prevRoute: has_prev_page ? `/api/providers?page=${page_num - 1}&limit=${limit}` : null,
   };
 }
 
 async function getProvider(providerId) {
-  const result = await pool.query(
+  const result = await db.query(
     `SELECT id, first_name, last_name, email, address, gender, bio 
      FROM providers 
      WHERE id = $1`,
@@ -115,7 +171,7 @@ async function getProvider(providerId) {
 
 async function getProviderHeadshotUrl(providerId) {
   // First, get the provider's headshot URL from the database
-  const result = await pool.query(
+  const result = await db.query(
     `SELECT headshot_url FROM providers WHERE id = $1`,
     [providerId]
   );
@@ -148,11 +204,43 @@ async function getProviderHeadshotUrl(providerId) {
 }
 
 async function getProviderProfileByCognitoSub(cognitoSub) {
-  const result = await pool.query(
+  const result = await db.query(
     `SELECT * FROM providers WHERE cognito_sub = $1`,
     [cognitoSub]
   );
-  return result.rows[0];
+  
+  if (result.rows.length === 0) {
+    return null;
+  }
+  
+  const provider = result.rows[0];
+  
+  // Generate presigned URL for headshot if it exists
+  if (provider.headshot_url) {
+    // Check if the URL looks like an S3 URL
+    if (provider.headshot_url.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && provider.headshot_url.includes(process.env.S3_BUCKET_NAME))) {
+      try {
+        let key = provider.headshot_url;
+        if (key.startsWith('http')) {
+          const urlParts = new URL(key);
+          key = urlParts.pathname.substring(1); // Remove leading slash
+        }
+
+        const command = new GetObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: key,
+        });
+        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
+        provider.headshot_url = presignedUrl;
+      } catch (error) {
+        console.error(`Error generating presigned URL for provider ${provider.id}:`, error);
+        provider.headshot_url = null; // Return null if error
+      }
+    }
+    // If it's not an S3 URL, return it as is (frontend will handle fallback)
+  }
+  
+  return provider;
 }
 
 module.exports = {

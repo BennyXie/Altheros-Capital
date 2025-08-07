@@ -23,16 +23,31 @@ const ProviderLookupPage = () => {
                     console.log("Provider object from backend in ProviderLookupPage:", p);
                     console.log("p.cognito_sub in ProviderLookupPage:", p.cognito_sub);
                     let headshotUrl = p.headshot_url;
-                    // Check if the URL is an S3 URL. If not, set to null to trigger fallback.
-                    // Using a more generic S3 pattern check
-                    const isS3Url = headshotUrl && (
-                        headshotUrl.includes('s3.amazonaws.com') || 
-                        headshotUrl.includes('s3-') || // Covers s3-region.amazonaws.com
-                        (process.env.REACT_APP_S3_BUCKET_NAME && headshotUrl.includes(process.env.REACT_APP_S3_BUCKET_NAME))
+                    console.log("Original headshot_url:", headshotUrl);
+                    
+                    // Check if the URL is a valid image URL
+                    // Allow all HTTPS URLs for now since we're having S3 permission issues
+                    const isValidImageUrl = headshotUrl && (
+                        headshotUrl.startsWith('https://') && 
+                        // Exclude example/fake domains
+                        !headshotUrl.includes('example.com') &&
+                        !headshotUrl.includes('mycdn.com') &&
+                        !headshotUrl.includes('cdn.example.com') &&
+                        (
+                            headshotUrl.includes('amazonaws.com') || // AWS S3 URLs
+                            headshotUrl.includes('cloudfront.net') || // CloudFront URLs
+                            headshotUrl.includes('.s3.') || // S3 bucket URLs
+                            /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(headshotUrl) // Image file extensions
+                        )
                     );
 
-                    if (!isS3Url) {
+                    console.log("Is valid image URL:", isValidImageUrl, "for URL:", headshotUrl);
+
+                    if (!isValidImageUrl) {
+                        console.log("Setting headshot to null for invalid URL:", headshotUrl);
                         headshotUrl = null;
+                    } else {
+                        console.log("Using headshot URL:", headshotUrl);
                     }
 
                     return {
@@ -55,14 +70,20 @@ const ProviderLookupPage = () => {
 
                 // Extract unique values for filters
                 const specialties = [...new Set(fetchedProviders.flatMap(p => p.specialties || []).filter(Boolean))];
-                const experiences = [...new Set(fetchedProviders.map(p => p.experience).filter(Boolean))];
-                const insurances = [...new Set(fetchedProviders.flatMap(p => p.insurance || []).filter(Boolean))];
+                const experiences = [...new Set(fetchedProviders.map(p => p.yearsOfExperience).filter(Boolean))];
+                const insurances = [...new Set(fetchedProviders.flatMap(p => p.acceptedInsurance || []).filter(Boolean))];
 
                 setNeedsData([
-                    { group: 'Specialty', items: specialties },
-                    { group: 'Experience', items: experiences },
+                    { 
+                        group: 'Specialty', 
+                        items: specialties.map(specialty => ({ value: specialty, label: specialty }))
+                    },
+                    { 
+                        group: 'Experience', 
+                        items: experiences.map(exp => ({ value: exp.toString(), label: `${exp} years` }))
+                    },
                 ]);
-                setInsuranceData(insurances);
+                setInsuranceData(insurances.map(insurance => ({ value: insurance, label: insurance })));
 
             } catch (error) {
                 console.error("Failed to fetch providers:", error);
@@ -80,13 +101,15 @@ const ProviderLookupPage = () => {
                 updatedProviders = updatedProviders.filter(provider => 
                     myNeeds.every(need => 
                         (provider.specialties && provider.specialties.includes(need)) || 
-                        provider.experience === need
+                        provider.yearsOfExperience === parseInt(need)
                     )
                 );
             }
 
             if (insurance) {
-                updatedProviders = updatedProviders.filter(provider => provider.insurance && provider.insurance.includes(insurance));
+                updatedProviders = updatedProviders.filter(provider => 
+                    provider.acceptedInsurance && provider.acceptedInsurance.includes(insurance)
+                );
             }
 
             setFilteredProviders(updatedProviders);

@@ -26,7 +26,7 @@ const uploadToS3 = async ({ fileBuffer, key, mimeType, bucketName }) => {
 
   await s3.send(putObjectCommand);
 
-  return `https://${bucketName}.s3.amazonaws.com/${key}`;
+  return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 };
 
 const getFromS3 = async ({ key, bucketName }) => {

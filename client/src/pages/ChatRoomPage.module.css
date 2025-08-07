@@ -1,6 +1,6 @@
 /* Chat Room Layout */
 .container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, var(--mint-background) 0%, var(--sage-light) 100%);
@@ -17,6 +17,7 @@
   border: 1px solid var(--mint-primary);
   border-radius: 12px;
   transition: all 0.3s ease;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .chatHeader:hover {
@@ -41,20 +42,46 @@
 
 /* Messages Area */
 .messagesContainer {
-  flex-grow: 1;
+  height: calc(100vh - 280px); /* Increased from 220px to make chat window shorter */
   background: var(--bg-white-60);
   border-radius: 16px;
   border: 1px solid var(--mint-light);
   backdrop-filter: blur(10px);
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
+  overflow-y: auto; /* Enable vertical scrolling */
+  flex-shrink: 0; /* Prevent container from shrinking */
+  scroll-behavior: smooth; /* Smooth scrolling */
+}
+
+/* Custom scrollbar styling */
+.messagesContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messagesContainer::-webkit-scrollbar-track {
+  background: rgba(161, 197, 174, 0.1);
+  border-radius: 4px;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb {
+  background: var(--mint-primary);
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--sage-medium);
+  opacity: 1;
 }
 
 .messagesWrapper {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-height: 100%;
+  min-height: 100%; /* Take full height of container */
+  padding-bottom: 0.5rem; /* Add some padding at the bottom for better scroll */
 }
 
 .messageRow {
@@ -147,6 +174,8 @@
   gap: 1rem;
   transition: all 0.3s ease;
   width: 100%;
+  flex-shrink: 0; /* Prevent input from shrinking */
+  position: relative; /* Ensure it stays in normal flow */
 }
 
 .inputContainer:hover {
@@ -193,6 +222,10 @@
     height: calc(100vh - 80px);
   }
   
+  .messagesContainer {
+    height: calc(100vh - 320px); /* Adjust for mobile with nav bar and smaller padding */
+  }
+  
   .messageBubble {
     max-width: 85%;
   }
@@ -203,5 +236,24 @@
 
   .messagesContainer {
     margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.25rem;
+  }
+  
+  .messagesContainer {
+    height: calc(100vh - 340px); /* Even more space for very small screens */
+    padding: 0.75rem;
+  }
+  
+  .inputContainer {
+    padding: 0.75rem;
+  }
+  
+  .chatHeader {
+    padding: 0.75rem;
   }
 }

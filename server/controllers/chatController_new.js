@@ -1,6 +1,5 @@
 const chatService = require("../services/chatService");
 const s3Service = require("../services/s3Service");
-const cloudfrontService = require("../services/cloudfrontService");
 const dbUtils = require("../utils/dbUtils");
 const db = require("../db/pool.js");
 const path = require("path");
@@ -68,35 +67,11 @@ async function createOrGetChat(req, res) {
     
     const chat = await chatService.createOrGetChat(uniqueParticipantIds);
     
-    // Return just the chatId string for client compatibility
-    res.status(201).json(chat.chatId);
+    res.status(201).json(chat);
     
   } catch (error) {
     console.error('Error in createOrGetChat:', error);
     res.status(500).json({ error: "Failed to create or get chat", details: error.message });
-  }
-}
-
-/**
- * GET /api/chat/:chatId
- * Get chat details including participants
- */
-async function getChatDetails(req, res) {
-  try {
-    const { chatId } = req.params;
-    const userDbId = await dbUtils.getUserDbId(req.user);
-    
-    // Verify user is a participant
-    const isMember = await chatService.checkChatMembership(req.user, chatId);
-    if (!isMember) {
-      return res.status(404).json({ error: "Chat not found or user not a participant" });
-    }
-    
-    const chatDetails = await chatService.getChatDetails(chatId, userDbId);
-    res.status(200).json(chatDetails);
-  } catch (error) {
-    console.error('Error in getChatDetails:', error);
-    res.status(500).json({ error: "Failed to get chat details", details: error.message });
   }
 }
 
@@ -192,20 +167,9 @@ async function createMessage(req, res) {
     
     // For file messages, replace S3 key with signed URL in response
     if (textType !== "string") {
-      messageObj.text = cloudfrontService.getPrivateKeySignedUrl({
-        objectName: text,
-      });
-    }
-    
-    // Get socket.io instance and emit to chat room for real-time updates
-    const io = req.app.get('socketio');
-    if (io) {
-      io.to(chatId).emit("receive_message", {
-        ...messageObj,
-        senderName: `${req.user.given_name || req.user.first_name || ''} ${req.user.family_name || req.user.last_name || ''}`.trim() || req.user.email,
-        chatId
-      });
-      console.log(`Real-time message sent to room ${chatId}`);
+      messageObj.text = chatService.getSignedUrl ? 
+        chatService.getSignedUrl(text) : 
+        `${process.env.S3_CHAT_BUCKET_CDN_DOMAIN}/${text}`;
     }
     
     res.status(201).json(messageObj);
@@ -323,26 +287,7 @@ async function handleJoin(socket, data, timestamp) {
   try {
     const patientId = socket.user.sub;
     const patientName = socket.user.name;
-    
-    console.log('handleJoin: Received data:', JSON.stringify(data));
-    
-    let { providerId, chatId } = data;
-    
-    // Handle case where chatId might be an object with chatId property
-    if (chatId && typeof chatId === 'object') {
-      if (chatId.chatId) {
-        chatId = chatId.chatId;
-      } else {
-        console.error('handleJoin: chatId is an object but no chatId property found:', chatId);
-        return;
-      }
-    }
-    
-    // Ensure chatId is a string if provided
-    if (chatId && typeof chatId !== 'string') {
-      console.error('handleJoin: chatId is not a string:', typeof chatId, chatId);
-      return;
-    }
+    const { providerId, chatId } = data;
 
     let finalChatId;
 
@@ -369,7 +314,7 @@ async function handleJoin(socket, data, timestamp) {
         return;
       }
     } else {
-      console.error("handleJoin: Neither chatId nor providerId provided. Data received:", JSON.stringify(data));
+      console.error("handleJoin: Neither chatId nor providerId provided");
       return;
     }
 
@@ -445,7 +390,6 @@ async function handleDisconnect(socket, io) {
 module.exports = {
   // HTTP Endpoints
   createOrGetChat,
-  getChatDetails,
   getChatIds,
   getChatMessagesByChatId,
   createMessage,

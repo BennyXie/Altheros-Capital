@@ -19,7 +19,7 @@ const uploadHeadshot = async (req, res) => {
       fileBuffer: file.buffer,
       key: key,
       mimeType: file.mimetype,
-      bucketName: process.env.AWS_S3_BUCKET_NAME,
+      bucketName: process.env.S3_BUCKET_NAME,
     });
     await updateProviderHeadshot(cognitoSub, imageUrl);
 

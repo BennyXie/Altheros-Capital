@@ -178,26 +178,8 @@ const ProviderCompleteProfilePage = () => {
               const fileFromBlob = new File([blob], "headshot.png", { type: "image/png" });
               setSelectedFile(fileFromBlob);
               setCapturedImageBlob(blob);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              setPreviewHeadshotUrl(URL.createObjectURL(blob)); // Update preview URL
-              stopCamera(); // Stop camera after taking photo
-=======
               setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
               stopCamera(); // Stop camera after taking photo
-              
->>>>>>> Stashed changes
-=======
-              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
-              stopCamera(); // Stop camera after taking photo
-              
->>>>>>> Stashed changes
-=======
-              setFormData(prev => ({ ...prev, headshot_url: URL.createObjectURL(blob) }));
-              stopCamera(); // Stop camera after taking photo
-              
->>>>>>> Stashed changes
             }
           }, 'image/png');
     }
@@ -387,47 +369,17 @@ const ProviderCompleteProfilePage = () => {
     
 
     try {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      let headshotUrl = formData.headshot_url;
-      if (selectedFile) {
-        headshotUrl = await uploadHeadshot(selectedFile);
-      }
-
-      const finalFormData = { ...formData, headshot_url: headshotUrl };
-=======
-      // Upload headshot first if a new file is selected
       let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
-      if (selectedFile) {
-        newHeadshotUrl = await uploadHeadshot(selectedFile);
-      }
-
-      // Update formData with the new headshot URL before submitting the profile
-      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
->>>>>>> Stashed changes
-=======
-      // Upload headshot first if a new file is selected
-      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
-      if (selectedFile) {
-        newHeadshotUrl = await uploadHeadshot(selectedFile);
-      }
-
-      // Update formData with the new headshot URL before submitting the profile
-      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
->>>>>>> Stashed changes
-=======
-      // Upload headshot first if a new file is selected
-      let newHeadshotUrl = formData.headshot_url; // Keep existing URL by default
-      if (selectedFile) {
-        newHeadshotUrl = await uploadHeadshot(selectedFile);
-      }
-
-      // Update formData with the new headshot URL before submitting the profile
-      const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
->>>>>>> Stashed changes
 
       if (isEditMode) {
+        // For edit mode, upload headshot first if a new file is selected
+        if (selectedFile) {
+          newHeadshotUrl = await uploadHeadshot(selectedFile);
+        }
+        
+        // Update formData with the new headshot URL before submitting the profile
+        const finalFormData = { ...formData, headshot_url: newHeadshotUrl };
+        
         await profileIntegrationService.updateUserProfile(finalFormData, 'provider');
         notifications.show({
           title: 'Profile Updated Successfully',
@@ -436,17 +388,20 @@ const ProviderCompleteProfilePage = () => {
           icon: <IconCheck size={16} />
         });
       } else {
+        // For new profile creation, create the profile first WITHOUT headshot
+        const profileDataWithoutHeadshot = { ...formData, headshot_url: null };
+        
         await profileIntegrationService.completeUserProfile(
-<<<<<<< Updated upstream
-          user,
-          finalFormData,
-          'provider'
-=======
           user, // Cognito user data
-          finalFormData,
+          profileDataWithoutHeadshot,
           'provider' // Role
->>>>>>> Stashed changes
         );
+
+        // Then upload headshot if a new file is selected
+        if (selectedFile) {
+          newHeadshotUrl = await uploadHeadshot(selectedFile);
+        }
+        
         notifications.show({
           title: 'Profile Created Successfully',
           message: 'Your provider profile has been completed!',
@@ -653,8 +608,12 @@ const ProviderCompleteProfilePage = () => {
                       src={previewHeadshotUrl}
                       alt="Headshot Preview"
                       radius="md"
-                      h={200}
-                      w={200}
+                      style={{ 
+                        maxWidth: '400px', 
+                        width: '100%',
+                        height: 'auto',
+                        aspectRatio: '1'
+                      }}
                       fit="cover"
                     />
                   ) : (
@@ -688,14 +647,15 @@ const ProviderCompleteProfilePage = () => {
                 )}
 
                 {captureMode === 'camera' && (
-                  <Box>
+                  <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <video 
                       ref={videoRef} 
                       style={{
                         width: '100%', 
-                        maxWidth: '300px', 
+                        maxWidth: '400px', 
                         borderRadius: '8px',
-                        display: stream && !capturedImageBlob ? 'block' : 'none' 
+                        display: stream && !capturedImageBlob ? 'block' : 'none',
+                        margin: '0 auto'
                       }} 
                       autoPlay 
                       playsInline 
@@ -725,8 +685,12 @@ const ProviderCompleteProfilePage = () => {
                           src={URL.createObjectURL(capturedImageBlob)}
                           alt="Captured Headshot Preview"
                           radius="md"
-                          h={200}
-                          w={200}
+                          style={{ 
+                            maxWidth: '400px', 
+                            width: '100%',
+                            height: 'auto',
+                            aspectRatio: '1'
+                          }}
                           fit="cover"
                         />
                         <Button onClick={() => {

@@ -2,11 +2,13 @@ import { Card, Image, Text, Button, Group, Badge, Center, Grid, Box } from '@man
 import { motion } from 'framer-motion';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { fadeInUp } from '../../animations/variants';
 
 const ProviderCard = ({ provider }) => {
-    const { name, qualifications, specialties, experience, headshot } = provider;
+    const { name, qualifications, specialties, yearsOfExperience, headshot } = provider;
     const navigate = useNavigate();
+    const [imageError, setImageError] = useState(false);
 
     const handleViewProfile = () => {
         navigate(`/provider-profile/${name}`, { state: { provider } });
@@ -17,7 +19,7 @@ const ProviderCard = ({ provider }) => {
             <Card shadow="sm" p="lg" radius="md" withBorder>
                 <Grid>
                     <Grid.Col span={4}>
-                        {headshot ? (
+                        {headshot && !imageError ? (
                             <Box h={120} w={120}>
                                 <Image
                                     src={headshot}
@@ -26,6 +28,7 @@ const ProviderCard = ({ provider }) => {
                                     radius="md"
                                     alt={name}
                                     fit="cover"
+                                    onError={() => setImageError(true)}
                                 />
                             </Box>
                         ) : (
@@ -42,7 +45,7 @@ const ProviderCard = ({ provider }) => {
                             </Badge>
                         </Group>
                         <Text size="sm" c="dimmed">
-                            <strong>Experience:</strong> {experience}
+                            <strong>Experience:</strong> {yearsOfExperience} years
                         </Text>
                         <Group gap="xs" mt="xs">
                             {specialties.map((specialty, index) => (

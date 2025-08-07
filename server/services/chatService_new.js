@@ -21,15 +21,7 @@ async function verifyChatMembership(req, res, next) {
     const userDbId = await dbUtils.getUserDbId(req.user);
     const { chatId } = req.params;
     
-    // For participant state updates, allow access even if user has left (for rejoining)
-    const isParticipantUpdate = req.route.path.includes('/participants/me');
-    
-    const query = isParticipantUpdate ? `
-      SELECT EXISTS (
-        SELECT 1 FROM chat_participant 
-        WHERE chat_id = $1 AND participant_id = $2
-      )
-    ` : `
+    const query = `
       SELECT EXISTS (
         SELECT 1 FROM chat_participant 
         WHERE chat_id = $1 AND participant_id = $2 AND left_at IS NULL
@@ -78,24 +70,18 @@ async function verifyMessageOwnership(req, res, next) {
     const userDbId = await dbUtils.getUserDbId(req.user);
     const { messageId } = req.params;
     
-    console.log('verifyMessageOwnership: messageId:', messageId);
-    console.log('verifyMessageOwnership: userDbId:', userDbId);
-    
     const query = `
       SELECT EXISTS (
         SELECT 1 FROM messages 
-        WHERE id = $1 AND sender_id = $2
+        WHERE id = $1 AND sender_id = $2 AND deleted_at IS NULL
       )
     `;
     
     const result = await db.query(query, [messageId, userDbId]);
     
-    console.log('verifyMessageOwnership: query result:', result.rows[0]);
-    
     if (result.rows[0].exists) {
       next();
     } else {
-      console.log('verifyMessageOwnership: Message not found or user not sender');
       res.status(404).json({ error: "Message not found or user not sender" });
     }
   } catch (error) {
@@ -189,9 +175,9 @@ async function getChatIds(userDbId) {
         (SELECT sent_at FROM messages 
          WHERE chat_id = cp.chat_id AND deleted_at IS NULL 
          ORDER BY sent_at DESC LIMIT 1) as last_message_time,
-        COALESCE(array_agg(DISTINCT other_cp.participant_id) FILTER (
+        array_agg(DISTINCT other_cp.participant_id) FILTER (
           WHERE other_cp.participant_id != cp.participant_id AND other_cp.left_at IS NULL
-        ), ARRAY[]::uuid[]) as other_participants
+        ) as other_participants
       FROM chat_participant cp 
       LEFT JOIN chat_participant other_cp ON cp.chat_id = other_cp.chat_id
       WHERE cp.participant_id = $1 AND cp.left_at IS NULL
@@ -206,7 +192,7 @@ async function getChatIds(userDbId) {
       result.rows.map(async (row) => {
         const cognitoIds = [];
         
-        if (row.other_participants && row.other_participants.length > 0) {
+        if (row.other_participants) {
           for (const participantDbId of row.other_participants) {
             // Try to find in providers first
             let cognitoResult = await db.query('SELECT cognito_sub FROM providers WHERE id = $1', [participantDbId]);
@@ -225,11 +211,11 @@ async function getChatIds(userDbId) {
         return {
           chat_id: row.chat_id,
           left_at: row.left_at,
-          lastMessage: row.last_message_text ? {
+          lastMessage: {
             text: row.last_message_text,
             timestamp: row.last_message_time
-          } : null,
-          otherParticipants: cognitoIds || []
+          },
+          otherParticipants: cognitoIds
         };
       })
     );
@@ -238,107 +224,6 @@ async function getChatIds(userDbId) {
     
   } catch (error) {
     console.error('Error in getChatIds:', error);
-    throw error;
-  }
-}
-
-/**
- * Get chat details including participants with their full information
- */
-async function getChatDetails(chatId, currentUserDbId) {
-  try {
-    console.log("getChatDetails: chatId:", chatId);
-    console.log("getChatDetails: currentUserDbId:", currentUserDbId);
-    
-    const query = `
-      SELECT 
-        cp.participant_id,
-        cp.left_at,
-        cp.is_muted,
-        CASE 
-          WHEN p.id IS NOT NULL THEN 'provider'
-          WHEN pt.id IS NOT NULL THEN 'patient'
-          ELSE 'unknown'
-        END as participant_type,
-        CASE 
-          WHEN p.id IS NOT NULL THEN p.first_name || ' ' || p.last_name
-          WHEN pt.id IS NOT NULL THEN pt.first_name || ' ' || pt.last_name
-          ELSE 'Unknown User'
-        END as participant_name,
-        CASE 
-          WHEN p.id IS NOT NULL THEN p.cognito_sub
-          WHEN pt.id IS NOT NULL THEN pt.cognito_sub
-          ELSE NULL
-        END as participant_cognito_id,
-        p.headshot_url as provider_headshot,
-        p.specialty as provider_specialty,
-        p.location as provider_location,
-        p.experience_years as provider_experience
-      FROM chat_participant cp
-      LEFT JOIN providers p ON cp.participant_id = p.id
-      LEFT JOIN patients pt ON cp.participant_id = pt.id
-      WHERE cp.chat_id = $1 AND cp.left_at IS NULL
-      ORDER BY cp.participant_id
-    `;
-    
-    const result = await db.query(query, [chatId]);
-    
-    // Find the other participant (not the current user)
-    const otherParticipant = result.rows.find(row => row.participant_id !== currentUserDbId);
-    
-    if (!otherParticipant) {
-      return {
-        chatId,
-        participants: result.rows,
-        otherParticipant: null
-      };
-    }
-    
-    // If the other participant is a provider, generate presigned URL for headshot
-    if (otherParticipant.participant_type === 'provider' && otherParticipant.provider_headshot) {
-      try {
-        // Use the same headshot URL validation logic as in providerService
-        let headshotUrl = otherParticipant.provider_headshot;
-        
-        if (headshotUrl && (headshotUrl.includes('s3.amazonaws.com') || (process.env.S3_BUCKET_NAME && headshotUrl.includes(process.env.S3_BUCKET_NAME)))) {
-          const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
-          const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-          
-          const s3 = new S3Client({
-            region: process.env.AWS_REGION,
-            credentials: {
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-            },
-          });
-          
-          let key = headshotUrl;
-          if (key.startsWith('http')) {
-            const urlParts = new URL(key);
-            key = urlParts.pathname.substring(1); // Remove leading slash
-          }
-
-          const command = new GetObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: key,
-          });
-          const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 600 }); // 10 minutes
-          otherParticipant.provider_headshot = presignedUrl;
-        }
-      } catch (error) {
-        console.error('Error generating presigned URL for chat participant headshot:', error);
-        otherParticipant.provider_headshot = null;
-      }
-    }
-    
-    return {
-      chatId,
-      participants: result.rows,
-      otherParticipant
-    };
-    
-  } catch (error) {
-    console.error('Error in getChatDetails:', error);
     throw error;
   }
 }
@@ -366,12 +251,7 @@ async function getMessagesByChatId(chatId) {
           WHEN m.sender_type = 'provider' THEN p.first_name || ' ' || p.last_name
           WHEN m.sender_type = 'patient' THEN pt.first_name || ' ' || pt.last_name
           ELSE 'Unknown User'
-        END as sender_name,
-        CASE 
-          WHEN m.sender_type = 'provider' THEN p.cognito_sub
-          WHEN m.sender_type = 'patient' THEN pt.cognito_sub
-          ELSE NULL
-        END as sender_cognito_id
+        END as sender_name
       FROM messages m
       LEFT JOIN providers p ON m.sender_id = p.id AND m.sender_type = 'provider'
       LEFT JOIN patients pt ON m.sender_id = pt.id AND m.sender_type = 'patient'
@@ -417,8 +297,7 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
     `;
     
     const senderDbId = await dbUtils.getUserDbId(req.user);
-    // Convert plural form to singular for consistency
-    const senderType = req.user["cognito:groups"][0] === 'providers' ? 'provider' : 'patient';
+    const senderType = req.user["cognito:groups"][0]; // Keep original format: 'providers' or 'patients'
     
     const result = await db.query(query, [
       chatId,
@@ -429,11 +308,7 @@ async function saveMessageToDb(req, { chatId, textType, sentAt, text }) {
       sentAt,
     ]);
     
-    // Add the sender's Cognito ID to the response for frontend compatibility
-    const message = result.rows[0];
-    message.sender_cognito_id = req.user.sub;
-    
-    return message;
+    return result.rows[0];
     
   } catch (error) {
     console.error('Error in saveMessageToDb:', error);
@@ -631,7 +506,6 @@ module.exports = {
   
   // Chat Management
   createOrGetChat,
-  getChatDetails,
   getChatIds,
   deleteChat,
   getChatIdByParticipants, // Legacy support
