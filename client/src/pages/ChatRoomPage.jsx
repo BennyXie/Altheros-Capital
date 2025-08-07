@@ -145,7 +145,7 @@ const ChatRoomPage = () => {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [chatId, user.idToken, user.sub]);
+  }, [chatId, user.idToken, loading]);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() || file) {
