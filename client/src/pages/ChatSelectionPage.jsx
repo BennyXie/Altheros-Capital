@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Title, Card, Text, Group, Avatar, Button, Loader, Stack } from '@mantine/core';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../services/apiService';
 import styles from './ChatSelectionPage.module.css';
@@ -98,7 +98,7 @@ const ChatSelectionPage = () => {
 
   useEffect(() => {
     fetchChatRooms();
-  }, []);
+  }, [fetchChatRooms]);
 
   const handleLeaveChat = async (chatId, event) => {
     event.preventDefault(); // Prevent navigation when clicking Leave button
