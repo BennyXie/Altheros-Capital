@@ -23,7 +23,9 @@ class AuthService {
       try {
         const session = await fetchAuthSession();
         if (session.tokens && session.tokens.idToken) {
-          console.log('AuthService: User already authenticated, skipping redirect');
+          console.log('AuthService: User already authenticated');
+          const redirectPath = this.getRoleBasedRedirectPath(role);
+          window.location.href = redirectPath;
           return; // User is already authenticated, no need to redirect
         }
       } catch (sessionError) {
