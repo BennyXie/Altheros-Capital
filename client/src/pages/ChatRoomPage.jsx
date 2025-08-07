@@ -79,7 +79,25 @@ const ChatRoomPage = () => {
         // Get messages
         const messagesResponse = await apiService.getChatMessages(chatId);
         const validMessages = messagesResponse.filter(msg => !msg.deleted_at);
-        setMessages(validMessages);
+        console.log('📥 API messages loaded:', validMessages.length);
+        
+        // Use functional update to avoid overwriting any websocket messages that may have arrived
+        setMessages(prevMessages => {
+          console.log('🔄 Merging messages. Previous count:', prevMessages.length, 'API count:', validMessages.length);
+          
+          // If we already have messages (from websocket), merge them with API messages
+          if (prevMessages.length > 0) {
+            const apiMessageIds = new Set(validMessages.map(msg => msg.id));
+            const websocketMessages = prevMessages.filter(msg => !apiMessageIds.has(msg.id));
+            const merged = [...validMessages, ...websocketMessages].sort((a, b) => 
+              new Date(a.sent_at || a.timestamp) - new Date(b.sent_at || b.timestamp)
+            );
+            console.log('🎯 Merged messages count:', merged.length);
+            return merged;
+          }
+          console.log('📋 Using API messages only');
+          return validMessages;
+        });
         
       } catch (error) {
         console.error('Error fetching chat data:', error);
@@ -119,7 +137,7 @@ const ChatRoomPage = () => {
 
     // Listen for new messages
     socketRef.current.on('receive_message', (message) => {
-      console.log('Received websocket message:', message);
+      console.log('🔥 WebSocket message received:', message);
       
       // Only add the message if it doesn't already exist (prevent duplicates)
       setMessages((prevMessages) => {
@@ -129,8 +147,10 @@ const ChatRoomPage = () => {
         );
         
         if (!exists) {
+          console.log('✅ Adding websocket message to UI, current count:', prevMessages.length);
           return [...prevMessages, message];
         }
+        console.log('⚠️ Message already exists, not adding');
         return prevMessages;
       });
     });
