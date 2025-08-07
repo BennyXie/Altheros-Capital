@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Title, Card, Text, Group, Avatar, Button, Loader, Stack } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,8 @@ const ChatSelectionPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const fetchChatRooms = async () => {
+  const fetchChatRooms = useCallback(async () => {
+    if (!user) return;
     try {
       setLoading(true);
       // Get chat IDs with participant information
@@ -94,7 +95,7 @@ const ChatSelectionPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchChatRooms();
