@@ -30,8 +30,9 @@ const ChatRoomPage = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Separate useEffect for initial data loading (runs once)
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true);
         
@@ -76,38 +77,24 @@ const ChatRoomPage = () => {
           });
         }
         
-        // Get messages
+        // Get messages - only set them directly on initial load
         const messagesResponse = await apiService.getChatMessages(chatId);
         const validMessages = messagesResponse.filter(msg => !msg.deleted_at);
-        console.log('📥 API messages loaded:', validMessages.length);
-        
-        // Use functional update to avoid overwriting any websocket messages that may have arrived
-        setMessages(prevMessages => {
-          console.log('🔄 Merging messages. Previous count:', prevMessages.length, 'API count:', validMessages.length);
-          
-          // If we already have messages (from websocket), merge them with API messages
-          if (prevMessages.length > 0) {
-            const apiMessageIds = new Set(validMessages.map(msg => msg.id));
-            const websocketMessages = prevMessages.filter(msg => !apiMessageIds.has(msg.id));
-            const merged = [...validMessages, ...websocketMessages].sort((a, b) => 
-              new Date(a.sent_at || a.timestamp) - new Date(b.sent_at || b.timestamp)
-            );
-            console.log('🎯 Merged messages count:', merged.length);
-            return merged;
-          }
-          console.log('📋 Using API messages only');
-          return validMessages;
-        });
+        console.log('📥 Initial API messages loaded:', validMessages.length);
+        setMessages(validMessages);
         
       } catch (error) {
-        console.error('Error fetching chat data:', error);
+        console.error('Error fetching initial chat data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchInitialData();
+  }, [chatId]); // Only depend on chatId, not user tokens
 
+  // Separate useEffect for websocket connection
+  useEffect(() => {
     // Connect to websocket for real-time updates
     socketRef.current = io(process.env.REACT_APP_API_URL, {
       auth: {
