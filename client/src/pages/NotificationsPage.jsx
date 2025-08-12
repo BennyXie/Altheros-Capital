@@ -43,7 +43,7 @@ const NotificationsPage = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/api/notifications');
-      setNotifications(response.data);
+      setNotifications(response.data || []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       mantineNotifications.show({
@@ -61,7 +61,7 @@ const NotificationsPage = () => {
   const fetchUnreadCount = async () => {
     try {
       const response = await apiClient.get('/api/notifications/unread-count');
-      setUnreadCount(response.data.count);
+      setUnreadCount(response.data?.count ?? 0);
     } catch (error) {
       console.error('Error fetching unread count:', error);
     }
@@ -219,7 +219,7 @@ const NotificationsPage = () => {
               </Text>
             </div>
             
-            {notifications.length > 0 && unreadCount > 0 && (
+            {notifications != null && notifications.length > 0 && unreadCount > 0 && (
               <Button
                 variant="light"
                 leftSection={<IconCheckupList size={16} />}

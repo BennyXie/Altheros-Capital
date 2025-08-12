@@ -37,7 +37,11 @@ import apiClient from '../utils/apiClient';
  */
 const ProviderCompleteProfilePage = () => {
   const navigate = useNavigate();
+  const CLOUD_NAME = "dectfphpm";
+  const UPLOAD_PRESET = "resume";
   const location = useLocation();
+  const [isParsingCV, setIsParsingCV] = useState(false);
+  const [cvFile, setCvFile] = useState(null);
   const { isAuthenticated, user, checkUserSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // Renamed from 'file' to avoid confusion
@@ -427,6 +431,89 @@ const ProviderCompleteProfilePage = () => {
 
   const progress = calculateProgress();
 
+  const handleCVUpload = async (file) => {
+    if (!file){
+      return;
+    }
+    setIsParsingCV(true);
+    setCvFile(file);
+    console.log("CV file selected:", file);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    let publicUrl = "";
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload error response:", errorText);
+        throw new Error(
+          `Upload failed: ${response.status} ${response.statusText}`
+        );
+      }
+      const data = await response.json();
+      console.log("Upload response data:", data);
+      publicUrl = data.secure_url;
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed: " + err.message);
+    } finally {
+    }
+    let data;
+    try{
+      const response = await fetch("http://localhost:8080/api/resume/parse", {
+        method: "POST",
+        headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fileUrl: publicUrl }), 
+        });
+      data = await response.json();
+    }catch(err){
+      console.error("Error reading CV:", err);
+    }finally{
+      setIsParsingCV(false);
+    }
+    const jsonString = data.replace("```json", "").replace("```", "");
+    data = JSON.parse(jsonString);
+    console.log("CV data:", data);
+    let educationText;
+    if (data.educations && Array.isArray(data.educations)) {
+      educationText = data.educations
+        .map(ed => `${ed.degree} in ${ed.field} — ${ed.school}`)
+        .join('\n');
+      }
+
+    let experienceYears = 0;
+    if (data.experiences && Array.isArray(data.experiences) && data.experiences.length > 0) {
+    const startYears = data.experiences
+      .map(exp => parseInt(exp.start_date))
+      .filter(year => !isNaN(year));
+
+    if (startYears.length > 0) {
+      const earliestYear = Math.min(...startYears);
+
+      const currentYear = new Date().getFullYear();
+      experienceYears = currentYear - earliestYear + 1;
+    }
+  }
+    setFormData((prev) => ({
+      ...prev,
+      first_name: data.firstName || "",
+      last_name: data.lastName || "",
+      education: educationText || "",
+      experience_years: experienceYears || "",
+      location:`${data.location.city || ""}, ${data.location.state || ""}` || "",
+    }));
+
+  }
+
   return (
     <Container size="md" py={40}>
       <motion.div
@@ -439,28 +526,74 @@ const ProviderCompleteProfilePage = () => {
             {/* Header */}
             <div>
               <Group mb="lg">
-                <Link to="/providers" style={{ textDecoration: 'none' }}>
-                  <Button variant="subtle" leftSection={<IconArrowLeft size={16} />}>
+                <Link to="/providers" style={{ textDecoration: "none" }}>
+                  <Button
+                    variant="subtle"
+                    leftSection={<IconArrowLeft size={16} />}
+                  >
                     Back to Provider Page
                   </Button>
                 </Link>
               </Group>
-              
+
               <Group mb="md">
                 <IconStethoscope size={24} color="var(--color-primary)" />
                 <Title order={2} c="var(--color-primary)">
-                  {isEditMode ? 'Update Your Provider Profile' : 'Complete Your Provider Profile'}
+                  {isEditMode
+                    ? "Update Your Provider Profile"
+                    : "Complete Your Provider Profile"}
                 </Title>
               </Group>
-              
+
+              <Card withBorder p="md" mb="xl">
+                <Stack gap="md">
+                  <Group justify="space-between">
+                    <div>
+                      <Text size="sm" fw={500}>
+                        Quick Setup
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Upload your CV to auto-fill the form
+                      </Text>
+                    </div>
+                  </Group>
+
+                  <FileInput
+                    disabled={isParsingCV}
+                    placeholder={"Upload your CV here to auto-fill sections!"}
+                    accept=".pdf,.doc,.docx"
+                    leftSection={<IconUpload size={16} />}
+                    value={cvFile}
+                    onChange={(file) => {
+                      // Add your CV processing logic here
+                      setCvFile(file);
+                      handleCVUpload(file);
+                    }}
+                    clearable
+                    styles={{
+                      input: {
+                        "&:focus": {
+                          borderColor: "var(--mantine-color-green-6)",
+                        },
+                      },
+                    }}
+                  />
+                </Stack>
+              </Card>
+
               <Text c="dimmed" mb="lg">
-                Help patients find the right care by sharing your professional background and expertise.
+                Help patients find the right care by sharing your professional
+                background and expertise.
               </Text>
 
               <Card withBorder p="md" mb="xl">
                 <Group justify="space-between" mb="xs">
-                  <Text size="sm" fw={500}>Profile Completion</Text>
-                  <Text size="sm" c="dimmed">{progress}%</Text>
+                  <Text size="sm" fw={500}>
+                    Profile Completion
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {progress}%
+                  </Text>
                 </Group>
                 <Progress value={progress} size="sm" />
               </Card>
@@ -471,15 +604,18 @@ const ProviderCompleteProfilePage = () => {
               <Stack gap="lg">
                 {/* Basic Information */}
                 <Divider label="Basic Information" labelPosition="center" />
-                
+
                 <Grid>
                   <Grid.Col span={{ base: 12, md: 6 }}>
                     <TextInput
                       label="First Name"
                       placeholder="Your first name"
                       value={formData.first_name}
-                      onChange={(e) => handleInputChange('first_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("first_name", e.target.value)
+                      }
                       required
+                      disabled={isParsingCV}
                     />
                   </Grid.Col>
                   <Grid.Col span={{ base: 12, md: 6 }}>
@@ -487,8 +623,11 @@ const ProviderCompleteProfilePage = () => {
                       label="Last Name"
                       placeholder="Your last name"
                       value={formData.last_name}
-                      onChange={(e) => handleInputChange('last_name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("last_name", e.target.value)
+                      }
                       required
+                      disabled={isParsingCV}
                     />
                   </Grid.Col>
                 </Grid>
@@ -499,8 +638,11 @@ const ProviderCompleteProfilePage = () => {
                       label="Practice Location"
                       placeholder="City, State"
                       value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
                       required
+                      disabled={isParsingCV}
                     />
                   </Grid.Col>
                   <Grid.Col span={{ base: 12, md: 6 }}>
@@ -509,8 +651,9 @@ const ProviderCompleteProfilePage = () => {
                       placeholder="Select your gender"
                       data={genderOptions}
                       value={formData.gender}
-                      onChange={(value) => handleInputChange('gender', value)}
+                      onChange={(value) => handleInputChange("gender", value)}
                       required
+                      disabled={isParsingCV}
                     />
                   </Grid.Col>
                 </Grid>
@@ -520,8 +663,9 @@ const ProviderCompleteProfilePage = () => {
                   placeholder="Select your specialties"
                   data={specialtyOptions}
                   value={formData.specialty}
-                  onChange={(value) => handleInputChange('specialty', value)}
+                  onChange={(value) => handleInputChange("specialty", value)}
                   required
+                  disabled={isParsingCV}
                 />
 
                 <Grid>
@@ -532,8 +676,11 @@ const ProviderCompleteProfilePage = () => {
                       min={0}
                       max={50}
                       value={formData.experience_years}
-                      onChange={(value) => handleInputChange('experience_years', value)}
+                      onChange={(value) =>
+                        handleInputChange("experience_years", value)
+                      }
                       required
+                      disabled={isParsingCV}
                     />
                   </Grid.Col>
                 </Grid>
@@ -542,9 +689,12 @@ const ProviderCompleteProfilePage = () => {
                   label="Education & Credentials"
                   placeholder="Medical school, residency, board certifications, etc."
                   value={formData.education}
-                  onChange={(e) => handleInputChange('education', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("education", e.target.value)
+                  }
                   minRows={3}
                   required
+                  disabled={isParsingCV}
                 />
 
                 {/* Professional Details */}
@@ -555,7 +705,10 @@ const ProviderCompleteProfilePage = () => {
                   placeholder="Select accepted insurance plans"
                   data={insuranceNetworkOptions}
                   value={formData.insurance_networks}
-                  onChange={(value) => handleInputChange('insurance_networks', value)}
+                  onChange={(value) =>
+                    handleInputChange("insurance_networks", value)
+                  }
+                  disabled={isParsingCV}
                 />
 
                 <MultiSelect
@@ -563,7 +716,8 @@ const ProviderCompleteProfilePage = () => {
                   placeholder="Select patient populations you specialize in"
                   data={focusGroupOptions}
                   value={formData.focus_groups}
-                  onChange={(value) => handleInputChange('focus_groups', value)}
+                  onChange={(value) => handleInputChange("focus_groups", value)}
+                  disabled={isParsingCV}
                 />
 
                 <MultiSelect
@@ -571,7 +725,8 @@ const ProviderCompleteProfilePage = () => {
                   placeholder="Select languages you speak"
                   data={languageOptions}
                   value={formData.languages}
-                  onChange={(value) => handleInputChange('languages', value)}
+                  onChange={(value) => handleInputChange("languages", value)}
+                  disabled={isParsingCV}
                 />
 
                 {/* Personal Touch */}
@@ -581,22 +736,27 @@ const ProviderCompleteProfilePage = () => {
                   label="About Me"
                   placeholder="Tell patients about your approach to healthcare and what makes you unique..."
                   value={formData.about_me}
-                  onChange={(e) => handleInputChange('about_me', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("about_me", e.target.value)
+                  }
                   minRows={4}
+                  disabled={isParsingCV}
                 />
 
                 <TextInput
                   label="Professional Quote"
                   placeholder="A personal motto or quote that represents your practice philosophy"
                   value={formData.quote}
-                  onChange={(e) => handleInputChange('quote', e.target.value)}
+                  onChange={(e) => handleInputChange("quote", e.target.value)}
+                  disabled={isParsingCV}
                 />
 
                 <TextInput
                   label="Hobbies & Interests"
                   placeholder="What you enjoy outside of medicine"
                   value={formData.hobbies}
-                  onChange={(e) => handleInputChange('hobbies', e.target.value)}
+                  onChange={(e) => handleInputChange("hobbies", e.target.value)}
+                  disabled={isParsingCV}
                 />
 
                 {/* Profile Photo */}
@@ -608,16 +768,21 @@ const ProviderCompleteProfilePage = () => {
                       src={previewHeadshotUrl}
                       alt="Headshot Preview"
                       radius="md"
-                      style={{ 
-                        maxWidth: '400px', 
-                        width: '100%',
-                        height: 'auto',
-                        aspectRatio: '1'
+                      style={{
+                        maxWidth: "400px",
+                        width: "100%",
+                        height: "auto",
+                        aspectRatio: "1",
                       }}
                       fit="cover"
                     />
                   ) : (
-                    <Center h={200} w={200} bg="gray.1" style={{ borderRadius: '7px' }}>
+                    <Center
+                      h={200}
+                      w={200}
+                      bg="gray.1"
+                      style={{ borderRadius: "7px" }}
+                    >
                       <IconUserCircle size={100} color="gray" />
                     </Center>
                   )}
@@ -626,15 +791,30 @@ const ProviderCompleteProfilePage = () => {
                 <SegmentedControl
                   value={captureMode}
                   onChange={setCaptureMode}
+                  disabled={isParsingCV}
                   data={[
-                    { label: <Group gap="xs"><IconPhoto size={16} /> <Text>Upload File</Text></Group>, value: 'upload' },
-                    { label: <Group gap="xs"><IconCamera size={16} /> <Text>Take Photo</Text></Group>, value: 'camera' },
+                    {
+                      label: (
+                        <Group gap="xs">
+                          <IconPhoto size={16} /> <Text>Upload File</Text>
+                        </Group>
+                      ),
+                      value: "upload",
+                    },
+                    {
+                      label: (
+                        <Group gap="xs">
+                          <IconCamera size={16} /> <Text>Take Photo</Text>
+                        </Group>
+                      ),
+                      value: "camera",
+                    },
                   ]}
                   fullWidth
                   mb="md"
                 />
 
-                {captureMode === 'upload' && (
+                {captureMode === "upload" && (
                   <FileInput
                     label="Upload Headshot"
                     placeholder="Choose file"
@@ -642,38 +822,57 @@ const ProviderCompleteProfilePage = () => {
                     leftSection={<IconUpload size={16} />}
                     value={selectedFile}
                     onChange={handleFileChange}
+                    disabled={isParsingCV}
                     clearable
                   />
                 )}
 
-                {captureMode === 'camera' && (
-                  <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <video 
-                      ref={videoRef} 
+                {captureMode === "camera" && (
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <video
+                      ref={videoRef}
                       style={{
-                        width: '100%', 
-                        maxWidth: '400px', 
-                        borderRadius: '8px',
-                        display: stream && !capturedImageBlob ? 'block' : 'none',
-                        margin: '0 auto'
-                      }} 
-                      autoPlay 
-                      playsInline 
+                        width: "100%",
+                        maxWidth: "400px",
+                        borderRadius: "8px",
+                        display:
+                          stream && !capturedImageBlob ? "block" : "none",
+                        margin: "0 auto",
+                      }}
+                      autoPlay
+                      playsInline
                     />
-                    <canvas ref={canvasRef} style={{ display: 'none' }} />
+                    <canvas ref={canvasRef} style={{ display: "none" }} />
 
                     {!stream && !capturedImageBlob && (
-                      <Button onClick={startCamera} leftSection={<IconCamera size={16} />} fullWidth>
+                      <Button
+                        onClick={startCamera}
+                        leftSection={<IconCamera size={16} />}
+                        fullWidth
+                      >
                         Open Camera
                       </Button>
                     )}
 
                     {stream && !capturedImageBlob && (
                       <Stack align="center" mt="md">
-                        <Button onClick={takePhoto} leftSection={<IconCamera size={16} />}>
+                        <Button
+                          onClick={takePhoto}
+                          leftSection={<IconCamera size={16} />}
+                        >
                           Take Photo
                         </Button>
-                        <Button onClick={stopCamera} variant="outline" color="red">
+                        <Button
+                          onClick={stopCamera}
+                          variant="outline"
+                          color="red"
+                        >
                           Stop Camera
                         </Button>
                       </Stack>
@@ -685,20 +884,23 @@ const ProviderCompleteProfilePage = () => {
                           src={URL.createObjectURL(capturedImageBlob)}
                           alt="Captured Headshot Preview"
                           radius="md"
-                          style={{ 
-                            maxWidth: '400px', 
-                            width: '100%',
-                            height: 'auto',
-                            aspectRatio: '1'
+                          style={{
+                            maxWidth: "400px",
+                            width: "100%",
+                            height: "auto",
+                            aspectRatio: "1",
                           }}
                           fit="cover"
                         />
-                        <Button onClick={() => {
-                          setCapturedImageBlob(null);
-                          setSelectedFile(null);
-                          setPreviewHeadshotUrl(''); // Clear preview
-                          startCamera();
-                        }} leftSection={<IconRefresh size={16} />}>
+                        <Button
+                          onClick={() => {
+                            setCapturedImageBlob(null);
+                            setSelectedFile(null);
+                            setPreviewHeadshotUrl(""); // Clear preview
+                            startCamera();
+                          }}
+                          leftSection={<IconRefresh size={16} />}
+                        >
                           Retake Photo
                         </Button>
                       </Stack>
@@ -708,16 +910,17 @@ const ProviderCompleteProfilePage = () => {
 
                 {/* Submit */}
                 <Group justify="space-between" mt="xl">
-                  <Button 
+                  <Button
                     variant="outline"
                     color="gray"
                     onClick={() => {
                       notifications.show({
-                        title: 'Profile Incomplete',
-                        message: 'You can complete your profile later from your dashboard.',
-                        color: 'blue',
+                        title: "Profile Incomplete",
+                        message:
+                          "You can complete your profile later from your dashboard.",
+                        color: "blue",
                       });
-                      navigate('/provider-dashboard');
+                      navigate("/provider-dashboard");
                     }}
                   >
                     Skip for now
@@ -729,7 +932,7 @@ const ProviderCompleteProfilePage = () => {
                     leftSection={<IconCheck size={16} />}
                     size="lg"
                   >
-                    {isEditMode ? 'Update Profile' : 'Complete Profile'}
+                    {isEditMode ? "Update Profile" : "Complete Profile"}
                   </Button>
                 </Group>
               </Stack>

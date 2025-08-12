@@ -18,6 +18,7 @@ const ChatSelectionPage = () => {
       // Get chat IDs with participant information
       const response = await apiService.getChatIds();
       console.log('ChatSelectionPage: Raw chat response:', response);
+      setLoading(false);
       
       // Process chat rooms and get participant details from recent messages
       const chatRoomsWithDetails = await Promise.all(

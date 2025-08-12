@@ -47,7 +47,12 @@
             "email": "",
             "phone": "",
             "linkedin": ""
-        }
+        },
+        "location":{
+            "city": "",
+            "state": ""
+        },
+        "gender": ""
         }
         `;
 
